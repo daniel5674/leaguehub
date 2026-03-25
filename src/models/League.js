@@ -1,0 +1,93 @@
+import mongoose from "mongoose";
+
+const MatchSchema = new mongoose.Schema(
+  {
+    homeTeam: { type: String, required: true },
+    awayTeam: { type: String, required: true },
+    date: { type: String, required: true },
+    time: { type: String, required: true },
+    location: { type: String, required: true },
+    score: { type: String, default: "טרם נקבע" },
+    homeScore: { type: Number, default: null },
+    awayScore: { type: Number, default: null },
+  },
+  { _id: true }
+);
+
+const StandingSchema = new mongoose.Schema(
+  {
+    team: { type: String, required: true },
+    played: { type: Number, default: 0 },
+    wins: { type: Number, default: 0 },
+    draws: { type: Number, default: 0 },
+    losses: { type: Number, default: 0 },
+    goalsFor: { type: Number, default: 0 },
+    goalsAgainst: { type: Number, default: 0 },
+    goalDifference: { type: Number, default: 0 },
+    points: { type: Number, default: 0 },
+  },
+  { _id: false }
+);
+
+const MemberSchema = new mongoose.Schema(
+  {
+    email: { type: String, required: true },
+  },
+  { _id: false }
+);
+
+const JoinRequestSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ["player", "coach"],
+      default: "player",
+    },
+    playerEmail: { type: String, required: true },
+    playerName: { type: String, default: "" },
+    teamName: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+    requestedAt: { type: Date, default: Date.now },
+  },
+  { _id: true }
+);
+
+const LeagueSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    sport: { type: String, required: true },
+    location: { type: String, required: true },
+    description: { type: String, default: "" },
+    status: { type: String, default: "פתוחה" },
+    teamsCount: { type: Number, default: 0 },
+    createdBy: { type: String, required: true },
+    teams: [
+      {
+        name: { type: String, required: true },
+
+        coachEmail: { type: String, default: null },
+        coachName: { type: String, default: null },
+
+        squad: [{ type: String }], // שמות שחקנים
+
+        players: [
+          {
+            email: String,
+            fullName: String,
+          },
+        ],
+      },
+    ],
+    matches: [MatchSchema],
+    standings: [StandingSchema],
+    members: [MemberSchema],
+    joinRequests: [JoinRequestSchema],
+  },
+  { timestamps: true }
+);
+
+export default mongoose.models.League || mongoose.model("League", LeagueSchema);
