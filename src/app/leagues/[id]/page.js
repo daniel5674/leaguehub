@@ -685,15 +685,16 @@ export default function LeagueDetailsPage() {
     league.teams.some((team) =>
       team.players?.some(
         (player) =>
-          player.email?.trim().toLowerCase() === normalizedCurrentEmail
-      )
+          player.email?.trim().toLowerCase() === normalizedCurrentEmail,
+      ),
     );
 
   const alreadyCoachInLeague =
     !!normalizedCurrentEmail &&
     Array.isArray(league.teams) &&
     league.teams.some(
-      (team) => team.coachEmail?.trim().toLowerCase() === normalizedCurrentEmail
+      (team) =>
+        team.coachEmail?.trim().toLowerCase() === normalizedCurrentEmail,
     );
 
   const hasPendingJoinRequest =
@@ -703,7 +704,7 @@ export default function LeagueDetailsPage() {
       (request) =>
         request.type === "player" &&
         request.playerEmail?.trim().toLowerCase() === normalizedCurrentEmail &&
-        request.status === "pending"
+        request.status === "pending",
     );
 
   const hasPendingCoachRequest =
@@ -713,18 +714,18 @@ export default function LeagueDetailsPage() {
       (request) =>
         request.type === "coach" &&
         request.playerEmail?.trim().toLowerCase() === normalizedCurrentEmail &&
-        request.status === "pending"
+        request.status === "pending",
     );
 
   const isPlayerInSquad = (teamName, playerName) => {
     const team = league.teams?.find(
-      (t) => t.name?.trim().toLowerCase() === teamName?.trim().toLowerCase()
+      (t) => t.name?.trim().toLowerCase() === teamName?.trim().toLowerCase(),
     );
 
     if (!team || !team.squad) return false;
 
     return team.squad.some(
-      (name) => name.trim().toLowerCase() === playerName?.trim().toLowerCase()
+      (name) => name.trim().toLowerCase() === playerName?.trim().toLowerCase(),
     );
   };
 
@@ -732,7 +733,7 @@ export default function LeagueDetailsPage() {
     Array.isArray(league.teams) && normalizedCurrentEmail
       ? league.teams.filter(
           (team) =>
-            team.coachEmail?.trim().toLowerCase() === normalizedCurrentEmail
+            team.coachEmail?.trim().toLowerCase() === normalizedCurrentEmail,
         )
       : [];
 
@@ -749,7 +750,7 @@ export default function LeagueDetailsPage() {
         return coachTeams.some(
           (team) =>
             team.name?.trim().toLowerCase() ===
-            request.teamName?.trim().toLowerCase()
+            request.teamName?.trim().toLowerCase(),
         );
       })
     : [];
@@ -951,7 +952,7 @@ export default function LeagueDetailsPage() {
                           className={`mt-2 text-xs font-medium ${
                             isPlayerInSquad(
                               request.teamName,
-                              request.playerName
+                              request.playerName,
                             )
                               ? "text-green-600"
                               : "text-red-500"
@@ -1393,7 +1394,7 @@ export default function LeagueDetailsPage() {
                             handleScoreChange(
                               matchKey,
                               "homeScore",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
@@ -1410,7 +1411,7 @@ export default function LeagueDetailsPage() {
                             handleScoreChange(
                               matchKey,
                               "awayScore",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
