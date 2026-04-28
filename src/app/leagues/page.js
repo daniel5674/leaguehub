@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 
 export default function LeaguesPage() {
   const [leagues, setLeagues] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     const fetchLeagues = async () => {
@@ -50,12 +52,21 @@ export default function LeaguesPage() {
           <p className="mt-2 text-gray-500">כאן מוצגות כל הליגות במערכת</p>
         </div>
 
-        <Link
-          href="/leagues/create"
-          className="rounded-2xl bg-black px-4 py-2 text-white transition hover:bg-gray-800"
-        >
-          צור ליגה
-        </Link>
+        {currentUser ? (
+          <Link
+            href="/leagues/create"
+            className="rounded-2xl bg-black px-4 py-2 text-white transition hover:bg-gray-800"
+          >
+            צור ליגה
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            className="rounded-2xl border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-100"
+          >
+            🔒 התחבר כדי ליצור ליגה
+          </Link>
+        )}
       </div>
 
       {leagues.length === 0 ? (
