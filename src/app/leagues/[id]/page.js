@@ -678,6 +678,7 @@ export default function LeagueDetailsPage() {
 
   const isPlayer = currentUser?.role === "player";
   const isCoach = currentUser?.role === "coach";
+  const isGuest = !currentUser;
 
   const alreadyInAnyTeam =
     !!normalizedCurrentEmail &&
@@ -685,16 +686,15 @@ export default function LeagueDetailsPage() {
     league.teams.some((team) =>
       team.players?.some(
         (player) =>
-          player.email?.trim().toLowerCase() === normalizedCurrentEmail,
-      ),
+          player.email?.trim().toLowerCase() === normalizedCurrentEmail
+      )
     );
 
   const alreadyCoachInLeague =
     !!normalizedCurrentEmail &&
     Array.isArray(league.teams) &&
     league.teams.some(
-      (team) =>
-        team.coachEmail?.trim().toLowerCase() === normalizedCurrentEmail,
+      (team) => team.coachEmail?.trim().toLowerCase() === normalizedCurrentEmail
     );
 
   const hasPendingJoinRequest =
@@ -704,7 +704,7 @@ export default function LeagueDetailsPage() {
       (request) =>
         request.type === "player" &&
         request.playerEmail?.trim().toLowerCase() === normalizedCurrentEmail &&
-        request.status === "pending",
+        request.status === "pending"
     );
 
   const hasPendingCoachRequest =
@@ -714,18 +714,18 @@ export default function LeagueDetailsPage() {
       (request) =>
         request.type === "coach" &&
         request.playerEmail?.trim().toLowerCase() === normalizedCurrentEmail &&
-        request.status === "pending",
+        request.status === "pending"
     );
 
   const isPlayerInSquad = (teamName, playerName) => {
     const team = league.teams?.find(
-      (t) => t.name?.trim().toLowerCase() === teamName?.trim().toLowerCase(),
+      (t) => t.name?.trim().toLowerCase() === teamName?.trim().toLowerCase()
     );
 
     if (!team || !team.squad) return false;
 
     return team.squad.some(
-      (name) => name.trim().toLowerCase() === playerName?.trim().toLowerCase(),
+      (name) => name.trim().toLowerCase() === playerName?.trim().toLowerCase()
     );
   };
 
@@ -733,7 +733,7 @@ export default function LeagueDetailsPage() {
     Array.isArray(league.teams) && normalizedCurrentEmail
       ? league.teams.filter(
           (team) =>
-            team.coachEmail?.trim().toLowerCase() === normalizedCurrentEmail,
+            team.coachEmail?.trim().toLowerCase() === normalizedCurrentEmail
         )
       : [];
 
@@ -750,7 +750,7 @@ export default function LeagueDetailsPage() {
         return coachTeams.some(
           (team) =>
             team.name?.trim().toLowerCase() ===
-            request.teamName?.trim().toLowerCase(),
+            request.teamName?.trim().toLowerCase()
         );
       })
     : [];
@@ -910,6 +910,25 @@ export default function LeagueDetailsPage() {
           </p>
         </div>
 
+        {isGuest && (
+          <div className="mb-8 rounded-3xl border border-yellow-200 bg-yellow-50 p-6 text-center">
+            <div className="text-4xl">🔒</div>
+            <h2 className="mt-3 text-xl font-bold text-gray-900">
+              התוכן המלא זמין למשתמשים מחוברים בלבד
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              כדי להצטרף לליגה, לראות שחקנים, בקשות ופעולות ניהול — צריך להתחבר.
+            </p>
+
+            <a
+              href="/login"
+              className="mt-4 inline-block rounded-2xl bg-black px-5 py-3 text-sm text-white transition hover:bg-gray-800"
+            >
+              התחבר כדי להמשיך
+            </a>
+          </div>
+        )}
+
         {canReviewRequests && (
           <section className="mb-8 rounded-3xl border border-gray-200 p-6">
             <div className="mb-5 flex items-center justify-between">
@@ -952,7 +971,7 @@ export default function LeagueDetailsPage() {
                           className={`mt-2 text-xs font-medium ${
                             isPlayerInSquad(
                               request.teamName,
-                              request.playerName,
+                              request.playerName
                             )
                               ? "text-green-600"
                               : "text-red-500"
@@ -1084,7 +1103,9 @@ export default function LeagueDetailsPage() {
             </form>
           ) : (
             <p className="mb-6 text-sm text-gray-500">
-              רק יוצר הליגה יכול להוסיף או למחוק קבוצות.
+              {isGuest
+                ? "התחבר כדי לראות ולבצע פעולות בליגה."
+                : "רק יוצר הליגה יכול להוסיף או למחוק קבוצות."}
             </p>
           )}
 
@@ -1207,37 +1228,43 @@ export default function LeagueDetailsPage() {
                     </div>
                   )}
 
-                  <div className="mt-4">
-                    <p className="mb-2 text-sm font-medium text-gray-700">
-                      שחקנים בקבוצה
-                    </p>
+                  {currentUser ? (
+                    <div className="mt-4">
+                      <p className="mb-2 text-sm font-medium text-gray-700">
+                        שחקנים בקבוצה
+                      </p>
 
-                    {team.players.map((player, index) => (
-                      <div
-                        key={`${player.email}-${index}`}
-                        className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm text-gray-700"
-                      >
-                        <span>{player.email}</span>
+                      {team.players.map((player, index) => (
+                        <div
+                          key={`${player.email}-${index}`}
+                          className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm text-gray-700"
+                        >
+                          <span>{player.email}</span>
 
-                        {canManage && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              openConfirmModal({
-                                title: "הסרת שחקן",
-                                message: `להסיר את ${player.email} מהקבוצה ${team.name}?`,
-                                onConfirm: () =>
-                                  handleRemovePlayer(player.email, team.name),
-                              })
-                            }
-                            className="rounded-lg px-3 py-1 text-xs text-red-500 transition hover:bg-red-50 hover:text-red-700"
-                          >
-                            הסר
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                          {canManage && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                openConfirmModal({
+                                  title: "הסרת שחקן",
+                                  message: `להסיר את ${player.email} מהקבוצה ${team.name}?`,
+                                  onConfirm: () =>
+                                    handleRemovePlayer(player.email, team.name),
+                                })
+                              }
+                              className="rounded-lg px-3 py-1 text-xs text-red-500 transition hover:bg-red-50 hover:text-red-700"
+                            >
+                              הסר
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="mt-4 rounded-xl border border-dashed border-gray-300 bg-white px-3 py-4 text-center text-sm text-gray-500">
+                      🔒 התחבר כדי לראות את שחקני הקבוצה
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -1394,7 +1421,7 @@ export default function LeagueDetailsPage() {
                             handleScoreChange(
                               matchKey,
                               "homeScore",
-                              e.target.value,
+                              e.target.value
                             )
                           }
                           className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
@@ -1411,7 +1438,7 @@ export default function LeagueDetailsPage() {
                             handleScoreChange(
                               matchKey,
                               "awayScore",
-                              e.target.value,
+                              e.target.value
                             )
                           }
                           className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
