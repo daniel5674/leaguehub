@@ -108,7 +108,6 @@ export default function RegisterPage() {
             className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
           >
             <option value="player">שחקן</option>
-            <option value="coach">מאמן</option>
             <option value="manager">מנהל</option>
           </select>
 
