@@ -20,7 +20,6 @@ export default function LeagueDetailsPage() {
 
   const [scoreForms, setScoreForms] = useState({});
   const [selectedTeam, setSelectedTeam] = useState("");
-  const [squadInputs, setSquadInputs] = useState({});
 
   const [matchForm, setMatchForm] = useState({
     homeTeam: "",
@@ -134,8 +133,6 @@ export default function LeagueDetailsPage() {
       });
 
       const text = await res.text();
-      console.log("REQUEST JOIN RESPONSE:", text);
-
       const data = JSON.parse(text);
 
       if (!res.ok) {
@@ -152,70 +149,6 @@ export default function LeagueDetailsPage() {
     }
   };
 
-  const handleRequestCoach = async () => {
-    if (!selectedTeam) {
-      showToast("צריך לבחור קבוצה", "error");
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/leagues/${id}/request-coach`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          teamName: selectedTeam,
-        }),
-      });
-
-      const data = await res.json();
-      console.log("COACH REQUEST RESPONSE:", data);
-
-      if (!res.ok) {
-        showToast(data.message || "שגיאה בשליחת בקשת אימון", "error");
-        return;
-      }
-
-      setLeague(data);
-      setSelectedTeam("");
-      showToast("בקשת האימון נשלחה");
-    } catch (error) {
-      console.error("Request coach failed:", error);
-      showToast("שגיאה בשליחת בקשת אימון", "error");
-    }
-  };
-
-  const handleRemoveCoach = async (teamName) => {
-    try {
-      const res = await fetch(`/api/leagues/${id}/coach`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          teamName,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        showToast(data.message || "שגיאה בהסרת מאמן", "error");
-        return;
-      }
-
-      setLeague(data);
-      closeConfirmModal();
-      showToast("המאמן הוסר מהקבוצה");
-    } catch (error) {
-      console.error("Remove coach failed:", error);
-      showToast("שגיאה בהסרת מאמן", "error");
-    }
-  };
-
   const handleApproveJoinRequest = async (requestId) => {
     try {
       const res = await fetch(`/api/leagues/${id}/join-requests/${requestId}`, {
@@ -228,8 +161,6 @@ export default function LeagueDetailsPage() {
       });
 
       const text = await res.text();
-      console.log("APPROVE RESPONSE:", text);
-
       const data = JSON.parse(text);
 
       if (!res.ok) {
@@ -257,8 +188,6 @@ export default function LeagueDetailsPage() {
       });
 
       const text = await res.text();
-      console.log("REJECT RESPONSE:", text);
-
       const data = JSON.parse(text);
 
       if (!res.ok) {
@@ -311,9 +240,7 @@ export default function LeagueDetailsPage() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
-          teamName,
-        }),
+        body: JSON.stringify({ teamName }),
       });
 
       const data = await res.json();
@@ -342,9 +269,7 @@ export default function LeagueDetailsPage() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
-          teamName: teamToDelete,
-        }),
+        body: JSON.stringify({ teamName: teamToDelete }),
       });
 
       const data = await res.json();
@@ -475,9 +400,7 @@ export default function LeagueDetailsPage() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
-          matchId,
-        }),
+        body: JSON.stringify({ matchId }),
       });
 
       const data = await res.json();
@@ -541,15 +464,10 @@ export default function LeagueDetailsPage() {
       }
 
       setLeague(data);
-
       setScoreForms((prev) => ({
         ...prev,
-        [matchId]: {
-          homeScore: "",
-          awayScore: "",
-        },
+        [matchId]: { homeScore: "", awayScore: "" },
       }));
-
       showToast("התוצאה נשמרה");
     } catch (error) {
       console.error("Failed to save score:", error);
@@ -565,10 +483,7 @@ export default function LeagueDetailsPage() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
-          playerEmail,
-          teamName,
-        }),
+        body: JSON.stringify({ playerEmail, teamName }),
       });
 
       const data = await res.json();
@@ -584,65 +499,6 @@ export default function LeagueDetailsPage() {
     } catch (error) {
       console.error("Remove player failed:", error);
       showToast("שגיאה בהסרת שחקן", "error");
-    }
-  };
-
-  const handleAddToSquad = async (teamName) => {
-    const playerName = squadInputs[teamName];
-
-    if (!playerName?.trim()) return;
-
-    try {
-      const res = await fetch(`/api/leagues/${id}/squad`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          teamName,
-          playerName: playerName.trim(),
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        showToast(data.message || "שגיאה בהוספה", "error");
-        return;
-      }
-
-      setLeague(data);
-      setSquadInputs((prev) => ({ ...prev, [teamName]: "" }));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleRemoveFromSquad = async (teamName, playerName) => {
-    try {
-      const res = await fetch(`/api/leagues/${id}/squad`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          teamName,
-          playerName,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        showToast(data.message || "שגיאה במחיקה", "error");
-        return;
-      }
-
-      setLeague(data);
-    } catch (err) {
-      console.error(err);
     }
   };
 
@@ -677,7 +533,6 @@ export default function LeagueDetailsPage() {
   const normalizedCurrentEmail = currentUser?.email?.trim().toLowerCase();
 
   const isPlayer = currentUser?.role === "player";
-  const isCoach = currentUser?.role === "coach";
   const isGuest = !currentUser;
 
   const alreadyInAnyTeam =
@@ -686,15 +541,8 @@ export default function LeagueDetailsPage() {
     league.teams.some((team) =>
       team.players?.some(
         (player) =>
-          player.email?.trim().toLowerCase() === normalizedCurrentEmail
-      )
-    );
-
-  const alreadyCoachInLeague =
-    !!normalizedCurrentEmail &&
-    Array.isArray(league.teams) &&
-    league.teams.some(
-      (team) => team.coachEmail?.trim().toLowerCase() === normalizedCurrentEmail
+          player.email?.trim().toLowerCase() === normalizedCurrentEmail,
+      ),
     );
 
   const hasPendingJoinRequest =
@@ -704,55 +552,13 @@ export default function LeagueDetailsPage() {
       (request) =>
         request.type === "player" &&
         request.playerEmail?.trim().toLowerCase() === normalizedCurrentEmail &&
-        request.status === "pending"
+        request.status === "pending",
     );
-
-  const hasPendingCoachRequest =
-    !!normalizedCurrentEmail &&
-    Array.isArray(league.joinRequests) &&
-    league.joinRequests.some(
-      (request) =>
-        request.type === "coach" &&
-        request.playerEmail?.trim().toLowerCase() === normalizedCurrentEmail &&
-        request.status === "pending"
-    );
-
-  const isPlayerInSquad = (teamName, playerName) => {
-    const team = league.teams?.find(
-      (t) => t.name?.trim().toLowerCase() === teamName?.trim().toLowerCase()
-    );
-
-    if (!team || !team.squad) return false;
-
-    return team.squad.some(
-      (name) => name.trim().toLowerCase() === playerName?.trim().toLowerCase()
-    );
-  };
-
-  const coachTeams =
-    Array.isArray(league.teams) && normalizedCurrentEmail
-      ? league.teams.filter(
-          (team) =>
-            team.coachEmail?.trim().toLowerCase() === normalizedCurrentEmail
-        )
-      : [];
-
-  const canReviewRequests = canManage || coachTeams.length > 0;
 
   const visibleJoinRequests = Array.isArray(league.joinRequests)
-    ? league.joinRequests.filter((request) => {
-        if (request.status !== "pending") return false;
-
-        if (canManage) {
-          return request.type === "coach";
-        }
-
-        return coachTeams.some(
-          (team) =>
-            team.name?.trim().toLowerCase() ===
-            request.teamName?.trim().toLowerCase()
-        );
-      })
+    ? league.joinRequests.filter(
+        (request) => request.status === "pending" && request.type === "player",
+      )
     : [];
 
   return (
@@ -794,47 +600,6 @@ export default function LeagueDetailsPage() {
                   </button>
                 </div>
               )}
-
-            {currentUser &&
-              isCoach &&
-              !isOwner &&
-              !alreadyCoachInLeague &&
-              !hasPendingCoachRequest && (
-                <div className="flex items-center gap-2">
-                  <select
-                    value={selectedTeam}
-                    onChange={(e) => setSelectedTeam(e.target.value)}
-                    className="rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-black"
-                  >
-                    <option value="">בחר קבוצה</option>
-                    {league.teams.map((team) => (
-                      <option key={team._id || team.name} value={team.name}>
-                        {team.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  <button
-                    type="button"
-                    onClick={handleRequestCoach}
-                    className="rounded-xl bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800"
-                  >
-                    שלח בקשת אימון
-                  </button>
-                </div>
-              )}
-
-            {currentUser && isCoach && hasPendingCoachRequest && (
-              <span className="rounded-xl bg-yellow-100 px-4 py-2 text-sm text-yellow-700">
-                בקשת האימון ממתינה לאישור
-              </span>
-            )}
-
-            {currentUser && isCoach && alreadyCoachInLeague && (
-              <span className="rounded-xl bg-green-100 px-4 py-2 text-sm text-green-700">
-                אתה כבר מאמן קבוצה בליגה
-              </span>
-            )}
 
             {currentUser && isPlayer && hasPendingJoinRequest && (
               <span className="rounded-xl bg-yellow-100 px-4 py-2 text-sm text-yellow-700">
@@ -919,7 +684,6 @@ export default function LeagueDetailsPage() {
             <p className="mt-2 text-sm text-gray-600">
               כדי להצטרף לליגה, לראות שחקנים, בקשות ופעולות ניהול — צריך להתחבר.
             </p>
-
             <a
               href="/login"
               className="mt-4 inline-block rounded-2xl bg-black px-5 py-3 text-sm text-white transition hover:bg-gray-800"
@@ -929,12 +693,10 @@ export default function LeagueDetailsPage() {
           </div>
         )}
 
-        {canReviewRequests && (
+        {canManage && (
           <section className="mb-8 rounded-3xl border border-gray-200 p-6">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">
-                {canManage ? "בקשות מאמנים" : "בקשות שחקנים"}
-              </h2>
+              <h2 className="text-2xl font-bold">בקשות הצטרפות</h2>
               <span className="text-sm text-gray-500">
                 {visibleJoinRequests.length} ממתינות
               </span>
@@ -955,33 +717,12 @@ export default function LeagueDetailsPage() {
                       <p className="font-medium text-gray-800">
                         {request.playerName || request.playerEmail}
                       </p>
-
                       <p className="text-sm text-gray-500">
-                        {request.type === "coach"
-                          ? `רוצה להיות המאמן של הקבוצה: ${request.teamName}`
-                          : `רוצה להצטרף לקבוצה: ${request.teamName}`}
+                        רוצה להצטרף לקבוצה: {request.teamName}
                       </p>
-
                       <p className="mt-1 text-xs text-gray-400">
                         {request.playerEmail}
                       </p>
-
-                      {request.type === "player" && (
-                        <p
-                          className={`mt-2 text-xs font-medium ${
-                            isPlayerInSquad(
-                              request.teamName,
-                              request.playerName
-                            )
-                              ? "text-green-600"
-                              : "text-red-500"
-                          }`}
-                        >
-                          {isPlayerInSquad(request.teamName, request.playerName)
-                            ? "✅ השחקן נמצא בסגל הקבוצה"
-                            : "❌ השחקן לא נמצא בסגל הקבוצה"}
-                        </p>
-                      )}
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -1092,7 +833,6 @@ export default function LeagueDetailsPage() {
                 placeholder="הכנס שם קבוצה"
                 className="flex-1 rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
               />
-
               <button
                 type="submit"
                 disabled={submitting}
@@ -1146,87 +886,6 @@ export default function LeagueDetailsPage() {
                       </button>
                     )}
                   </div>
-
-                  {team.coachName && (
-                    <div className="mt-2 flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm text-gray-700">
-                      <span>מאמן: {team.coachName}</span>
-
-                      {canManage && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            openConfirmModal({
-                              title: "הסרת מאמן",
-                              message: `להסיר את המאמן מהקבוצה ${team.name}?`,
-                              onConfirm: () => handleRemoveCoach(team.name),
-                            })
-                          }
-                          className="rounded-lg px-3 py-1 text-xs text-red-500 transition hover:bg-red-50 hover:text-red-700"
-                        >
-                          הסר מאמן
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 🧠 רק המאמן של הקבוצה */}
-                  {currentUser?.email === team.coachEmail && (
-                    <div className="mt-3 rounded-xl bg-white p-3">
-                      <h4 className="mb-2 text-sm font-semibold text-gray-800">
-                        סגל שחקנים
-                      </h4>
-
-                      {/* הוספת שחקן */}
-                      <div className="flex gap-2 mb-2">
-                        <input
-                          type="text"
-                          placeholder="הכנס שם שחקן"
-                          value={squadInputs[team.name] || ""}
-                          onChange={(e) =>
-                            setSquadInputs((prev) => ({
-                              ...prev,
-                              [team.name]: e.target.value,
-                            }))
-                          }
-                          className="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-black"
-                        />
-
-                        <button
-                          type="button"
-                          onClick={() => handleAddToSquad(team.name)}
-                          className="rounded-xl bg-black px-3 py-2 text-sm text-white hover:bg-gray-800"
-                        >
-                          הוסף
-                        </button>
-                      </div>
-
-                      {/* רשימת שחקנים */}
-                      {team.squad?.length === 0 ? (
-                        <p className="text-xs text-gray-400">אין שחקנים בסגל</p>
-                      ) : (
-                        <div className="space-y-1">
-                          {team.squad.map((player, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center justify-between text-sm text-gray-700"
-                            >
-                              <span>{player}</span>
-
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleRemoveFromSquad(team.name, player)
-                                }
-                                className="text-xs text-red-500 hover:underline"
-                              >
-                                הסר
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
 
                   {currentUser ? (
                     <div className="mt-4">
@@ -1396,7 +1055,6 @@ export default function LeagueDetailsPage() {
                     <p className="text-sm text-gray-600">
                       תאריך: {match.date} | שעה: {match.time}
                     </p>
-
                     <p className="mt-1 text-sm text-gray-600">
                       מיקום: {match.location}
                     </p>
@@ -1421,7 +1079,7 @@ export default function LeagueDetailsPage() {
                             handleScoreChange(
                               matchKey,
                               "homeScore",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
@@ -1438,7 +1096,7 @@ export default function LeagueDetailsPage() {
                             handleScoreChange(
                               matchKey,
                               "awayScore",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
@@ -1496,18 +1154,14 @@ export default function LeagueDetailsPage() {
                   {league.standings.map((row, index) => (
                     <tr
                       key={row.team}
-                      className={`border-t border-gray-200 ${
-                        index === 0 ? "bg-yellow-50" : ""
-                      }`}
+                      className={`border-t border-gray-200 ${index === 0 ? "bg-yellow-50" : ""}`}
                     >
                       <td className="px-4 py-3 font-medium text-gray-700">
                         {index + 1}
                       </td>
-
                       <td className="px-4 py-3 font-semibold text-gray-900">
                         {row.team}
                       </td>
-
                       <td className="px-4 py-3 text-center">{row.played}</td>
                       <td className="px-4 py-3 text-center">{row.wins}</td>
                       <td className="px-4 py-3 text-center">{row.draws}</td>

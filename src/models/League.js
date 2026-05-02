@@ -11,7 +11,7 @@ const MatchSchema = new mongoose.Schema(
     homeScore: { type: Number, default: null },
     awayScore: { type: Number, default: null },
   },
-  { _id: true }
+  { _id: true },
 );
 
 const StandingSchema = new mongoose.Schema(
@@ -26,21 +26,21 @@ const StandingSchema = new mongoose.Schema(
     goalDifference: { type: Number, default: 0 },
     points: { type: Number, default: 0 },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const MemberSchema = new mongoose.Schema(
   {
     email: { type: String, required: true },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const JoinRequestSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["player", "coach"],
+      enum: ["player"],
       default: "player",
     },
     playerEmail: { type: String, required: true },
@@ -53,7 +53,7 @@ const JoinRequestSchema = new mongoose.Schema(
     },
     requestedAt: { type: Date, default: Date.now },
   },
-  { _id: true }
+  { _id: true },
 );
 
 const LeagueSchema = new mongoose.Schema(
@@ -68,12 +68,6 @@ const LeagueSchema = new mongoose.Schema(
     teams: [
       {
         name: { type: String, required: true },
-
-        coachEmail: { type: String, default: null },
-        coachName: { type: String, default: null },
-
-        squad: [{ type: String }], // שמות שחקנים
-
         players: [
           {
             email: String,
@@ -87,7 +81,7 @@ const LeagueSchema = new mongoose.Schema(
     members: [MemberSchema],
     joinRequests: [JoinRequestSchema],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.models.League || mongoose.model("League", LeagueSchema);
