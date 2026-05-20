@@ -52,6 +52,12 @@ export default function LeagueDetailsPage() {
     type: "success",
   });
 
+  const [topScorerForm, setTopScorerForm] = useState({
+    playerName: "",
+    teamName: "",
+    goals: "",
+  });
+
   const showToast = (message, type = "success") => {
     setToast({ message, type });
   };
@@ -302,6 +308,13 @@ export default function LeagueDetailsPage() {
     }));
   };
 
+  const handleTopScorerChange = (e) => {
+    setTopScorerForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
   const handleUpdateLeague = async (e) => {
     e.preventDefault();
 
@@ -389,6 +402,54 @@ export default function LeagueDetailsPage() {
       showToast("שגיאה בהוספת משחק", "error");
     } finally {
       setMatchSubmitting(false);
+    }
+  };
+
+  const handleAddTopScorer = async (e) => {
+    e.preventDefault();
+
+    if (
+      !topScorerForm.playerName.trim() ||
+      !topScorerForm.teamName ||
+      topScorerForm.goals === ""
+    ) {
+      showToast("צריך למלא שם שחקן, קבוצה וכמות שערים", "error");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/leagues/${id}/top-scorers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          playerName: topScorerForm.playerName.trim(),
+          teamName: topScorerForm.teamName,
+          goals: Number(topScorerForm.goals),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast(data.message || "שגיאה בהוספת מלך שערים", "error");
+        return;
+      }
+
+      setLeague(data);
+
+      setTopScorerForm({
+        playerName: "",
+        teamName: "",
+        goals: "",
+      });
+
+      showToast("מלך השערים נוסף");
+    } catch (error) {
+      console.error("Failed to add top scorer:", error);
+      showToast("שגיאה בהוספת מלך שערים", "error");
     }
   };
 
@@ -543,8 +604,8 @@ export default function LeagueDetailsPage() {
     league.teams.some((team) =>
       team.players?.some(
         (player) =>
-          player.email?.trim().toLowerCase() === normalizedCurrentEmail,
-      ),
+          player.email?.trim().toLowerCase() === normalizedCurrentEmail
+      )
     );
 
   const hasPendingJoinRequest =
@@ -554,12 +615,12 @@ export default function LeagueDetailsPage() {
       (request) =>
         request.type === "player" &&
         request.playerEmail?.trim().toLowerCase() === normalizedCurrentEmail &&
-        request.status === "pending",
+        request.status === "pending"
     );
 
   const visibleJoinRequests = Array.isArray(league.joinRequests)
     ? league.joinRequests.filter(
-        (request) => request.status === "pending" && request.type === "player",
+        (request) => request.status === "pending" && request.type === "player"
       )
     : [];
 
@@ -1081,7 +1142,7 @@ export default function LeagueDetailsPage() {
                             handleScoreChange(
                               matchKey,
                               "homeScore",
-                              e.target.value,
+                              e.target.value
                             )
                           }
                           className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
@@ -1098,7 +1159,7 @@ export default function LeagueDetailsPage() {
                             handleScoreChange(
                               matchKey,
                               "awayScore",
-                              e.target.value,
+                              e.target.value
                             )
                           }
                           className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
@@ -1156,7 +1217,9 @@ export default function LeagueDetailsPage() {
                   {league.standings.map((row, index) => (
                     <tr
                       key={row.team}
-                      className={`border-t border-gray-200 ${index === 0 ? "bg-yellow-50" : ""}`}
+                      className={`border-t border-gray-200 ${
+                        index === 0 ? "bg-yellow-50" : ""
+                      }`}
                     >
                       <td className="px-4 py-3 font-medium text-gray-700">
                         {index + 1}
@@ -1180,6 +1243,112 @@ export default function LeagueDetailsPage() {
                       </td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-gray-200 p-6">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-2xl font-bold">מלך השערים</h2>
+
+            <span className="text-sm text-gray-500">
+              {league.topScorers?.length || 0} שחקנים
+            </span>
+          </div>
+
+          {canManage && (
+            <form
+              onSubmit={handleAddTopScorer}
+              className="mb-6 grid gap-3 md:grid-cols-3"
+            >
+              <input
+                type="text"
+                name="playerName"
+                placeholder="שם השחקן"
+                value={topScorerForm.playerName}
+                onChange={handleTopScorerChange}
+                className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+              />
+
+              <select
+                name="teamName"
+                value={topScorerForm.teamName}
+                onChange={handleTopScorerChange}
+                className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+              >
+                <option value="">בחר קבוצה</option>
+
+                {league.teams?.map((team) => (
+                  <option key={team._id || team.name} value={team.name}>
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                type="number"
+                min="0"
+                name="goals"
+                placeholder="כמות שערים"
+                value={topScorerForm.goals}
+                onChange={handleTopScorerChange}
+                className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+              />
+
+              <button
+                type="submit"
+                className="md:col-span-3 rounded-2xl bg-black px-5 py-3 text-white transition hover:bg-gray-800"
+              >
+                הוסף שחקן
+              </button>
+            </form>
+          )}
+
+          {!league.topScorers || league.topScorers.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+              אין עדיין מלך שערים
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full overflow-hidden rounded-2xl border border-gray-200">
+                <thead className="bg-gray-100 text-sm text-gray-700">
+                  <tr>
+                    <th className="px-4 py-3 text-right">#</th>
+                    <th className="px-4 py-3 text-right">שחקן</th>
+                    <th className="px-4 py-3 text-right">קבוצה</th>
+                    <th className="px-4 py-3 text-center">שערים</th>
+                  </tr>
+                </thead>
+
+                <tbody className="bg-white text-sm">
+                  {[...league.topScorers]
+                    .sort((a, b) => Number(b.goals) - Number(a.goals))
+                    .map((scorer, index) => (
+                      <tr
+                        key={scorer._id || index}
+                        className={`border-t border-gray-200 ${
+                          index === 0 ? "bg-yellow-50" : ""
+                        }`}
+                      >
+                        <td className="px-4 py-3 font-medium text-gray-700">
+                          {index + 1}
+                        </td>
+
+                        <td className="px-4 py-3 font-semibold text-gray-900">
+                          {scorer.playerName}
+                        </td>
+
+                        <td className="px-4 py-3 text-gray-700">
+                          {scorer.teamName}
+                        </td>
+
+                        <td className="px-4 py-3 text-center font-bold">
+                          {scorer.goals}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
