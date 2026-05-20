@@ -9,7 +9,7 @@ import ConfirmModal from "@/components/ui/ConfirmModal";
 export default function LeagueDetailsPage() {
   const params = useParams();
   const id = params?.id;
-  const { currentUser } = useAuth();
+  const { currentUser, permissions } = useAuth();
   const router = useRouter();
 
   const [league, setLeague] = useState(null);
@@ -643,6 +643,7 @@ export default function LeagueDetailsPage() {
   const currentUserId = currentUser?._id || currentUser?.id;
 
   const canManage =
+    permissions?.canManageLeague &&
     currentUser &&
     (String(league.createdBy) === String(currentUser.email) ||
       String(league.createdBy) === String(currentUserId));
@@ -654,8 +655,9 @@ export default function LeagueDetailsPage() {
 
   const normalizedCurrentEmail = currentUser?.email?.trim().toLowerCase();
 
-  const isPlayer = currentUser?.role === "player";
-  const isGuest = !currentUser;
+  const isPlayer = permissions?.canJoinLeague;
+
+  const isGuest = !currentUser || !permissions?.hasRolePower;
 
   const alreadyInAnyTeam =
     !!normalizedCurrentEmail &&

@@ -4,8 +4,45 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
 
+const RESET_ROLE_POWER_MODE = false;
+
+const createPermissions = (user) => {
+  const isLoggedIn = !!user;
+  const isManager = user?.role === "manager";
+  const isPlayer = user?.role === "player";
+
+  return {
+    isLoggedIn,
+    isManager,
+    isPlayer,
+
+    role: user?.role || null,
+
+    roleLabel:
+      user?.role === "manager"
+        ? "מנהל"
+        : user?.role === "player"
+          ? "שחקן"
+          : "אורח",
+
+    hasRolePower: !RESET_ROLE_POWER_MODE && isLoggedIn,
+
+    canCreateLeague: !RESET_ROLE_POWER_MODE && isManager,
+    canManageLeague: !RESET_ROLE_POWER_MODE && isManager,
+    canEditLeague: !RESET_ROLE_POWER_MODE && isManager,
+    canDeleteLeague: !RESET_ROLE_POWER_MODE && isManager,
+    canApproveJoinRequests: !RESET_ROLE_POWER_MODE && isManager,
+
+    canJoinLeague: !RESET_ROLE_POWER_MODE && isPlayer,
+    canSendJoinRequest: !RESET_ROLE_POWER_MODE && isPlayer,
+
+    canViewProtectedLeagueData: !RESET_ROLE_POWER_MODE && isLoggedIn,
+  };
+};
+
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
+  const [permissions, setPermissions] = useState(createPermissions(null));
   const [isLoaded, setIsLoaded] = useState(false);
 
   const fetchCurrentUser = async () => {
@@ -17,14 +54,19 @@ export function AuthProvider({ children }) {
 
       if (!res.ok) {
         setCurrentUser(null);
+        setPermissions(createPermissions(null));
         return;
       }
 
       const data = await res.json();
+
       setCurrentUser(data);
+      setPermissions(createPermissions(data));
     } catch (error) {
       console.error("Failed to fetch current user:", error);
+
       setCurrentUser(null);
+      setPermissions(createPermissions(null));
     }
   };
 
@@ -68,6 +110,7 @@ export function AuthProvider({ children }) {
       };
     } catch (error) {
       console.error("Register error:", error);
+
       return {
         success: false,
         message: "שגיאה בהרשמה",
@@ -106,6 +149,7 @@ export function AuthProvider({ children }) {
       };
     } catch (error) {
       console.error("Login error:", error);
+
       return {
         success: false,
         message: "שגיאה בהתחברות",
@@ -123,6 +167,7 @@ export function AuthProvider({ children }) {
       console.error("Logout error:", error);
     } finally {
       setCurrentUser(null);
+      setPermissions(createPermissions(null));
     }
   };
 
@@ -130,6 +175,8 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         currentUser,
+        permissions,
+        isAccessResetMode: RESET_ROLE_POWER_MODE,
         register,
         login,
         logout,

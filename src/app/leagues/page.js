@@ -53,21 +53,21 @@ export default function LeaguesPage() {
           <p className="mt-2 text-gray-500">כאן מוצגות כל הליגות במערכת</p>
         </div>
 
-        {currentUser ? (
+        {currentUser?.role === "manager" ? (
           <Link
             href="/leagues/create"
             className="rounded-2xl bg-black px-4 py-2 text-white transition hover:bg-gray-800"
           >
             צור ליגה
           </Link>
-        ) : (
+        ) : !currentUser ? (
           <Link
             href="/login"
             className="rounded-2xl border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-100"
           >
             🔒 התחבר כדי ליצור ליגה
           </Link>
-        )}
+        ) : null}
       </div>
 
       {leagues.length === 0 ? (

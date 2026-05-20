@@ -72,9 +72,9 @@ export async function PATCH(request, { params }) {
       );
     }
 
-    if (joinRequest.type === "player" && !isCoachOfTeam) {
+    if (joinRequest.type === "player" && !isCoachOfTeam && !isOwner) {
       return NextResponse.json(
-        { message: "רק מאמן הקבוצה יכול לאשר שחקן" },
+        { message: "רק מאמן הקבוצה או מנהל הליגה יכול לאשר שחקן" },
         { status: 403 }
       );
     }
