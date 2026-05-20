@@ -38,6 +38,15 @@ const TopScorerSchema = new mongoose.Schema(
   { _id: true }
 );
 
+const TopAssistSchema = new mongoose.Schema(
+  {
+    playerName: { type: String, required: true },
+    teamName: { type: String, required: true },
+    assists: { type: Number, default: 0 },
+  },
+  { _id: true }
+);
+
 const MemberSchema = new mongoose.Schema(
   {
     email: { type: String, required: true },
@@ -88,6 +97,7 @@ const LeagueSchema = new mongoose.Schema(
     matches: [MatchSchema],
     standings: [StandingSchema],
     topScorers: [TopScorerSchema],
+    topAssists: [TopAssistSchema],
     members: [MemberSchema],
     joinRequests: [JoinRequestSchema],
   },
