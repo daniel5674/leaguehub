@@ -115,6 +115,7 @@ export async function PATCH(request, { params }) {
 
       if (!alreadyInTeam) {
         league.teams[teamIndex].players.push({
+          playerId: joinRequest.playerId,
           email: normalizedEmail,
           fullName: joinRequest.playerName || "",
         });

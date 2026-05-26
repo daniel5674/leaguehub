@@ -90,6 +90,7 @@ export async function POST(request, { params }) {
 
     league.joinRequests.push({
       type: "player",
+      playerId: String(user._id || user.id || user.userId),
       playerEmail: normalizedEmail,
       playerName: user.fullName,
       teamName: trimmedTeamName,

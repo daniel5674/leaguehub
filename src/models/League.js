@@ -62,6 +62,10 @@ const JoinRequestSchema = new mongoose.Schema(
       enum: ["player"],
       default: "player",
     },
+    playerId: {
+      type: String,
+      required: true,
+    },
     playerEmail: { type: String, required: true },
     playerName: { type: String, default: "" },
     teamName: { type: String, required: true },
@@ -89,8 +93,24 @@ const LeagueSchema = new mongoose.Schema(
         name: { type: String, required: true },
         players: [
           {
+            playerId: String,
             email: String,
             fullName: String,
+
+            shirtNumber: {
+              type: Number,
+              default: null,
+            },
+
+            position: {
+              type: String,
+              default: "",
+            },
+
+            image: {
+              type: String,
+              default: "",
+            },
           },
         ],
       },
