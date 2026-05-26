@@ -7,9 +7,19 @@ const MatchSchema = new mongoose.Schema(
     date: { type: String, required: true },
     time: { type: String, required: true },
     location: { type: String, required: true },
+
     score: { type: String, default: "טרם נקבע" },
     homeScore: { type: Number, default: null },
     awayScore: { type: Number, default: null },
+
+    blueCards: [
+      {
+        playerId: { type: String, default: "" },
+        playerName: { type: String, required: true },
+        teamName: { type: String, required: true },
+        minute: { type: Number, default: null },
+      },
+    ],
   },
   { _id: true }
 );

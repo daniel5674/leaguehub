@@ -65,11 +65,23 @@ export default function PlayerPage() {
                   foundTeam.name?.trim().toLowerCase()
             )?.assists || 0;
 
+          const playerBlueCards =
+            data.matches?.reduce((total, match) => {
+              const cardsCount =
+                match.blueCards?.filter(
+                  (card) =>
+                    String(card.playerId) === String(foundPlayer.playerId)
+                ).length || 0;
+
+              return total + cardsCount;
+            }, 0) || 0;
+
           setPlayerData({
             ...foundPlayer,
             teamName: foundTeam.name,
             goals: playerGoals,
             assists: playerAssists,
+            blueCards: playerBlueCards,
           });
 
           setEditForm({
@@ -260,6 +272,14 @@ export default function PlayerPage() {
             <div className="rounded-3xl border border-gray-200 bg-gray-50 p-5">
               <p className="text-sm text-gray-500">בישולים</p>
               <p className="mt-2 text-4xl font-black">{playerData.assists}</p>
+            </div>
+
+            <div className="rounded-3xl border border-blue-200 bg-blue-50 p-5">
+              <p className="text-sm text-blue-700">כרטיסים כחולים</p>
+
+              <p className="mt-2 text-4xl font-black text-blue-900">
+                {playerData.blueCards || 0}
+              </p>
             </div>
           </div>
 

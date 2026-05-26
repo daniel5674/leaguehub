@@ -65,6 +65,8 @@ export default function LeagueDetailsPage() {
     assists: "",
   });
 
+  const [blueCardForms, setBlueCardForms] = useState({});
+
   const showToast = (message, type = "success") => {
     setToast({ message, type });
   };
@@ -573,6 +575,7 @@ export default function LeagueDetailsPage() {
         },
         credentials: "include",
         body: JSON.stringify({
+          action: "UPDATE_SCORE",
           matchId,
           homeScore: Number(form.homeScore),
           awayScore: Number(form.awayScore),
@@ -622,6 +625,66 @@ export default function LeagueDetailsPage() {
     } catch (error) {
       console.error("Remove player failed:", error);
       showToast("שגיאה בהסרת שחקן", "error");
+    }
+  };
+
+  const handleBlueCardChange = (matchId, field, value) => {
+    setBlueCardForms((prev) => ({
+      ...prev,
+      [matchId]: {
+        ...prev[matchId],
+        [field]: value,
+      },
+    }));
+  };
+
+  const addBlueCardToMatch = async (matchId) => {
+    const form = blueCardForms[matchId];
+
+    if (!form?.playerId) {
+      showToast("צריך להזין שם שחקן וקבוצה", "error");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/leagues/${id}/matches`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          action: "ADD_BLUE_CARD",
+          matchId,
+          playerId: form.playerId,
+          playerName: form.playerName,
+          teamName: form.teamName,
+          minute: form.minute ? Number(form.minute) : null,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast(data.message || "שגיאה בהוספת כרטיס כחול", "error");
+        return;
+      }
+
+      setLeague(data);
+
+      setBlueCardForms((prev) => ({
+        ...prev,
+        [matchId]: {
+          playerName: "",
+          teamName: "",
+          minute: "",
+        },
+      }));
+
+      showToast("כרטיס כחול נוסף בהצלחה");
+    } catch (error) {
+      console.error("Failed to add blue card:", error);
+      showToast("שגיאה בהוספת כרטיס כחול", "error");
     }
   };
 
@@ -689,6 +752,28 @@ export default function LeagueDetailsPage() {
   const topAssists = [...(league.topAssists || [])].sort(
     (a, b) => Number(b.assists) - Number(a.assists)
   );
+
+  const getBlueCardsTable = () => {
+    const cardsMap = {};
+
+    league.matches?.forEach((match) => {
+      match.blueCards?.forEach((card) => {
+        const key = `${card.playerName}-${card.teamName}`;
+
+        if (!cardsMap[key]) {
+          cardsMap[key] = {
+            playerName: card.playerName,
+            teamName: card.teamName,
+            blueCards: 0,
+          };
+        }
+
+        cardsMap[key].blueCards += 1;
+      });
+    });
+
+    return Object.values(cardsMap).sort((a, b) => b.blueCards - a.blueCards);
+  };
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
@@ -1244,6 +1329,106 @@ export default function LeagueDetailsPage() {
                         )}
                       </div>
                     </div>
+                    <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50 p-4">
+                      <h4 className="mb-3 font-bold text-blue-800">
+                        כרטיסים כחולים
+                      </h4>
+
+                      <div className="grid gap-3 md:grid-cols-3">
+                        <select
+                          value={blueCardForms[matchKey]?.playerId || ""}
+                          onChange={(e) => {
+                            const selectedPlayerId = e.target.value;
+
+                            const allPlayers = league.teams.flatMap((team) =>
+                              (team.players || []).map((player) => ({
+                                ...player,
+                                teamName: team.name,
+                              }))
+                            );
+
+                            const selectedPlayer = allPlayers.find(
+                              (player) =>
+                                String(player.playerId) ===
+                                String(selectedPlayerId)
+                            );
+
+                            handleBlueCardChange(
+                              matchKey,
+                              "playerId",
+                              selectedPlayerId
+                            );
+
+                            handleBlueCardChange(
+                              matchKey,
+                              "playerName",
+                              selectedPlayer?.fullName || ""
+                            );
+
+                            handleBlueCardChange(
+                              matchKey,
+                              "teamName",
+                              selectedPlayer?.teamName || ""
+                            );
+                          }}
+                          className="rounded-xl border border-gray-300 px-3 py-2"
+                        >
+                          <option value="">בחר שחקן</option>
+
+                          {league.teams?.flatMap((team) =>
+                            (team.players || []).map((player) => (
+                              <option
+                                key={player.playerId}
+                                value={player.playerId}
+                              >
+                                {player.fullName || player.email} - {team.name}
+                              </option>
+                            ))
+                          )}
+                        </select>
+
+                        <div className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-600">
+                          {blueCardForms[matchKey]?.teamName ||
+                            "קבוצה תתמלא אוטומטית"}
+                        </div>
+
+                        <input
+                          type="number"
+                          placeholder="דקה"
+                          value={blueCardForms[matchKey]?.minute || ""}
+                          onChange={(e) =>
+                            handleBlueCardChange(
+                              matchKey,
+                              "minute",
+                              e.target.value
+                            )
+                          }
+                          className="rounded-xl border border-gray-300 px-3 py-2"
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => addBlueCardToMatch(matchKey)}
+                        className="mt-3 rounded-xl bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+                      >
+                        הוסף כרטיס כחול
+                      </button>
+
+                      {match.blueCards?.length > 0 && (
+                        <div className="mt-4 space-y-2">
+                          {match.blueCards.map((card, index) => (
+                            <div
+                              key={index}
+                              className="rounded-xl bg-white px-3 py-2 text-sm text-gray-800"
+                            >
+                              🔵 {card.playerName} | {card.teamName}
+                              {card.minute ? ` | דקה ${card.minute}` : ""}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -1509,6 +1694,60 @@ export default function LeagueDetailsPage() {
                       <td className="px-4 py-3">{player.teamName}</td>
                       <td className="px-4 py-3 text-center font-bold">
                         {player.assists}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-blue-200 bg-blue-50 p-6">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-blue-900">
+              טבלת כרטיסים כחולים
+            </h2>
+
+            <span className="text-sm text-blue-700">
+              {getBlueCardsTable().length} שחקנים
+            </span>
+          </div>
+
+          {getBlueCardsTable().length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-blue-300 bg-white p-8 text-center text-gray-500">
+              עדיין אין כרטיסים כחולים בליגה
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full overflow-hidden rounded-2xl border border-blue-200">
+                <thead className="bg-blue-100 text-sm text-blue-900">
+                  <tr>
+                    <th className="px-4 py-3 text-right">#</th>
+                    <th className="px-4 py-3 text-right">שחקן</th>
+                    <th className="px-4 py-3 text-right">קבוצה</th>
+                    <th className="px-4 py-3 text-center">כרטיסים כחולים</th>
+                  </tr>
+                </thead>
+
+                <tbody className="bg-white text-sm">
+                  {getBlueCardsTable().map((player, index) => (
+                    <tr
+                      key={`${player.playerName}-${player.teamName}`}
+                      className="border-t border-blue-100"
+                    >
+                      <td className="px-4 py-3 font-medium">{index + 1}</td>
+
+                      <td className="px-4 py-3 font-semibold text-gray-900">
+                        {player.playerName}
+                      </td>
+
+                      <td className="px-4 py-3 text-gray-700">
+                        {player.teamName}
+                      </td>
+
+                      <td className="px-4 py-3 text-center font-bold text-blue-700">
+                        {player.blueCards}
                       </td>
                     </tr>
                   ))}
