@@ -216,7 +216,18 @@ export async function DELETE(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     const { id } = await params;
-    const { matchId, homeScore, awayScore } = await request.json();
+    const body = await request.json();
+
+    const {
+      action,
+      matchId,
+      homeScore,
+      awayScore,
+      playerId,
+      playerName,
+      teamName,
+      minute,
+    } = body;
 
     await connectToDB();
 
@@ -236,25 +247,61 @@ export async function PATCH(request, { params }) {
       String(league.createdBy) === String(currentUser.email) ||
       String(league.createdBy) === String(currentUser.userId);
 
-    if (!isOwner) {
-      return NextResponse.json({ message: "אין הרשאה" }, { status: 403 });
+    if (action === "ADD_BLUE_CARD") {
+      const updatedMatches = league.matches.map((match) => {
+        if (String(match._id) !== String(matchId)) {
+          return match;
+        }
+
+        return {
+          ...match.toObject(),
+          blueCards: [
+            ...(match.blueCards || []),
+            {
+              playerId,
+              playerName,
+              teamName,
+              minute: minute || null,
+            },
+          ],
+        };
+      });
+
+      league.matches = updatedMatches;
+
+      await league.save();
+
+      return NextResponse.json({
+        ...league.toObject(),
+        id: league._id,
+        matches: league.matches.map((match) => ({
+          ...match.toObject(),
+          id: match._id,
+        })),
+      });
     }
 
-    const updatedMatches = league.matches.map((match) => {
-      if (String(match._id) !== String(matchId)) return match;
+    if (action === "UPDATE_SCORE") {
+      if (!isOwner) {
+        return NextResponse.json({ message: "אין הרשאה" }, { status: 403 });
+      }
 
-      return {
-        ...match.toObject(),
-        homeScore: Number(homeScore),
-        awayScore: Number(awayScore),
-        score: `${homeScore}-${awayScore}`,
-      };
-    });
+      const updatedMatches = league.matches.map((match) => {
+        if (String(match._id) !== String(matchId)) return match;
 
-    const updatedStandings = calculateStandings(league.teams, updatedMatches);
+        return {
+          ...match.toObject(),
+          homeScore: Number(homeScore),
+          awayScore: Number(awayScore),
+          score: `${homeScore}-${awayScore}`,
+        };
+      });
 
-    league.matches = updatedMatches;
-    league.standings = updatedStandings;
+      const updatedStandings = calculateStandings(league.teams, updatedMatches);
+
+      league.matches = updatedMatches;
+      league.standings = updatedStandings;
+    }
 
     await league.save();
 
