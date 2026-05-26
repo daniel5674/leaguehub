@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Toast from "@/components/ui/Toast";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import Link from "next/link";
 
 export default function LeagueDetailsPage() {
   const params = useParams();
@@ -1023,7 +1024,12 @@ export default function LeagueDetailsPage() {
                           key={`${player.email}-${index}`}
                           className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm text-gray-700"
                         >
-                          <span>{player.fullName || player.email}</span>
+                          <Link
+                            href={`/leagues/${id}/players/${player.playerId}`}
+                            className="font-medium text-gray-800 hover:underline"
+                          >
+                            {player.fullName || player.email}
+                          </Link>
 
                           {canManage && (
                             <button
