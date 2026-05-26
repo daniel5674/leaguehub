@@ -237,7 +237,7 @@ export default function Navbar() {
                           className="rounded-xl border border-gray-200 p-3"
                         >
                           <p className="text-sm font-medium text-gray-900">
-                            {req.playerEmail}
+                            {req.playerName || req.playerEmail}
                           </p>
 
                           <p className="mt-1 text-xs text-gray-500">

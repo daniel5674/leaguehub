@@ -848,9 +848,6 @@ export default function LeagueDetailsPage() {
                       <p className="text-sm text-gray-500">
                         רוצה להצטרף לקבוצה: {request.teamName}
                       </p>
-                      <p className="mt-1 text-xs text-gray-400">
-                        {request.playerEmail}
-                      </p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -1026,7 +1023,7 @@ export default function LeagueDetailsPage() {
                           key={`${player.email}-${index}`}
                           className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm text-gray-700"
                         >
-                          <span>{player.email}</span>
+                          <span>{player.fullName || player.email}</span>
 
                           {canManage && (
                             <button
@@ -1535,7 +1532,7 @@ export default function LeagueDetailsPage() {
                   className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3"
                 >
                   <span className="font-medium text-gray-800">
-                    {member.email}
+                    {member.fullName || member.email}
                   </span>
                 </div>
               ))}

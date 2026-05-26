@@ -50,6 +50,7 @@ const TopAssistSchema = new mongoose.Schema(
 const MemberSchema = new mongoose.Schema(
   {
     email: { type: String, required: true },
+    fullName: { type: String, default: "" },
   },
   { _id: false }
 );
