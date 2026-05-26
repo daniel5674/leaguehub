@@ -44,6 +44,31 @@ export async function POST(request, { params }) {
     const normalizedPlayerName = playerName.trim();
     const normalizedTeamName = teamName.trim();
 
+    const team = league.teams.find(
+      (team) =>
+        team.name?.trim().toLowerCase() === normalizedTeamName.toLowerCase()
+    );
+
+    if (!team) {
+      return NextResponse.json(
+        { message: "הקבוצה לא קיימת בליגה" },
+        { status: 404 }
+      );
+    }
+
+    const playerExistsInTeam = team.players?.some(
+      (player) =>
+        player.fullName?.trim().toLowerCase() ===
+        normalizedPlayerName.toLowerCase()
+    );
+
+    if (!playerExistsInTeam) {
+      return NextResponse.json(
+        { message: "השחקן לא קיים בקבוצה הזאת" },
+        { status: 400 }
+      );
+    }
+
     const scorerIndex = league.topScorers.findIndex(
       (scorer) =>
         scorer.playerName?.trim().toLowerCase() ===

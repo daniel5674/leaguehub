@@ -127,6 +127,7 @@ export async function PATCH(request, { params }) {
       if (!alreadyMember) {
         league.members.push({
           email: normalizedEmail,
+          fullName: joinRequest.playerName || "",
         });
       }
 

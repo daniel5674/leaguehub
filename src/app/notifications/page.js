@@ -116,7 +116,9 @@ export default function NotificationsPage() {
                 </span>
               </div>
 
-              <p className="text-sm text-gray-700">{request.playerEmail}</p>
+              <p className="text-sm text-gray-700">
+                {request.playerName || request.playerEmail}
+              </p>
 
               <p className="mt-1 text-sm text-gray-500">
                 רוצה להצטרף לקבוצה: {request.teamName}

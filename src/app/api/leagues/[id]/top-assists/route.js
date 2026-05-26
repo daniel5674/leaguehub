@@ -22,9 +22,37 @@ export async function POST(req, { params }) {
       return NextResponse.json({ message: "הליגה לא נמצאה" }, { status: 404 });
     }
 
+    const normalizedPlayerName = playerName.trim();
+    const normalizedTeamName = teamName.trim();
+
+    const team = league.teams.find(
+      (team) =>
+        team.name?.trim().toLowerCase() === normalizedTeamName.toLowerCase()
+    );
+
+    if (!team) {
+      return NextResponse.json(
+        { message: "הקבוצה לא קיימת בליגה" },
+        { status: 404 }
+      );
+    }
+
+    const playerExistsInTeam = team.players?.some(
+      (player) =>
+        player.fullName?.trim().toLowerCase() ===
+        normalizedPlayerName.toLowerCase()
+    );
+
+    if (!playerExistsInTeam) {
+      return NextResponse.json(
+        { message: "השחקן לא קיים בקבוצה הזאת" },
+        { status: 400 }
+      );
+    }
+
     league.topAssists.push({
-      playerName,
-      teamName,
+      playerName: normalizedPlayerName,
+      teamName: normalizedTeamName,
       assists,
     });
 
