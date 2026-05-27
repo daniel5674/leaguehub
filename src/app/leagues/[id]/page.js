@@ -1024,12 +1024,19 @@ export default function LeagueDetailsPage() {
                           key={`${player.email}-${index}`}
                           className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm text-gray-700"
                         >
-                          <Link
-                            href={`/leagues/${id}/players/${player.playerId}`}
-                            className="font-medium text-gray-800 hover:underline"
-                          >
-                            {player.fullName || player.email}
-                          </Link>
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/leagues/${id}/players/${player.playerId}`}
+                              className="font-medium text-gray-800 hover:underline"
+                            >
+                              {player.fullName || player.email}
+                            </Link>
+                            {player.isCaptain && (
+                              <span className="rounded-full bg-yellow-400 px-2 py-0.5 text-xs font-bold text-black">
+                                ★ קפטן
+                              </span>
+                            )}
+                          </div>
 
                           {canManage && (
                             <button
