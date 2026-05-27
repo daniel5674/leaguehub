@@ -316,9 +316,9 @@ export default function Navbar() {
               <>
                 <button
                   onClick={() => setMenuOpen((prev) => !prev)}
-                  className="rounded-2xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                  className="rounded-2xl border border-green-300 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-100"
                 >
-                  {currentUser.email}
+                  🟢 מחובר
                 </button>
 
                 {menuOpen && (
