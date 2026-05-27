@@ -729,8 +729,8 @@ export default function LeagueDetailsPage() {
     league.teams.some((team) =>
       team.players?.some(
         (player) =>
-          player.email?.trim().toLowerCase() === normalizedCurrentEmail
-      )
+          player.email?.trim().toLowerCase() === normalizedCurrentEmail,
+      ),
     );
 
   const hasPendingJoinRequest =
@@ -740,17 +740,17 @@ export default function LeagueDetailsPage() {
       (request) =>
         request.type === "player" &&
         request.playerEmail?.trim().toLowerCase() === normalizedCurrentEmail &&
-        request.status === "pending"
+        request.status === "pending",
     );
 
   const visibleJoinRequests = Array.isArray(league.joinRequests)
     ? league.joinRequests.filter(
-        (request) => request.status === "pending" && request.type === "player"
+        (request) => request.status === "pending" && request.type === "player",
       )
     : [];
 
   const topAssists = [...(league.topAssists || [])].sort(
-    (a, b) => Number(b.assists) - Number(a.assists)
+    (a, b) => Number(b.assists) - Number(a.assists),
   );
 
   const getBlueCardsTable = () => {
@@ -1109,12 +1109,19 @@ export default function LeagueDetailsPage() {
                           key={`${player.email}-${index}`}
                           className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm text-gray-700"
                         >
-                          <Link
-                            href={`/leagues/${id}/players/${player.playerId}`}
-                            className="font-medium text-gray-800 hover:underline"
-                          >
-                            {player.fullName || player.email}
-                          </Link>
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/leagues/${id}/players/${player.playerId}`}
+                              className="font-medium text-gray-800 hover:underline"
+                            >
+                              {player.fullName || player.email}
+                            </Link>
+                            {player.isCaptain && (
+                              <span className="flex items-center gap-0.5 rounded-full bg-yellow-400 px-2.5 py-0.5 text-xs font-bold text-black shadow-sm">
+                                ★ קפטן
+                              </span>
+                            )}
+                          </div>
 
                           {canManage && (
                             <button
@@ -1295,7 +1302,7 @@ export default function LeagueDetailsPage() {
                             handleScoreChange(
                               matchKey,
                               "homeScore",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
@@ -1312,7 +1319,7 @@ export default function LeagueDetailsPage() {
                             handleScoreChange(
                               matchKey,
                               "awayScore",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
@@ -1344,31 +1351,31 @@ export default function LeagueDetailsPage() {
                               (team.players || []).map((player) => ({
                                 ...player,
                                 teamName: team.name,
-                              }))
+                              })),
                             );
 
                             const selectedPlayer = allPlayers.find(
                               (player) =>
                                 String(player.playerId) ===
-                                String(selectedPlayerId)
+                                String(selectedPlayerId),
                             );
 
                             handleBlueCardChange(
                               matchKey,
                               "playerId",
-                              selectedPlayerId
+                              selectedPlayerId,
                             );
 
                             handleBlueCardChange(
                               matchKey,
                               "playerName",
-                              selectedPlayer?.fullName || ""
+                              selectedPlayer?.fullName || "",
                             );
 
                             handleBlueCardChange(
                               matchKey,
                               "teamName",
-                              selectedPlayer?.teamName || ""
+                              selectedPlayer?.teamName || "",
                             );
                           }}
                           className="rounded-xl border border-gray-300 px-3 py-2"
@@ -1383,7 +1390,7 @@ export default function LeagueDetailsPage() {
                               >
                                 {player.fullName || player.email} - {team.name}
                               </option>
-                            ))
+                            )),
                           )}
                         </select>
 
@@ -1400,7 +1407,7 @@ export default function LeagueDetailsPage() {
                             handleBlueCardChange(
                               matchKey,
                               "minute",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="rounded-xl border border-gray-300 px-3 py-2"
