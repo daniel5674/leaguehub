@@ -223,7 +223,7 @@ export default function PlayerPage() {
                   <h1 className="text-4xl font-black">{playerData.fullName}</h1>
                   {playerData.isCaptain && (
                     <span className="rounded-full bg-yellow-400 px-3 py-1 text-sm font-bold text-black">
-                      קפטן
+                      ★ קפטן
                     </span>
                   )}
                 </div>
@@ -244,43 +244,44 @@ export default function PlayerPage() {
         </div>
 
         <div className="p-8">
-          <div className="mb-6 flex items-center gap-3 flex-wrap">
-            <button
-              type="button"
-              onClick={() => setIsEditing((prev) => !prev)}
-              className="rounded-xl bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800"
-            >
-              {isEditing ? "סגור עריכה" : "ערוך שחקן"}
-            </button>
-
-            {playerData.isCaptain && (
-              <span className="flex items-center gap-1 rounded-xl bg-yellow-100 px-4 py-2 text-sm font-bold text-yellow-700 border border-yellow-300">
-                ★ קפטן
-              </span>
-            )}
-
-            {canManage && !playerData.isCaptain && (
+          {canManage && (
+            <div className="mb-6 flex items-center gap-3 flex-wrap">
               <button
                 type="button"
-                onClick={handleToggleCaptain}
-                className="rounded-xl border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100"
+                onClick={() => setIsEditing((prev) => !prev)}
+                className="rounded-xl bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800"
               >
-                הגדר כקפטן
+                {isEditing ? "סגור עריכה" : "ערוך שחקן"}
               </button>
-            )}
 
-            {canManage && playerData.isCaptain && (
-              <button
-                type="button"
-                onClick={handleToggleCaptain}
-                className="rounded-xl border border-red-200 px-4 py-2 text-sm text-red-500 transition hover:bg-red-50"
-              >
-                הסר קפטן
-              </button>
-            )}
-          </div>
+              {!playerData.isCaptain && (
+                <button
+                  type="button"
+                  onClick={handleToggleCaptain}
+                  className="rounded-xl border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100"
+                >
+                  הגדר כקפטן
+                </button>
+              )}
 
-          {isEditing && (
+              {playerData.isCaptain && (
+                <>
+                  <span className="flex items-center gap-1 rounded-xl bg-yellow-100 px-4 py-2 text-sm font-bold text-yellow-700 border border-yellow-300">
+                    ★ קפטן
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleToggleCaptain}
+                    className="rounded-xl border border-red-200 px-4 py-2 text-sm text-red-500 transition hover:bg-red-50"
+                  >
+                    הסר קפטן
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+          {canManage && isEditing && (
             <form
               onSubmit={handleUpdatePlayer}
               className="mb-8 grid gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-4 md:grid-cols-3"
@@ -346,7 +347,6 @@ export default function PlayerPage() {
 
             <div className="rounded-3xl border border-blue-200 bg-blue-50 p-5">
               <p className="text-sm text-blue-700">כרטיסים כחולים</p>
-
               <p className="mt-2 text-4xl font-black text-blue-900">
                 {playerData.blueCards || 0}
               </p>

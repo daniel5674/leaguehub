@@ -77,17 +77,11 @@ export async function PATCH(request, { params }) {
     }
 
     const key = `teams.${teamIndex}.players.${playerIndex}.isCaptain`;
-    console.log("Setting captain:", key, "->", !isAlreadyCaptain);
 
     const fresh = await League.findByIdAndUpdate(
       id,
       { $set: { [key]: !isAlreadyCaptain } },
       { new: true },
-    );
-
-    console.log(
-      "After update isCaptain:",
-      fresh.teams[teamIndex].players[playerIndex].isCaptain,
     );
 
     return NextResponse.json({
