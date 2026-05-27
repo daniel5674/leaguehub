@@ -61,33 +61,28 @@ export async function PATCH(request, { params }) {
     const isAlreadyCaptain =
       !!league.teams[teamIndex].players[playerIndex].isCaptain;
 
+    const updateOps = {};
+
+    // Remove captain from all players in this team
+    league.teams[teamIndex].players.forEach((_, i) => {
+      updateOps[`teams.${teamIndex}.players.${i}.isCaptain`] = false;
+    });
+
+    // If not already captain, set the new one
     if (!isAlreadyCaptain) {
-      const otherCaptain = league.teams[teamIndex].players.find(
-        (p) => p.isCaptain && p.email?.trim().toLowerCase() !== normalizedEmail,
-      );
-
-      if (otherCaptain) {
-        return NextResponse.json(
-          {
-            message: `${otherCaptain.fullName || otherCaptain.email} כבר קפטן הקבוצה`,
-          },
-          { status: 400 },
-        );
-      }
+      updateOps[`teams.${teamIndex}.players.${playerIndex}.isCaptain`] = true;
     }
-
-    const key = `teams.${teamIndex}.players.${playerIndex}.isCaptain`;
 
     const fresh = await League.findByIdAndUpdate(
       id,
-      { $set: { [key]: !isAlreadyCaptain } },
+      { $set: updateOps },
       { new: true },
     );
 
     return NextResponse.json({
       ...fresh.toObject(),
       id: fresh._id,
-      message: !isAlreadyCaptain ? "הקפטן נקבע בהצלחה" : "הקפטן הוסר",
+      message: !isAlreadyCaptain ? "הקפטן נקבע בהצלחה" : "הקפטן הוסר בהצלחה",
     });
   } catch (error) {
     console.error("Set captain error:", error);
