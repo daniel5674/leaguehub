@@ -729,8 +729,8 @@ export default function LeagueDetailsPage() {
     league.teams.some((team) =>
       team.players?.some(
         (player) =>
-          player.email?.trim().toLowerCase() === normalizedCurrentEmail,
-      ),
+          player.email?.trim().toLowerCase() === normalizedCurrentEmail
+      )
     );
 
   const hasPendingJoinRequest =
@@ -740,17 +740,17 @@ export default function LeagueDetailsPage() {
       (request) =>
         request.type === "player" &&
         request.playerEmail?.trim().toLowerCase() === normalizedCurrentEmail &&
-        request.status === "pending",
+        request.status === "pending"
     );
 
   const visibleJoinRequests = Array.isArray(league.joinRequests)
     ? league.joinRequests.filter(
-        (request) => request.status === "pending" && request.type === "player",
+        (request) => request.status === "pending" && request.type === "player"
       )
     : [];
 
   const topAssists = [...(league.topAssists || [])].sort(
-    (a, b) => Number(b.assists) - Number(a.assists),
+    (a, b) => Number(b.assists) - Number(a.assists)
   );
 
   const getBlueCardsTable = () => {
@@ -1248,6 +1248,34 @@ export default function LeagueDetailsPage() {
               {league.matches.map((match) => {
                 const matchKey = match.id || match._id;
 
+                const homeTeamData = league.teams?.find(
+                  (team) => team.name === match.homeTeam
+                );
+
+                const awayTeamData = league.teams?.find(
+                  (team) => team.name === match.awayTeam
+                );
+
+                const isHomeCaptain = homeTeamData?.players?.some(
+                  (player) =>
+                    player.isCaptain &&
+                    (String(player.playerId) === String(currentUserId) ||
+                      player.email?.trim().toLowerCase() ===
+                        currentUser?.email?.trim().toLowerCase())
+                );
+
+                const isAwayCaptain = awayTeamData?.players?.some(
+                  (player) =>
+                    player.isCaptain &&
+                    (String(player.playerId) === String(currentUserId) ||
+                      player.email?.trim().toLowerCase() ===
+                        currentUser?.email?.trim().toLowerCase())
+                );
+
+                const canReportMatch =
+                  !match.isFinalApproved &&
+                  (canManage || isHomeCaptain || isAwayCaptain);
+
                 return (
                   <div
                     key={matchKey}
@@ -1292,150 +1320,157 @@ export default function LeagueDetailsPage() {
                           : "טרם נקבעה"}
                       </p>
 
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min="0"
-                          placeholder={match.homeTeam}
-                          value={scoreForms[matchKey]?.homeScore ?? ""}
-                          onChange={(e) =>
-                            handleScoreChange(
-                              matchKey,
-                              "homeScore",
-                              e.target.value,
-                            )
-                          }
-                          className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
-                        />
+                      {canReportMatch ? (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder={match.homeTeam}
+                            value={scoreForms[matchKey]?.homeScore ?? ""}
+                            onChange={(e) =>
+                              handleScoreChange(
+                                matchKey,
+                                "homeScore",
+                                e.target.value
+                              )
+                            }
+                            className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
+                          />
 
-                        <span className="text-gray-500">-</span>
+                          <span className="text-gray-500">-</span>
 
-                        <input
-                          type="number"
-                          min="0"
-                          placeholder={match.awayTeam}
-                          value={scoreForms[matchKey]?.awayScore ?? ""}
-                          onChange={(e) =>
-                            handleScoreChange(
-                              matchKey,
-                              "awayScore",
-                              e.target.value,
-                            )
-                          }
-                          className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
-                        />
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder={match.awayTeam}
+                            value={scoreForms[matchKey]?.awayScore ?? ""}
+                            onChange={(e) =>
+                              handleScoreChange(
+                                matchKey,
+                                "awayScore",
+                                e.target.value
+                              )
+                            }
+                            className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
+                          />
 
-                        {canManage && (
                           <button
                             type="button"
                             onClick={() => handleSaveScore(matchKey)}
                             className="rounded-xl bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800"
                           >
-                            שמור תוצאה
+                            שלח דיווח
                           </button>
-                        )}
-                      </div>
-                    </div>
-                    <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50 p-4">
-                      <h4 className="mb-3 font-bold text-blue-800">
-                        כרטיסים כחולים
-                      </h4>
-
-                      <div className="grid gap-3 md:grid-cols-3">
-                        <select
-                          value={blueCardForms[matchKey]?.playerId || ""}
-                          onChange={(e) => {
-                            const selectedPlayerId = e.target.value;
-
-                            const allPlayers = league.teams.flatMap((team) =>
-                              (team.players || []).map((player) => ({
-                                ...player,
-                                teamName: team.name,
-                              })),
-                            );
-
-                            const selectedPlayer = allPlayers.find(
-                              (player) =>
-                                String(player.playerId) ===
-                                String(selectedPlayerId),
-                            );
-
-                            handleBlueCardChange(
-                              matchKey,
-                              "playerId",
-                              selectedPlayerId,
-                            );
-
-                            handleBlueCardChange(
-                              matchKey,
-                              "playerName",
-                              selectedPlayer?.fullName || "",
-                            );
-
-                            handleBlueCardChange(
-                              matchKey,
-                              "teamName",
-                              selectedPlayer?.teamName || "",
-                            );
-                          }}
-                          className="rounded-xl border border-gray-300 px-3 py-2"
-                        >
-                          <option value="">בחר שחקן</option>
-
-                          {league.teams?.flatMap((team) =>
-                            (team.players || []).map((player) => (
-                              <option
-                                key={player.playerId}
-                                value={player.playerId}
-                              >
-                                {player.fullName || player.email} - {team.name}
-                              </option>
-                            )),
-                          )}
-                        </select>
-
-                        <div className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-600">
-                          {blueCardForms[matchKey]?.teamName ||
-                            "קבוצה תתמלא אוטומטית"}
                         </div>
-
-                        <input
-                          type="number"
-                          placeholder="דקה"
-                          value={blueCardForms[matchKey]?.minute || ""}
-                          onChange={(e) =>
-                            handleBlueCardChange(
-                              matchKey,
-                              "minute",
-                              e.target.value,
-                            )
-                          }
-                          className="rounded-xl border border-gray-300 px-3 py-2"
-                        />
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => addBlueCardToMatch(matchKey)}
-                        className="mt-3 rounded-xl bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-                      >
-                        הוסף כרטיס כחול
-                      </button>
-
-                      {match.blueCards?.length > 0 && (
-                        <div className="mt-4 space-y-2">
-                          {match.blueCards.map((card, index) => (
-                            <div
-                              key={index}
-                              className="rounded-xl bg-white px-3 py-2 text-sm text-gray-800"
-                            >
-                              🔵 {card.playerName} | {card.teamName}
-                              {card.minute ? ` | דקה ${card.minute}` : ""}
-                            </div>
-                          ))}
-                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          רק קפטני הקבוצות יכולים לדווח תוצאה.
+                        </p>
                       )}
                     </div>
+                    {canReportMatch && (
+                      <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50 p-4">
+                        <h4 className="mb-3 font-bold text-blue-800">
+                          כרטיסים כחולים
+                        </h4>
+
+                        <div className="grid gap-3 md:grid-cols-3">
+                          <select
+                            value={blueCardForms[matchKey]?.playerId || ""}
+                            onChange={(e) => {
+                              const selectedPlayerId = e.target.value;
+
+                              const allPlayers = league.teams.flatMap((team) =>
+                                (team.players || []).map((player) => ({
+                                  ...player,
+                                  teamName: team.name,
+                                }))
+                              );
+
+                              const selectedPlayer = allPlayers.find(
+                                (player) =>
+                                  String(player.playerId) ===
+                                  String(selectedPlayerId)
+                              );
+
+                              handleBlueCardChange(
+                                matchKey,
+                                "playerId",
+                                selectedPlayerId
+                              );
+
+                              handleBlueCardChange(
+                                matchKey,
+                                "playerName",
+                                selectedPlayer?.fullName || ""
+                              );
+
+                              handleBlueCardChange(
+                                matchKey,
+                                "teamName",
+                                selectedPlayer?.teamName || ""
+                              );
+                            }}
+                            className="rounded-xl border border-gray-300 px-3 py-2"
+                          >
+                            <option value="">בחר שחקן</option>
+
+                            {league.teams?.flatMap((team) =>
+                              (team.players || []).map((player) => (
+                                <option
+                                  key={player.playerId}
+                                  value={player.playerId}
+                                >
+                                  {player.fullName || player.email} -{" "}
+                                  {team.name}
+                                </option>
+                              ))
+                            )}
+                          </select>
+
+                          <div className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-600">
+                            {blueCardForms[matchKey]?.teamName ||
+                              "קבוצה תתמלא אוטומטית"}
+                          </div>
+
+                          <input
+                            type="number"
+                            placeholder="דקה"
+                            value={blueCardForms[matchKey]?.minute || ""}
+                            onChange={(e) =>
+                              handleBlueCardChange(
+                                matchKey,
+                                "minute",
+                                e.target.value
+                              )
+                            }
+                            className="rounded-xl border border-gray-300 px-3 py-2"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => addBlueCardToMatch(matchKey)}
+                          className="mt-3 rounded-xl bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+                        >
+                          הוסף כרטיס כחול
+                        </button>
+
+                        {match.blueCards?.length > 0 && (
+                          <div className="mt-4 space-y-2">
+                            {match.blueCards.map((card, index) => (
+                              <div
+                                key={index}
+                                className="rounded-xl bg-white px-3 py-2 text-sm text-gray-800"
+                              >
+                                🔵 {card.playerName} | {card.teamName}
+                                {card.minute ? ` | דקה ${card.minute}` : ""}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })}
