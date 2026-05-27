@@ -40,7 +40,7 @@ export default function PlayerPage() {
 
         data.teams?.forEach((team) => {
           const player = team.players?.find(
-            (player) => String(player.playerId) === String(playerId)
+            (player) => String(player.playerId) === String(playerId),
           );
 
           if (player) {
@@ -56,7 +56,7 @@ export default function PlayerPage() {
                 scorer.playerName?.trim().toLowerCase() ===
                   foundPlayer.fullName?.trim().toLowerCase() &&
                 scorer.teamName?.trim().toLowerCase() ===
-                  foundTeam.name?.trim().toLowerCase()
+                  foundTeam.name?.trim().toLowerCase(),
             )?.goals || 0;
 
           const playerAssists =
@@ -65,14 +65,26 @@ export default function PlayerPage() {
                 assist.playerName?.trim().toLowerCase() ===
                   foundPlayer.fullName?.trim().toLowerCase() &&
                 assist.teamName?.trim().toLowerCase() ===
-                  foundTeam.name?.trim().toLowerCase()
+                  foundTeam.name?.trim().toLowerCase(),
             )?.assists || 0;
+
+          const playerBlueCards =
+            data.matches?.reduce((total, match) => {
+              const cardsCount =
+                match.blueCards?.filter(
+                  (card) =>
+                    String(card.playerId) === String(foundPlayer.playerId),
+                ).length || 0;
+
+              return total + cardsCount;
+            }, 0) || 0;
 
           setPlayerData({
             ...foundPlayer,
             teamName: foundTeam.name,
             goals: playerGoals,
             assists: playerAssists,
+            blueCards: playerBlueCards,
           });
 
           setEditForm({
@@ -95,6 +107,7 @@ export default function PlayerPage() {
 
   const handleToggleCaptain = async () => {
     const newCaptainState = !playerData.isCaptain;
+
     try {
       const res = await fetch(`/api/leagues/${id}/teams/captain`, {
         method: "PATCH",
@@ -105,11 +118,14 @@ export default function PlayerPage() {
           playerEmail: playerData.email,
         }),
       });
+
       const data = await res.json();
+
       if (!res.ok) {
         alert(data.message || "שגיאה במינוי קפטן");
         return;
       }
+
       setPlayerData((prev) => ({ ...prev, isCaptain: newCaptainState }));
       router.refresh();
     } catch (error) {
@@ -150,7 +166,7 @@ export default function PlayerPage() {
           team.players.map((player) => ({
             ...player,
             teamName: team.name,
-          }))
+          })),
         )
         .find((player) => String(player.playerId) === String(playerId));
 
@@ -265,7 +281,6 @@ export default function PlayerPage() {
             </div>
           )}
 
-
           {canManage && isEditing && (
             <form
               onSubmit={handleUpdatePlayer}
@@ -329,6 +344,13 @@ export default function PlayerPage() {
               <p className="text-sm text-gray-500">בישולים</p>
               <p className="mt-2 text-4xl font-black">{playerData.assists}</p>
             </div>
+
+            <div className="rounded-3xl border border-blue-200 bg-blue-50 p-5">
+              <p className="text-sm text-blue-700">כרטיסים כחולים</p>
+              <p className="mt-2 text-4xl font-black text-blue-900">
+                {playerData.blueCards || 0}
+              </p>
+            </div>
           </div>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -347,7 +369,7 @@ export default function PlayerPage() {
                       style={{
                         width: `${Math.min(
                           Number(playerData.goals) * 10,
-                          100
+                          100,
                         )}%`,
                       }}
                     />
@@ -365,7 +387,7 @@ export default function PlayerPage() {
                       style={{
                         width: `${Math.min(
                           Number(playerData.assists) * 10,
-                          100
+                          100,
                         )}%`,
                       }}
                     />

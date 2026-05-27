@@ -114,6 +114,7 @@ export default function Navbar() {
 
   const privateLinks = [
     { href: "/my-leagues", label: "הליגות שלי" },
+
     ...(currentUser?.role === "manager"
       ? [
           {
@@ -173,18 +174,31 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Link
-          href="/"
-          className="text-3xl font-bold tracking-tight text-gray-900 transition hover:opacity-80"
-        >
-          LeagueHub
-        </Link>
+        <div className="flex flex-row-reverse items-center gap-4">
+          <Link
+            href="/"
+            className="text-3xl font-extrabold tracking-tight text-gray-900 transition hover:opacity-80"
+          >
+            LeagueHub
+          </Link>
+
+          {currentUser && (
+            <Link
+              href="/profile"
+              className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-black hover:bg-black hover:text-white"
+            >
+              הפרופיל שלי
+            </Link>
+          )}
+        </div>
 
         <nav className="flex items-center gap-2">
           {links.map((link) => {
             const isActive =
               pathname === link.href ||
-              (link.href !== "/" && pathname.startsWith(link.href));
+              (link.href !== "/" &&
+                link.href !== "/leagues" &&
+                pathname.startsWith(link.href));
 
             return (
               <Link
@@ -316,21 +330,13 @@ export default function Navbar() {
               <>
                 <button
                   onClick={() => setMenuOpen((prev) => !prev)}
-                  className="rounded-2xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                  className="rounded-2xl border border-green-300 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-100"
                 >
-                  {currentUser.email}
+                  🟢 מחובר
                 </button>
 
                 {menuOpen && (
                   <div className="absolute left-0 mt-3 w-52 rounded-2xl border border-gray-200 bg-white p-2 shadow-lg">
-                    <Link
-                      href="/profile"
-                      onClick={() => setMenuOpen(false)}
-                      className="block rounded-xl px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100"
-                    >
-                      הפרופיל שלי
-                    </Link>
-
                     {currentUser?.role === "manager" && (
                       <Link
                         href="/notifications"

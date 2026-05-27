@@ -8,6 +8,10 @@ export async function PATCH(request, { params }) {
     const { id } = await params;
     const { teamName, playerEmail } = await request.json();
 
+    if (!teamName?.trim() || !playerEmail?.trim()) {
+      return NextResponse.json({ message: "חסרים פרטים" }, { status: 400 });
+    }
+
     await connectToDB();
 
     const currentUser = await getUserFromToken();
@@ -29,55 +33,71 @@ export async function PATCH(request, { params }) {
     if (!isOwner) {
       return NextResponse.json(
         { message: "רק מנהל הליגה יכול למנות קפטן" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const teamIndex = league.teams.findIndex(
-      (t) => t.name?.trim().toLowerCase() === teamName?.trim().toLowerCase()
+      (t) => t.name?.trim().toLowerCase() === teamName.trim().toLowerCase(),
     );
 
     if (teamIndex === -1) {
       return NextResponse.json({ message: "הקבוצה לא נמצאה" }, { status: 404 });
     }
 
+    const normalizedEmail = playerEmail.trim().toLowerCase();
+
     const playerIndex = league.teams[teamIndex].players.findIndex(
-      (p) => p.email?.trim().toLowerCase() === playerEmail?.trim().toLowerCase()
+      (p) => p.email?.trim().toLowerCase() === normalizedEmail,
     );
 
     if (playerIndex === -1) {
-      return NextResponse.json({ message: "השחקן לא נמצא" }, { status: 404 });
+      return NextResponse.json(
+        { message: "השחקן לא נמצא בקבוצה" },
+        { status: 404 },
+      );
     }
 
     const isAlreadyCaptain =
-      league.teams[teamIndex].players[playerIndex].isCaptain;
+      !!league.teams[teamIndex].players[playerIndex].isCaptain;
 
-    // Remove captain from all players in this team first
-    const updateOps = {};
-    league.teams[teamIndex].players.forEach((_, i) => {
-      updateOps[`teams.${teamIndex}.players.${i}.isCaptain`] = false;
-    });
-
-    // If not already captain, set the new captain
     if (!isAlreadyCaptain) {
-      updateOps[`teams.${teamIndex}.players.${playerIndex}.isCaptain`] = true;
+      const otherCaptain = league.teams[teamIndex].players.find(
+        (p) => p.isCaptain && p.email?.trim().toLowerCase() !== normalizedEmail,
+      );
+
+      if (otherCaptain) {
+        return NextResponse.json(
+          {
+            message: `${otherCaptain.fullName || otherCaptain.email} כבר קפטן הקבוצה`,
+          },
+          { status: 400 },
+        );
+      }
     }
 
-    const updated = await League.findByIdAndUpdate(
+    const key = `teams.${teamIndex}.players.${playerIndex}.isCaptain`;
+
+    const fresh = await League.findByIdAndUpdate(
       id,
-      { $set: updateOps },
-      { new: true }
+      { $set: { [key]: !isAlreadyCaptain } },
+      { new: true },
     );
 
     return NextResponse.json({
-      ...updated.toObject(),
-      id: updated._id,
+      ...fresh.toObject(),
+      id: fresh._id,
+      message: !isAlreadyCaptain ? "הקפטן נקבע בהצלחה" : "הקפטן הוסר",
     });
   } catch (error) {
-    console.error("PATCH captain error:", error);
+    console.error("Set captain error:", error);
+
     return NextResponse.json(
-      { message: "שגיאה במינוי קפטן" },
-      { status: 500 }
+      {
+        message: "שגיאה בקביעת קפטן",
+        error: error?.message || "unknown error",
+      },
+      { status: 500 },
     );
   }
 }
