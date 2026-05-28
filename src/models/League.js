@@ -1,5 +1,28 @@
 import mongoose from "mongoose";
 
+const MatchReportSchema = new mongoose.Schema(
+  {
+    captainUserId: { type: String, required: true },
+    captainName: { type: String, default: "" },
+    teamName: { type: String, required: true },
+
+    homeScore: { type: Number, required: true },
+    awayScore: { type: Number, required: true },
+
+    blueCards: [
+      {
+        playerId: { type: String, default: "" },
+        playerName: { type: String, required: true },
+        teamName: { type: String, required: true },
+        minute: { type: Number, default: null },
+      },
+    ],
+
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: true }
+);
+
 const MatchSchema = new mongoose.Schema(
   {
     homeTeam: { type: String, required: true },
@@ -20,8 +43,25 @@ const MatchSchema = new mongoose.Schema(
         minute: { type: Number, default: null },
       },
     ],
+
+    isFinalApproved: {
+      type: Boolean,
+      default: false,
+    },
+
+    captainReports: [MatchReportSchema],
+
+    isApprovedByManager: {
+      type: Boolean,
+      default: false,
+    },
+
+    approvedAt: {
+      type: Date,
+      default: null,
+    },
   },
-  { _id: true },
+  { _id: true }
 );
 
 const StandingSchema = new mongoose.Schema(
@@ -36,7 +76,7 @@ const StandingSchema = new mongoose.Schema(
     goalDifference: { type: Number, default: 0 },
     points: { type: Number, default: 0 },
   },
-  { _id: false },
+  { _id: false }
 );
 
 const TopScorerSchema = new mongoose.Schema(
@@ -45,7 +85,7 @@ const TopScorerSchema = new mongoose.Schema(
     teamName: { type: String, required: true },
     goals: { type: Number, default: 0 },
   },
-  { _id: true },
+  { _id: true }
 );
 
 const TopAssistSchema = new mongoose.Schema(
@@ -54,7 +94,7 @@ const TopAssistSchema = new mongoose.Schema(
     teamName: { type: String, required: true },
     assists: { type: Number, default: 0 },
   },
-  { _id: true },
+  { _id: true }
 );
 
 const MemberSchema = new mongoose.Schema(
@@ -62,7 +102,7 @@ const MemberSchema = new mongoose.Schema(
     email: { type: String, required: true },
     fullName: { type: String, default: "" },
   },
-  { _id: false },
+  { _id: false }
 );
 
 const JoinRequestSchema = new mongoose.Schema(
@@ -86,7 +126,7 @@ const JoinRequestSchema = new mongoose.Schema(
     },
     requestedAt: { type: Date, default: Date.now },
   },
-  { _id: true },
+  { _id: true }
 );
 
 const LeagueSchema = new mongoose.Schema(
@@ -137,7 +177,7 @@ const LeagueSchema = new mongoose.Schema(
     members: [MemberSchema],
     joinRequests: [JoinRequestSchema],
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default mongoose.models.League || mongoose.model("League", LeagueSchema);
