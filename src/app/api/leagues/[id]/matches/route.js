@@ -94,6 +94,11 @@ export async function POST(request, { params }) {
       String(league.createdBy) === String(currentUser.email) ||
       String(league.createdBy) === String(currentUser.userId);
 
+    console.log("league.createdBy:", league.createdBy);
+    console.log("currentUser.email:", currentUser.email);
+    console.log("currentUser.userId:", currentUser.userId);
+    console.log("isOwner:", isOwner);
+
     if (!isOwner) {
       return NextResponse.json({ message: "אין הרשאה" }, { status: 403 });
     }
@@ -281,6 +286,53 @@ export async function PATCH(request, { params }) {
       });
     }
 
+    if (action === "SUBMIT_MATCH_REPORT") {
+      const { captainUserId, captainName, teamName } = body;
+
+      const updatedMatches = league.matches.map((match) => {
+        if (String(match._id) !== String(matchId)) {
+          return match;
+        }
+
+        const reports = match.captainReports || [];
+
+        const filteredReports = reports.filter(
+          (report) => String(report.captainUserId) !== String(captainUserId)
+        );
+
+        return {
+          ...match.toObject(),
+
+          captainReports: [
+            ...filteredReports,
+            {
+              captainUserId,
+              captainName,
+              teamName,
+
+              homeScore: Number(homeScore),
+              awayScore: Number(awayScore),
+
+              blueCards: match.blueCards || [],
+            },
+          ],
+        };
+      });
+
+      league.matches = updatedMatches;
+
+      await league.save();
+
+      return NextResponse.json({
+        ...league.toObject(),
+        id: league._id,
+        matches: league.matches.map((match) => ({
+          ...match.toObject(),
+          id: match._id,
+        })),
+      });
+    }
+
     if (action === "UPDATE_SCORE") {
       if (!isOwner) {
         return NextResponse.json({ message: "אין הרשאה" }, { status: 403 });
@@ -294,6 +346,7 @@ export async function PATCH(request, { params }) {
           homeScore: Number(homeScore),
           awayScore: Number(awayScore),
           score: `${homeScore}-${awayScore}`,
+          isFinalApproved: true,
         };
       });
 

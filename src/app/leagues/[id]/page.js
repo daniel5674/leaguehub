@@ -554,7 +554,43 @@ export default function LeagueDetailsPage() {
     }));
   };
 
-  const handleSaveScore = async (matchId) => {
+  const handleApproveMatch = async (
+    matchId,
+    approvedHomeScore,
+    approvedAwayScore
+  ) => {
+    try {
+      const res = await fetch(`/api/leagues/${id}/matches`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          action: "UPDATE_SCORE",
+          matchId,
+          homeScore: Number(approvedHomeScore),
+          awayScore: Number(approvedAwayScore),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast(data.message || "שגיאה באישור תוצאה", "error");
+        return;
+      }
+
+      setLeague(data);
+
+      showToast("התוצאה אושרה בהצלחה");
+    } catch (error) {
+      console.error("Approve match failed:", error);
+      showToast("שגיאה באישור תוצאה", "error");
+    }
+  };
+
+  const handleSaveScore = async (matchId, captainTeamName) => {
     const form = scoreForms[matchId];
 
     if (!form) {
@@ -575,10 +611,20 @@ export default function LeagueDetailsPage() {
         },
         credentials: "include",
         body: JSON.stringify({
-          action: "UPDATE_SCORE",
+          action: "SUBMIT_MATCH_REPORT",
+
           matchId,
+
           homeScore: Number(form.homeScore),
           awayScore: Number(form.awayScore),
+
+          captainUserId:
+            currentUser?._id || currentUser?.id || currentUser?.email,
+
+          captainName:
+            currentUser?.fullName || currentUser?.name || currentUser?.email,
+
+          teamName: captainTeamName,
         }),
       });
 
@@ -1273,8 +1319,19 @@ export default function LeagueDetailsPage() {
                 );
 
                 const canReportMatch =
-                  !match.isFinalApproved &&
-                  (canManage || isHomeCaptain || isAwayCaptain);
+                  !match.isFinalApproved && (isHomeCaptain || isAwayCaptain);
+
+                const reports = match.captainReports || [];
+
+                const hasTwoReports = reports.length >= 2;
+
+                const reportsMatch =
+                  hasTwoReports &&
+                  Number(reports[0].homeScore) ===
+                    Number(reports[1].homeScore) &&
+                  Number(reports[0].awayScore) === Number(reports[1].awayScore);
+
+                const approvedReport = reportsMatch ? reports[0] : null;
 
                 return (
                   <div
@@ -1319,6 +1376,68 @@ export default function LeagueDetailsPage() {
                           ? `${match.homeScore} - ${match.awayScore}`
                           : "טרם נקבעה"}
                       </p>
+                      {!match.isFinalApproved &&
+                        match.captainReports?.length > 0 && (
+                          <div className="mt-4 rounded-2xl border border-yellow-200 bg-yellow-50 p-4">
+                            <h4 className="mb-3 font-bold text-yellow-800">
+                              דיווחי קפטנים
+                            </h4>
+
+                            <div className="space-y-2">
+                              {match.captainReports.map((report, index) => (
+                                <div
+                                  key={index}
+                                  className="rounded-xl bg-white px-3 py-2 text-sm text-gray-800"
+                                >
+                                  <p>
+                                    <span className="font-bold">
+                                      {report.captainName}
+                                    </span>{" "}
+                                    | {report.teamName}
+                                  </p>
+
+                                  <p className="mt-1">
+                                    דיווח תוצאה: {report.homeScore} -{" "}
+                                    {report.awayScore}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                            {hasTwoReports && (
+                              <div className="mt-4">
+                                {reportsMatch ? (
+                                  <div>
+                                    <div className="rounded-2xl bg-green-100 px-4 py-3 text-sm font-bold text-green-700">
+                                      ✅ הדיווחים תואמים
+                                    </div>
+
+                                    {canManage &&
+                                      reportsMatch &&
+                                      !match.isFinalApproved && (
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            handleApproveMatch(
+                                              matchKey,
+                                              approvedReport.homeScore,
+                                              approvedReport.awayScore
+                                            )
+                                          }
+                                          className="mt-3 rounded-xl bg-green-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-green-700"
+                                        >
+                                          אשר תוצאה
+                                        </button>
+                                      )}
+                                  </div>
+                                ) : (
+                                  <div className="rounded-2xl bg-red-100 px-4 py-3 text-sm font-bold text-red-700">
+                                    ❌ הדיווחים לא תואמים
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
 
                       {canReportMatch ? (
                         <div className="flex items-center gap-2">
@@ -1356,7 +1475,12 @@ export default function LeagueDetailsPage() {
 
                           <button
                             type="button"
-                            onClick={() => handleSaveScore(matchKey)}
+                            onClick={() =>
+                              handleSaveScore(
+                                matchKey,
+                                isHomeCaptain ? match.homeTeam : match.awayTeam
+                              )
+                            }
                             className="rounded-xl bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800"
                           >
                             שלח דיווח
