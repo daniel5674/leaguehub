@@ -13,6 +13,7 @@ export default function CreateLeaguePage() {
     sport: "",
     location: "",
     description: "",
+    leagueType: "regular",
   });
 
   useEffect(() => {
@@ -80,6 +81,19 @@ export default function CreateLeaguePage() {
           className="w-full rounded-xl border p-3"
           required
         />
+
+        <select
+          name="leagueType"
+          value={form.leagueType}
+          onChange={handleChange}
+          className="w-full rounded-xl border p-3"
+          required
+        >
+          <option value="regular">ליגה רגילה - קבוצות קבועות</option>
+          <option value="personal">
+            ליגה אישית - שחקנים ללא קבוצות קבועות
+          </option>
+        </select>
 
         <input
           name="sport"
