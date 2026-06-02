@@ -1,84 +1,29 @@
-// import Link from "next/link";
-// import LeagueCard from "@/components/LeagueCard";
-// import { leagues } from "@/data/leagues";
-
-// export default function Home() {
-//   const featuredLeagues = leagues.slice(0, 2);
-
-//   return (
-//     <main>
-//       <section className="bg-gray-100">
-//         <div className="mx-auto flex max-w-7xl flex-col items-center px-6 py-24 text-center">
-//           <h1 className="mb-4 text-5xl font-bold">ברוכים הבאים ל-LeagueHub</h1>
-
-//           <p className="mb-8 max-w-2xl text-lg text-gray-600">
-//             פלטפורמה חכמה לניהול ליגות שכונתיות, קבוצות, משחקים, תוצאות וטבלאות
-//             במקום אחד.
-//           </p>
-
-//           <div className="flex flex-col gap-4 sm:flex-row">
-//             <Link
-//               href="/leagues/create"
-//               className="rounded-xl bg-black px-6 py-3 text-white transition hover:bg-gray-800"
-//             >
-//               צור ליגה
-//             </Link>
-
-//             <Link
-//               href="/leagues"
-//               className="rounded-xl border border-gray-300 bg-white px-6 py-3 text-gray-900 transition hover:bg-gray-50"
-//             >
-//               צפה בליגות
-//             </Link>
-//           </div>
-//         </div>
-//       </section>
-
-//       <section className="mx-auto max-w-7xl px-6 py-16">
-//         <div className="mb-8 flex items-center justify-between">
-//           <div>
-//             <h2 className="mb-2 text-3xl font-bold">ליגות מובילות</h2>
-//             <p className="text-gray-600">
-//               כמה ליגות לדוגמה שכבר פעילות במערכת.
-//             </p>
-//           </div>
-
-//           <Link href="/leagues" className="text-sm font-medium hover:underline">
-//             לכל הליגות
-//           </Link>
-//         </div>
-
-//         <div className="grid gap-6 md:grid-cols-2">
-//           {featuredLeagues.map((league) => (
-//             <LeagueCard key={league.id} league={league} />
-//           ))}
-//         </div>
-//       </section>
-//     </main>
-//   );
-// }
-
 import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      <section className="mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-16">
+    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-blue-200/30 blur-3xl"></div>
+
+      <div className="absolute top-40 -right-40 h-96 w-96 rounded-full bg-purple-200/30 blur-3xl"></div>
+
+      <div className="absolute bottom-20 left-1/3 h-80 w-80 rounded-full bg-cyan-200/20 blur-3xl"></div>
+      <div className="mx-auto my-4 h-px max-w-6xl bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
+      <section className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-16">
         <div className="grid items-center gap-12 md:grid-cols-2">
           <div>
-            <span className="mb-4 inline-block rounded-full bg-black px-4 py-2 text-sm font-medium text-white">
-              LeagueHub
+            <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-bold text-white shadow-md">
+              🏆 LeagueHub
             </span>
 
-            <h1 className="mb-6 text-4xl font-bold leading-tight text-gray-900 md:text-6xl">
-              ניהול ליגות, קבוצות ומשחקים
-              <span className="block text-gray-500">במקום אחד</span>
+            <h1 className="mb-6 text-5xl font-extrabold leading-tight text-gray-900 md:text-7xl">
+              הפלטפורמה החכמה
+              <span className="block text-slate-500">לניהול ליגות ספורט</span>
             </h1>
 
             <p className="mb-8 max-w-xl text-lg leading-8 text-gray-600">
-              LeagueHub היא מערכת לניהול ליגות ספורט בצורה פשוטה, מסודרת ונוחה.
-              אפשר ליצור ליגה, להוסיף קבוצות, לקבוע משחקים, לעדכן תוצאות ולעקוב
-              אחרי טבלת הליגה בזמן אמת.
+              נהל ליגות, קבוצות, משחקים, טבלאות וסטטיסטיקות בזמן אמת — הכל במקום
+              אחד.
             </p>
 
             <div className="flex flex-col gap-4 sm:flex-row">
@@ -139,6 +84,127 @@ export default function HomePage() {
                 <span className="font-bold text-gray-900">16 נק'</span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto my-4 h-px max-w-6xl bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
+      <section className="bg-white py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="mb-16 text-center">
+            <h2 className="text-4xl font-bold text-gray-900">
+              למה לבחור ב-LeagueHub?
+            </h2>
+
+            <p className="mt-4 text-lg text-gray-600">
+              כל מה שצריך לניהול ליגה במקום אחד.
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-3">
+            <div className="rounded-3xl bg-gray-50 p-8 text-center shadow-sm">
+              <div className="mb-4 text-5xl">🏆</div>
+              <h3 className="rounded-3xl bg-gray-50 p-8 text-center shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
+                ניהול ליגות
+              </h3>
+              <p className="text-gray-600">
+                יצירת ליגות וניהול קבוצות בצורה פשוטה ומהירה.
+              </p>
+            </div>
+
+            <div className="rounded-3xl bg-gray-50 p-8 text-center shadow-sm">
+              <div className="mb-4 text-5xl">⚽</div>
+              <h3 className="rounded-3xl bg-gray-50 p-8 text-center shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
+                ניהול משחקים
+              </h3>
+              <p className="text-gray-600">
+                קביעת משחקים, עדכון תוצאות ומעקב אחרי מחזורים.
+              </p>
+            </div>
+
+            <div className="rounded-3xl bg-gray-50 p-8 text-center shadow-sm">
+              <div className="mb-4 text-5xl">📊</div>
+              <h3 className="rounded-3xl bg-gray-50 p-8 text-center shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
+                סטטיסטיקות בזמן אמת
+              </h3>
+              <p className="text-gray-600">
+                טבלאות, מלך שערים, בישולים וכרטיסים במקום אחד.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto my-4 h-px max-w-6xl bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
+      <section className="bg-gray-50 py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="mb-16 text-center">
+            <h2 className="text-4xl font-bold text-gray-900">איך זה עובד?</h2>
+
+            <p className="mt-4 text-lg text-gray-600">
+              תוך כמה דקות אפשר להקים ליגה מלאה.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-3xl bg-white p-8 text-center shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
+              <div className="mb-4 text-6xl">1️⃣</div>
+              <h3 className="mb-2 text-xl font-bold">צור ליגה</h3>
+              <p className="text-sm text-gray-600">
+                פתח ליגה חדשה תוך פחות מדקה.
+              </p>
+            </div>
+
+            <div className="rounded-3xl bg-white p-8 text-center shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
+              <div className="mb-4 text-6xl">2️⃣</div>
+              <h3 className="mb-2 text-xl font-bold">הוסף קבוצות</h3>
+              <p className="text-sm text-gray-600">
+                בנה את הליגה שלך עם כל הקבוצות המשתתפות.
+              </p>
+            </div>
+
+            <div className="rounded-3xl bg-white p-8 text-center shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
+              <div className="mb-4 text-6xl">3️⃣</div>
+              <h3 className="mb-2 text-xl font-bold">נהל משחקים</h3>
+              <p className="text-sm text-gray-600">
+                קבע משחקים ועדכן תוצאות בקלות.
+              </p>
+            </div>
+
+            <div className="rounded-3xl bg-white p-8 text-center shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
+              <div className="mb-4 text-6xl">4️⃣</div>
+              <h3 className="mb-2 text-xl font-bold">עקוב אחרי סטטיסטיקות</h3>
+              <p className="text-sm text-gray-600">
+                טבלאות, מלך שערים ובישולים בזמן אמת.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto my-4 h-px max-w-6xl bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
+      <section className="bg-slate-900 py-24 text-center text-white">
+        <div className="mx-auto max-w-4xl px-6">
+          <h2 className="text-4xl font-extrabold">מוכן להקים את הליגה שלך?</h2>
+
+          <p className="mt-6 text-lg text-slate-300">
+            צור ליגה, הוסף קבוצות, נהל משחקים וסטטיסטיקות במקום אחד.
+          </p>
+
+          <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
+            <Link
+              href="/leagues/create"
+              className="rounded-2xl bg-white px-8 py-4 font-bold text-black transition hover:bg-gray-200"
+            >
+              🏆 צור ליגה עכשיו
+            </Link>
+
+            <Link
+              href="/leagues"
+              className="rounded-2xl border border-white/30 px-8 py-4 font-bold text-white transition hover:bg-white/10"
+            >
+              ⚽ צפה בליגות
+            </Link>
           </div>
         </div>
       </section>
