@@ -68,6 +68,7 @@ export async function POST(request) {
       sport: body.sport,
       location: body.location,
       description: body.description || "",
+      leagueType: body.leagueType || "regular",
       status: body.status || "פתוחה",
       teamsCount: 0,
       createdBy: currentUser.email,
@@ -75,6 +76,8 @@ export async function POST(request) {
       matches: [],
       standings: [],
       members: [],
+      personalPlayers: [],
+      generatedTeams: [],
     });
 
     return NextResponse.json(

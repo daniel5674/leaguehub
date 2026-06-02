@@ -67,6 +67,16 @@ export default function LeagueDetailsPage() {
 
   const [blueCardForms, setBlueCardForms] = useState({});
 
+  const [personalPlayerForm, setPersonalPlayerForm] = useState({
+    fullName: "",
+    rating: "D",
+    goals: "",
+    assists: "",
+    gamesPlayed: "",
+  });
+
+  const [generatedTeamsCount, setGeneratedTeamsCount] = useState(2);
+
   const showToast = (message, type = "success") => {
     setToast({ message, type });
   };
@@ -326,6 +336,13 @@ export default function LeagueDetailsPage() {
 
   const handleTopAssistChange = (e) => {
     setTopAssistForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handlePersonalPlayerChange = (e) => {
+    setPersonalPlayerForm((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -734,6 +751,82 @@ export default function LeagueDetailsPage() {
     }
   };
 
+  const handleAddPersonalPlayer = async (e) => {
+    e.preventDefault();
+
+    if (!personalPlayerForm.fullName.trim()) {
+      showToast("צריך להזין שם שחקן", "error");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/leagues/${id}/personal-players`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          fullName: personalPlayerForm.fullName,
+          rating: personalPlayerForm.rating,
+          goals: personalPlayerForm.goals,
+          assists: personalPlayerForm.assists,
+          gamesPlayed: personalPlayerForm.gamesPlayed,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast(data.message || "שגיאה בהוספת שחקן", "error");
+        return;
+      }
+
+      setLeague(data);
+
+      setPersonalPlayerForm({
+        fullName: "",
+        rating: "D",
+        goals: "",
+        assists: "",
+        gamesPlayed: "",
+      });
+
+      showToast("השחקן נוסף בהצלחה");
+    } catch (error) {
+      console.error(error);
+      showToast("שגיאה בהוספת שחקן", "error");
+    }
+  };
+
+  const handleGenerateTeams = async () => {
+    try {
+      const res = await fetch(`/api/leagues/${id}/generate-teams`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          teamsCount: Number(generatedTeamsCount),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast(data.message || "שגיאה ביצירת קבוצות", "error");
+        return;
+      }
+
+      setLeague(data);
+      showToast("הקבוצות נוצרו בהצלחה");
+    } catch (error) {
+      console.error(error);
+      showToast("שגיאה ביצירת קבוצות", "error");
+    }
+  };
+
   if (loading) {
     return (
       <main className="mx-auto max-w-5xl px-6 py-12">
@@ -749,6 +842,8 @@ export default function LeagueDetailsPage() {
       </main>
     );
   }
+
+  const isPersonalLeague = league.leagueType === "personal";
 
   const currentUserId = currentUser?._id || currentUser?.id;
 
@@ -825,7 +920,13 @@ export default function LeagueDetailsPage() {
     <main className="mx-auto max-w-5xl px-6 py-12">
       <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">{league.name}</h1>
+          <div>
+            <h1 className="text-3xl font-bold">{league.name}</h1>
+
+            <p className="mt-1 text-sm text-gray-500">
+              {isPersonalLeague ? "ליגה אישית" : "ליגה רגילה"}
+            </p>
+          </div>
 
           <div className="flex items-center gap-3">
             <span className="rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-600">
@@ -934,6 +1035,200 @@ export default function LeagueDetailsPage() {
             {league.description || "אין תיאור לליגה"}
           </p>
         </div>
+
+        {isPersonalLeague && (
+          <section className="mb-8 rounded-3xl border border-purple-200 bg-purple-50 p-6">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-purple-900">
+                שחקני הליגה האישית
+              </h2>
+
+              <span className="text-sm text-purple-700">
+                {league.personalPlayers?.length || 0} שחקנים
+              </span>
+            </div>
+
+            {canManage && (
+              <form
+                onSubmit={handleAddPersonalPlayer}
+                className="mb-6 grid gap-3 md:grid-cols-5"
+              >
+                <input
+                  type="text"
+                  name="fullName"
+                  placeholder="שם השחקן"
+                  value={personalPlayerForm.fullName}
+                  onChange={handlePersonalPlayerChange}
+                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                />
+
+                <select
+                  name="rating"
+                  value={personalPlayerForm.rating}
+                  onChange={handlePersonalPlayerChange}
+                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                >
+                  <option value="A">דירוג A</option>
+                  <option value="B">דירוג B</option>
+                  <option value="C">דירוג C</option>
+                  <option value="D">דירוג D</option>
+                </select>
+
+                <input
+                  type="number"
+                  min="0"
+                  name="goals"
+                  placeholder="שערים"
+                  value={personalPlayerForm.goals}
+                  onChange={handlePersonalPlayerChange}
+                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                />
+
+                <input
+                  type="number"
+                  min="0"
+                  name="assists"
+                  placeholder="בישולים"
+                  value={personalPlayerForm.assists}
+                  onChange={handlePersonalPlayerChange}
+                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                />
+
+                <input
+                  type="number"
+                  min="0"
+                  name="gamesPlayed"
+                  placeholder="משחקים"
+                  value={personalPlayerForm.gamesPlayed}
+                  onChange={handlePersonalPlayerChange}
+                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                />
+
+                <button
+                  type="submit"
+                  className="md:col-span-5 rounded-2xl bg-purple-700 px-5 py-3 text-white transition hover:bg-purple-800"
+                >
+                  הוסף שחקן
+                </button>
+              </form>
+            )}
+
+            {!league.personalPlayers || league.personalPlayers.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-purple-300 bg-white p-8 text-center text-gray-500">
+                עדיין אין שחקנים בליגה האישית
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full overflow-hidden rounded-2xl border border-purple-200">
+                  <thead className="bg-purple-100 text-sm text-purple-900">
+                    <tr>
+                      <th className="px-4 py-3 text-right">#</th>
+                      <th className="px-4 py-3 text-right">שחקן</th>
+                      <th className="px-4 py-3 text-center">דירוג</th>
+                      <th className="px-4 py-3 text-center">שערים</th>
+                      <th className="px-4 py-3 text-center">בישולים</th>
+                      <th className="px-4 py-3 text-center">משחקים</th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="bg-white text-sm">
+                    {[...(league.personalPlayers || [])]
+                      .sort((a, b) => Number(b.goals) - Number(a.goals))
+                      .map((player, index) => (
+                        <tr
+                          key={player._id || index}
+                          className={`border-t border-purple-100 ${
+                            index === 0 ? "bg-yellow-50" : ""
+                          }`}
+                        >
+                          <td className="px-4 py-3 font-medium">{index + 1}</td>
+
+                          <td className="px-4 py-3 font-semibold text-gray-900">
+                            {player.fullName}
+                          </td>
+
+                          <td className="px-4 py-3 text-center font-bold">
+                            {player.rating}
+                          </td>
+
+                          <td className="px-4 py-3 text-center font-bold">
+                            {player.goals}
+                          </td>
+
+                          <td className="px-4 py-3 text-center">
+                            {player.assists}
+                          </td>
+
+                          <td className="px-4 py-3 text-center">
+                            {player.gamesPlayed}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {canManage && league.personalPlayers?.length >= 2 && (
+              <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-4">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  כמה קבוצות ליצור?
+                </label>
+
+                <select
+                  value={generatedTeamsCount}
+                  onChange={(e) => setGeneratedTeamsCount(e.target.value)}
+                  className="mb-4 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                >
+                  {Array.from(
+                    { length: Math.min(league.personalPlayers.length, 6) - 1 },
+                    (_, index) => index + 2
+                  ).map((count) => (
+                    <option key={count} value={count}>
+                      {count} קבוצות
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  type="button"
+                  onClick={handleGenerateTeams}
+                  className="w-full rounded-2xl bg-black px-5 py-3 text-white transition hover:bg-gray-800"
+                >
+                  צור קבוצות מאוזנות
+                </button>
+              </div>
+            )}
+
+            {league.generatedTeams?.length > 0 && (
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                {league.generatedTeams.map((team) => (
+                  <div
+                    key={team._id || team.name}
+                    className="rounded-2xl border border-gray-200 bg-white p-4"
+                  >
+                    <h3 className="mb-3 text-xl font-bold">{team.name}</h3>
+
+                    <div className="space-y-2">
+                      {team.players.map((player, index) => (
+                        <div
+                          key={`${player.fullName}-${index}`}
+                          className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2"
+                        >
+                          <span className="font-medium">{player.fullName}</span>
+
+                          <span className="rounded-full bg-purple-100 px-3 py-1 text-sm font-bold text-purple-700">
+                            דירוג {player.rating}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         {isGuest && (
           <div className="mb-8 rounded-3xl border border-yellow-200 bg-yellow-50 p-6 text-center">

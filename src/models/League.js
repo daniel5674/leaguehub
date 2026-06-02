@@ -129,12 +129,48 @@ const JoinRequestSchema = new mongoose.Schema(
   { _id: true }
 );
 
+const PersonalPlayerSchema = new mongoose.Schema(
+  {
+    fullName: { type: String, required: true },
+    rating: {
+      type: String,
+      enum: ["A", "B", "C", "D"],
+      default: "D",
+    },
+    goals: { type: Number, default: 0 },
+    assists: { type: Number, default: 0 },
+    gamesPlayed: { type: Number, default: 0 },
+  },
+  { _id: true }
+);
+
+const GeneratedTeamSchema = new mongoose.Schema(
+  {
+    name: String,
+
+    players: [
+      {
+        fullName: String,
+        rating: String,
+      },
+    ],
+  },
+  { _id: true }
+);
+
 const LeagueSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     sport: { type: String, required: true },
     location: { type: String, required: true },
     description: { type: String, default: "" },
+
+    leagueType: {
+      type: String,
+      enum: ["regular", "personal"],
+      default: "regular",
+    },
+
     status: { type: String, default: "פתוחה" },
     teamsCount: { type: Number, default: 0 },
     createdBy: { type: String, required: true },
@@ -176,6 +212,8 @@ const LeagueSchema = new mongoose.Schema(
     topAssists: [TopAssistSchema],
     members: [MemberSchema],
     joinRequests: [JoinRequestSchema],
+    personalPlayers: [PersonalPlayerSchema],
+    generatedTeams: [GeneratedTeamSchema],
   },
   { timestamps: true }
 );
