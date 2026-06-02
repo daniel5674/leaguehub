@@ -40,7 +40,7 @@ export default function PlayerPage() {
 
         data.teams?.forEach((team) => {
           const player = team.players?.find(
-            (player) => String(player.playerId) === String(playerId),
+            (player) => String(player.playerId) === String(playerId)
           );
 
           if (player) {
@@ -56,7 +56,7 @@ export default function PlayerPage() {
                 scorer.playerName?.trim().toLowerCase() ===
                   foundPlayer.fullName?.trim().toLowerCase() &&
                 scorer.teamName?.trim().toLowerCase() ===
-                  foundTeam.name?.trim().toLowerCase(),
+                  foundTeam.name?.trim().toLowerCase()
             )?.goals || 0;
 
           const playerAssists =
@@ -65,7 +65,7 @@ export default function PlayerPage() {
                 assist.playerName?.trim().toLowerCase() ===
                   foundPlayer.fullName?.trim().toLowerCase() &&
                 assist.teamName?.trim().toLowerCase() ===
-                  foundTeam.name?.trim().toLowerCase(),
+                  foundTeam.name?.trim().toLowerCase()
             )?.assists || 0;
 
           const playerBlueCards =
@@ -73,7 +73,7 @@ export default function PlayerPage() {
               const cardsCount =
                 match.blueCards?.filter(
                   (card) =>
-                    String(card.playerId) === String(foundPlayer.playerId),
+                    String(card.playerId) === String(foundPlayer.playerId)
                 ).length || 0;
 
               return total + cardsCount;
@@ -166,7 +166,7 @@ export default function PlayerPage() {
           team.players.map((player) => ({
             ...player,
             teamName: team.name,
-          })),
+          }))
         )
         .find((player) => String(player.playerId) === String(playerId));
 
@@ -218,14 +218,28 @@ export default function PlayerPage() {
               </div>
 
               <div>
-                <p className="text-sm text-gray-300">Player Profile</p>
+                <p className="text-sm text-gray-300">פרופיל שחקן</p>
                 <div className="mt-1 flex items-center gap-3">
                   <h1 className="text-4xl font-black">{playerData.fullName}</h1>
-                  {playerData.isCaptain && (
-                    <span className="rounded-full bg-yellow-400 px-3 py-1 text-sm font-bold text-black">
-                      ★ קפטן
-                    </span>
-                  )}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {playerData.isCaptain && (
+                      <span className="rounded-full bg-yellow-400 px-3 py-1 text-sm font-bold text-black">
+                        👑 קפטן
+                      </span>
+                    )}
+
+                    {playerData.goals >= 10 && (
+                      <span className="rounded-full bg-green-500 px-3 py-1 text-sm font-bold text-white">
+                        ⚽ חלוץ מוביל
+                      </span>
+                    )}
+
+                    {playerData.assists >= 5 && (
+                      <span className="rounded-full bg-indigo-500 px-3 py-1 text-sm font-bold text-white">
+                        🎯 פליימייקר
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="mt-2 text-gray-300">{playerData.email}</p>
                 <p className="mt-1 text-sm text-gray-300">
@@ -322,80 +336,49 @@ export default function PlayerPage() {
             </form>
           )}
 
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="rounded-3xl border border-gray-200 bg-gray-50 p-5">
-              <p className="text-sm text-gray-500">קבוצה</p>
-              <p className="mt-2 text-xl font-black">{playerData.teamName}</p>
-            </div>
-
-            <div className="rounded-3xl border border-gray-200 bg-gray-50 p-5">
-              <p className="text-sm text-gray-500">עמדה</p>
-              <p className="mt-2 text-xl font-black">
-                {playerData.position || "לא נקבע"}
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+              <div className="text-3xl">🏆</div>
+              <p className="mt-2 text-3xl font-black text-gray-900">
+                {playerData.teamName}
               </p>
+              <p className="text-sm text-gray-600">קבוצה</p>
             </div>
 
-            <div className="rounded-3xl border border-gray-200 bg-gray-50 p-5">
-              <p className="text-sm text-gray-500">שערים</p>
-              <p className="mt-2 text-4xl font-black">{playerData.goals}</p>
+            <div className="rounded-3xl border border-purple-200 bg-purple-50 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+              <div className="text-3xl">🎯</div>
+              <p className="mt-2 text-3xl font-black text-gray-900">
+                {playerData.position || "-"}
+              </p>
+              <p className="text-sm text-gray-600">עמדה</p>
             </div>
 
-            <div className="rounded-3xl border border-gray-200 bg-gray-50 p-5">
-              <p className="text-sm text-gray-500">בישולים</p>
-              <p className="mt-2 text-4xl font-black">{playerData.assists}</p>
+            <div className="rounded-3xl border border-green-200 bg-green-50 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+              <div className="text-3xl">⚽</div>
+              <p className="mt-2 text-5xl font-black text-green-700">
+                {playerData.goals}
+              </p>
+              <p className="text-sm text-gray-600">שערים</p>
             </div>
 
-            <div className="rounded-3xl border border-blue-200 bg-blue-50 p-5">
-              <p className="text-sm text-blue-700">כרטיסים כחולים</p>
-              <p className="mt-2 text-4xl font-black text-blue-900">
+            <div className="rounded-3xl border border-indigo-200 bg-indigo-50 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+              <div className="text-3xl">🅰️</div>
+              <p className="mt-2 text-5xl font-black text-indigo-700">
+                {playerData.assists}
+              </p>
+              <p className="text-sm text-gray-600">בישולים</p>
+            </div>
+
+            <div className="rounded-3xl border border-blue-200 bg-blue-50 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+              <div className="text-3xl">🟦</div>
+              <p className="mt-2 text-5xl font-black text-blue-700">
                 {playerData.blueCards || 0}
               </p>
+              <p className="text-sm text-gray-600">כרטיסים כחולים</p>
             </div>
           </div>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
-            <div className="rounded-3xl border border-gray-200 p-6">
-              <h2 className="text-xl font-bold">סטטיסטיקות התקפה</h2>
-
-              <div className="mt-5 space-y-4">
-                <div>
-                  <div className="mb-1 flex justify-between text-sm">
-                    <span>שערים</span>
-                    <span>{playerData.goals}</span>
-                  </div>
-                  <div className="h-3 rounded-full bg-gray-100">
-                    <div
-                      className="h-3 rounded-full bg-black"
-                      style={{
-                        width: `${Math.min(
-                          Number(playerData.goals) * 10,
-                          100,
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-1 flex justify-between text-sm">
-                    <span>בישולים</span>
-                    <span>{playerData.assists}</span>
-                  </div>
-                  <div className="h-3 rounded-full bg-gray-100">
-                    <div
-                      className="h-3 rounded-full bg-black"
-                      style={{
-                        width: `${Math.min(
-                          Number(playerData.assists) * 10,
-                          100,
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div className="rounded-3xl border border-gray-200 p-6">
               <h2 className="text-xl font-bold">מידע שחקן</h2>
 
