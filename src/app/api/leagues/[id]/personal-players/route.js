@@ -1,18 +1,51 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 import League from "@/models/League";
+import User from "@/models/User";
+import { getUserFromToken } from "@/lib/getUserFromToken";
+
+async function notifyUser(email, message, leagueId, leagueName) {
+  try {
+    if (!email) return;
+    const user = await User.findOne({ email });
+    if (!user) return;
+    user.notifications.push({
+      message,
+      leagueId: String(leagueId),
+      leagueName,
+      type: "info",
+      read: false,
+    });
+    await user.save();
+  } catch (e) {
+    console.error("Failed to send notification:", e);
+  }
+}
 
 export async function POST(request, { params }) {
   try {
     await connectToDB();
 
     const { id } = await params;
-    const body = await request.json();
+    const authUser = await getUserFromToken();
 
+    if (!authUser) {
+      return NextResponse.json({ message: "לא מחובר" }, { status: 401 });
+    }
+
+    const body = await request.json();
     const league = await League.findById(id);
 
     if (!league) {
       return NextResponse.json({ message: "הליגה לא נמצאה" }, { status: 404 });
+    }
+
+    const isOwner =
+      String(league.createdBy) === String(authUser.email) ||
+      String(league.createdBy) === String(authUser._id);
+
+    if (!isOwner) {
+      return NextResponse.json({ message: "אין הרשאה" }, { status: 403 });
     }
 
     if (league.leagueType !== "personal") {
@@ -23,32 +56,42 @@ export async function POST(request, { params }) {
     }
 
     if (!body.fullName?.trim()) {
-      return NextResponse.json(
-        { message: "צריך להזין שם שחקן" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "צריך להזין שם שחקן" }, { status: 400 });
+    }
+
+    const alreadyInRoster = body.email
+      ? league.personalPlayers.some((p) => p.email && p.email === body.email)
+      : false;
+
+    if (alreadyInRoster) {
+      return NextResponse.json({ message: "השחקן כבר נמצא ברשימה" }, { status: 400 });
     }
 
     league.personalPlayers.push({
+      userId: body.userId || "",
+      email: body.email || "",
       fullName: body.fullName.trim(),
       rating: body.rating || "D",
-      goals: Number(body.goals) || 0,
-      assists: Number(body.assists) || 0,
-      gamesPlayed: Number(body.gamesPlayed) || 0,
+      goals: 0,
+      assists: 0,
+      gamesPlayed: 0,
     });
 
     await league.save();
 
-    return NextResponse.json({
-      ...league.toObject(),
-      id: league._id,
-    });
+    if (body.email) {
+      await notifyUser(
+        body.email,
+        `הוספת לליגה "${league.name}"`,
+        league._id,
+        league.name
+      );
+    }
+
+    return NextResponse.json({ ...league.toObject(), id: league._id });
   } catch (error) {
     console.error("POST personal player error:", error);
-    return NextResponse.json(
-      { message: "שגיאה בהוספת שחקן אישי" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "שגיאה בהוספת שחקן אישי" }, { status: 500 });
   }
 }
 
@@ -81,15 +124,9 @@ export async function DELETE(request, { params }) {
 
     await league.save();
 
-    return NextResponse.json({
-      ...league.toObject(),
-      id: league._id,
-    });
+    return NextResponse.json({ ...league.toObject(), id: league._id });
   } catch (error) {
     console.error("DELETE personal player error:", error);
-    return NextResponse.json(
-      { message: "שגיאה בהסרת שחקן אישי" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "שגיאה בהסרת שחקן אישי" }, { status: 500 });
   }
 }

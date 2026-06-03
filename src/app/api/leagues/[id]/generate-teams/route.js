@@ -33,7 +33,11 @@ export async function POST(request, { params }) {
       );
     }
 
-    const players = shuffleArray([...(league.personalPlayers || [])]);
+    const sourcePlayers = Array.isArray(body.players) && body.players.length > 0
+      ? body.players
+      : league.personalPlayers || [];
+
+    const players = shuffleArray([...sourcePlayers]);
 
     const teamsCount = Number(body.teamsCount) || 2;
 
