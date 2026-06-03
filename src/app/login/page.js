@@ -1,122 +1,20 @@
-// "use client";
-
-// import { useState } from "react";
-// import { useRouter } from "next/navigation";
-// import { useAuth } from "@/context/AuthContext";
-
-// export default function LoginPage() {
-//   const router = useRouter();
-//   const { login } = useAuth();
-
-//   const [form, setForm] = useState({
-//     email: "",
-//     password: "",
-//   });
-
-//   const [message, setMessage] = useState("");
-//   const [messageType, setMessageType] = useState("error");
-
-//   const handleChange = (e) => {
-//     setForm({
-//       ...form,
-//       [e.target.name]: e.target.value,
-//     });
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-
-//     if (!form.email.trim() || !form.password.trim()) {
-//       setMessage("צריך למלא אימייל וסיסמה");
-//       setMessageType("error");
-//       return;
-//     }
-
-//     const result = login(form);
-
-//     setMessage(result.message);
-//     setMessageType(result.success ? "success" : "error");
-
-//     if (result.success) {
-//       setTimeout(() => {
-//         router.push("/dashboard");
-//       }, 1000);
-//     }
-//   };
-
-//   return (
-//     <main className="mx-auto max-w-md px-6 py-12">
-//       <h1 className="mb-6 text-3xl font-bold">התחברות</h1>
-
-//       <form
-//         onSubmit={handleSubmit}
-//         className="space-y-4 rounded-2xl bg-white p-6 shadow-sm"
-//       >
-//         <div>
-//           <label className="mb-2 block text-sm font-medium">אימייל</label>
-//           <input
-//             type="email"
-//             name="email"
-//             placeholder="הכנס אימייל"
-//             value={form.email}
-//             onChange={handleChange}
-//             className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-//           />
-//         </div>
-
-//         <div>
-//           <label className="mb-2 block text-sm font-medium">סיסמה</label>
-//           <input
-//             type="password"
-//             name="password"
-//             placeholder="הכנס סיסמה"
-//             value={form.password}
-//             onChange={handleChange}
-//             className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-//           />
-//         </div>
-
-//         {message && (
-//           <p
-//             className={`text-sm ${
-//               messageType === "success" ? "text-green-600" : "text-red-500"
-//             }`}
-//           >
-//             {message}
-//           </p>
-//         )}
-
-//         <button className="w-full rounded-xl bg-black py-3 text-white hover:bg-gray-800">
-//           התחבר
-//         </button>
-//       </form>
-//     </main>
-//   );
-// }
-
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
 
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [form, setForm] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
@@ -137,43 +35,112 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="mx-auto flex min-h-[80vh] max-w-md items-center px-6 py-12">
-      <div className="w-full rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
-        <h1 className="mb-2 text-3xl font-bold text-gray-900">התחברות</h1>
-        <p className="mb-6 text-gray-500">התחבר לחשבון שלך ב-LeagueHub</p>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4" dir="rtl">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            name="email"
-            placeholder="אימייל"
-            value={form.email}
-            onChange={handleChange}
-            className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-            required
-          />
+      {/* Deep navy background */}
+      <div className="absolute inset-0 bg-[#040b18]" />
 
-          <input
-            type="password"
-            name="password"
-            placeholder="סיסמה"
-            value={form.password}
-            onChange={handleChange}
-            className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-            required
-          />
-
-          {message && <p className="text-sm text-red-500">{message}</p>}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-2xl bg-black py-3 text-white transition hover:bg-gray-800 disabled:opacity-60"
-          >
-            {loading ? "מתחבר..." : "התחבר"}
-          </button>
-        </form>
+      {/* Pitch at the bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-2/5">
+        <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 to-transparent" />
+        <svg className="absolute inset-0 h-full w-full opacity-25" viewBox="0 0 800 300" preserveAspectRatio="xMidYMax slice">
+          <line x1="400" y1="0" x2="400" y2="300" stroke="white" strokeWidth="1.5" />
+          <ellipse cx="400" cy="300" rx="140" ry="80" fill="none" stroke="white" strokeWidth="1.5" />
+          <rect x="270" y="220" width="260" height="80" fill="none" stroke="white" strokeWidth="1.5" />
+          <rect x="340" y="260" width="120" height="40" fill="none" stroke="white" strokeWidth="1.5" />
+          <line x1="0" y1="0" x2="800" y2="0" stroke="white" strokeWidth="1.5" />
+        </svg>
       </div>
-    </main>
+
+      {/* Floodlight beams */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute left-0 top-0 h-full w-1/3 origin-top-left opacity-60"
+          style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)" }} />
+        <div className="absolute right-0 top-0 h-full w-1/3 origin-top-right opacity-60"
+          style={{ background: "linear-gradient(225deg, rgba(255,255,255,0.06) 0%, transparent 60%)" }} />
+      </div>
+
+      {/* Stars */}
+      {[...Array(30)].map((_, i) => (
+        <div key={i} className="absolute h-px w-px rounded-full bg-white"
+          style={{ opacity: Math.random() * 0.6 + 0.2, top: `${Math.random() * 55}%`, left: `${Math.random() * 100}%` }} />
+      ))}
+
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-sm">
+
+        {/* Football SVG */}
+        <div className="mb-6 flex justify-center">
+          <svg width="72" height="72" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_0_20px_rgba(74,222,128,0.5)]">
+            <circle cx="50" cy="50" r="46" fill="#1a2a1a" stroke="white" strokeWidth="2.5" />
+            <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="8" />
+            {/* Pentagon patches */}
+            <polygon points="50,18 62,27 58,41 42,41 38,27" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
+            <polygon points="18,40 30,32 42,41 38,55 24,58" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
+            <polygon points="82,40 70,32 58,41 62,55 76,58" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
+            <polygon points="26,74 24,58 38,55 46,66 38,78" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
+            <polygon points="74,74 76,58 62,55 54,66 62,78" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
+            <polygon points="50,82 38,78 46,66 54,66 62,78" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
+          </svg>
+        </div>
+
+        <div className="mb-2 text-center">
+          <p className="text-xl font-black tracking-widest text-white">LEAGUE<span className="text-green-400">HUB</span></p>
+          <p className="mt-1 text-xs text-gray-500">ברוך הבא חזרה</p>
+        </div>
+
+        {/* Card */}
+        <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-7 shadow-2xl backdrop-blur-xl">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="mb-2 block text-xs font-medium text-gray-400">אימייל</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={handleChange}
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-600 outline-none transition focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-xs font-medium text-gray-400">סיסמה</label>
+              <input
+                type="password"
+                name="password"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={handleChange}
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-600 outline-none transition focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20"
+                required
+              />
+            </div>
+
+            {message && (
+              <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                {message}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-2xl bg-green-500 py-3 text-sm font-bold text-black transition hover:bg-green-400 active:scale-[0.98] disabled:opacity-50"
+            >
+              {loading ? "מתחבר..." : "התחבר"}
+            </button>
+          </form>
+        </div>
+
+        <p className="mt-5 text-center text-xs text-gray-600">
+          אין לך חשבון?{" "}
+          <Link href="/register" className="font-bold text-green-400 hover:text-green-300">
+            הירשם עכשיו
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }
