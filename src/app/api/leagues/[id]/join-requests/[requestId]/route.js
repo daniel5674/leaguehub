@@ -78,61 +78,83 @@ export async function PATCH(request, { params }) {
         { status: 403 }
       );
     }
-
     if (action === "approve") {
-      if (teamIndex === -1) {
-        return NextResponse.json(
-          { message: "הקבוצה לא נמצאה" },
-          { status: 404 }
-        );
-      }
-
       const normalizedEmail = joinRequest.playerEmail.trim().toLowerCase();
 
-      if (joinRequest.type === "coach") {
-        league.teams[teamIndex].coachEmail = normalizedEmail;
-        league.teams[teamIndex].coachName = joinRequest.playerName || "";
+      if (league.leagueType === "personal") {
+        if (!league.personalPlayers) {
+          league.personalPlayers = [];
+        }
+
+        const alreadyPersonalPlayer = league.personalPlayers.some(
+          (player) =>
+            player.email?.trim().toLowerCase() === normalizedEmail ||
+            String(player.playerId) === String(joinRequest.playerId)
+        );
+
+        if (!alreadyPersonalPlayer) {
+          league.personalPlayers.push({
+            playerId: joinRequest.playerId,
+            email: normalizedEmail,
+            fullName: joinRequest.playerName || "",
+            rating: "D",
+            goals: 0,
+            assists: 0,
+            gamesPlayed: 0,
+          });
+        }
+
+        const alreadyMember = league.members.some(
+          (member) => member.email?.trim().toLowerCase() === normalizedEmail
+        );
+
+        if (!alreadyMember) {
+          league.members.push({
+            email: normalizedEmail,
+            fullName: joinRequest.playerName || "",
+          });
+        }
+
         league.joinRequests[requestIndex].status = "approved";
+      } else {
+        if (teamIndex === -1) {
+          return NextResponse.json(
+            { message: "הקבוצה לא נמצאה" },
+            { status: 404 }
+          );
+        }
 
-        await league.save();
+        if (!league.teams[teamIndex].players) {
+          league.teams[teamIndex].players = [];
+        }
 
-        return NextResponse.json({
-          ...league.toObject(),
-          id: league._id,
-          message: "בקשת המאמן אושרה",
-        });
+        const alreadyInTeam = league.teams.some((team) =>
+          team.players?.some(
+            (player) => player.email?.trim().toLowerCase() === normalizedEmail
+          )
+        );
+
+        if (!alreadyInTeam) {
+          league.teams[teamIndex].players.push({
+            playerId: joinRequest.playerId,
+            email: normalizedEmail,
+            fullName: joinRequest.playerName || "",
+          });
+        }
+
+        const alreadyMember = league.members.some(
+          (member) => member.email?.trim().toLowerCase() === normalizedEmail
+        );
+
+        if (!alreadyMember) {
+          league.members.push({
+            email: normalizedEmail,
+            fullName: joinRequest.playerName || "",
+          });
+        }
+
+        league.joinRequests[requestIndex].status = "approved";
       }
-
-      if (!league.teams[teamIndex].players) {
-        league.teams[teamIndex].players = [];
-      }
-
-      const alreadyInTeam = league.teams.some((team) =>
-        team.players?.some(
-          (player) => player.email?.trim().toLowerCase() === normalizedEmail
-        )
-      );
-
-      if (!alreadyInTeam) {
-        league.teams[teamIndex].players.push({
-          playerId: joinRequest.playerId,
-          email: normalizedEmail,
-          fullName: joinRequest.playerName || "",
-        });
-      }
-
-      const alreadyMember = league.members.some(
-        (member) => member.email?.trim().toLowerCase() === normalizedEmail
-      );
-
-      if (!alreadyMember) {
-        league.members.push({
-          email: normalizedEmail,
-          fullName: joinRequest.playerName || "",
-        });
-      }
-
-      league.joinRequests[requestIndex].status = "approved";
     }
 
     if (action === "reject") {

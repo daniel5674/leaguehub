@@ -140,7 +140,9 @@ export default function LeagueDetailsPage() {
   }, [league]);
 
   const handleRequestJoin = async () => {
-    if (!selectedTeam) {
+    const isPersonalLeague = league?.leagueType === "personal";
+
+    if (!isPersonalLeague && !selectedTeam) {
       showToast("צריך לבחור קבוצה", "error");
       return;
     }
@@ -152,13 +154,12 @@ export default function LeagueDetailsPage() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
-          teamName: selectedTeam,
-        }),
+        body: JSON.stringify(
+          isPersonalLeague ? {} : { teamName: selectedTeam }
+        ),
       });
 
-      const text = await res.text();
-      const data = JSON.parse(text);
+      const data = await res.json();
 
       if (!res.ok) {
         showToast(data.message || "שגיאה בשליחת בקשה", "error");
@@ -984,19 +985,21 @@ export default function LeagueDetailsPage() {
                 !alreadyInAnyTeam &&
                 !hasPendingJoinRequest && (
                   <div className="flex items-center gap-2">
-                    <select
-                      value={selectedTeam}
-                      onChange={(e) => setSelectedTeam(e.target.value)}
-                      className="rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-black"
-                    >
-                      <option value="">בחר קבוצה</option>
-                      {league.teams.map((team) => (
-                        <option key={team._id || team.name} value={team.name}>
-                          {team.name}
-                        </option>
-                      ))}
-                    </select>
+                    {league.leagueType !== "personal" && (
+                      <select
+                        value={selectedTeam}
+                        onChange={(e) => setSelectedTeam(e.target.value)}
+                        className="rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-black"
+                      >
+                        <option value="">בחר קבוצה</option>
 
+                        {league.teams.map((team) => (
+                          <option key={team._id || team.name} value={team.name}>
+                            {team.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                     <button
                       type="button"
                       onClick={handleRequestJoin}
