@@ -7,14 +7,8 @@ import User from "@/models/User";
 export async function POST(request, { params }) {
   try {
     const { id } = await params;
-    const { teamName } = await request.json();
-
-    if (!teamName?.trim()) {
-      return NextResponse.json(
-        { message: "צריך לבחור קבוצה" },
-        { status: 400 }
-      );
-    }
+    const body = await request.json();
+    const { teamName } = body;
 
     await connectToDB();
 
@@ -43,19 +37,29 @@ export async function POST(request, { params }) {
       return NextResponse.json({ message: "הליגה לא נמצאה" }, { status: 404 });
     }
 
+    const isPersonalLeague = league.leagueType === "personal";
     const normalizedEmail = user.email.trim().toLowerCase();
-    const trimmedTeamName = teamName.trim();
+    const trimmedTeamName = teamName?.trim() || "";
 
-    const teamExists = league.teams.some(
-      (team) =>
-        team.name?.trim().toLowerCase() === trimmedTeamName.toLowerCase()
-    );
-
-    if (!teamExists) {
+    if (!isPersonalLeague && !trimmedTeamName) {
       return NextResponse.json(
-        { message: "הקבוצה לא נמצאה בליגה" },
-        { status: 404 }
+        { message: "צריך לבחור קבוצה" },
+        { status: 400 }
       );
+    }
+
+    if (!isPersonalLeague) {
+      const teamExists = league.teams.some(
+        (team) =>
+          team.name?.trim().toLowerCase() === trimmedTeamName.toLowerCase()
+      );
+
+      if (!teamExists) {
+        return NextResponse.json(
+          { message: "הקבוצה לא נמצאה בליגה" },
+          { status: 404 }
+        );
+      }
     }
 
     const alreadyInAnyTeam = league.teams.some((team) =>
@@ -93,7 +97,7 @@ export async function POST(request, { params }) {
       playerId: String(user._id || user.id || user.userId),
       playerEmail: normalizedEmail,
       playerName: user.fullName,
-      teamName: trimmedTeamName,
+      teamName: isPersonalLeague ? "ליגה אישית" : trimmedTeamName,
       status: "pending",
     });
 
