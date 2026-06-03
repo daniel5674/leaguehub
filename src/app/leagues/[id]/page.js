@@ -91,12 +91,10 @@ export default function LeagueDetailsPage() {
   };
 
   const closeConfirmModal = () => {
-    setConfirmState({
+    setConfirmState((prev) => ({
+      ...prev,
       isOpen: false,
-      title: "",
-      message: "",
-      onConfirm: null,
-    });
+    }));
   };
 
   const [activeTab, setActiveTab] = useState("teams");
@@ -829,6 +827,34 @@ export default function LeagueDetailsPage() {
     }
   };
 
+  const handleRemovePersonalPlayer = async (playerId) => {
+    try {
+      const res = await fetch(`/api/leagues/${id}/personal-players`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ playerId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "שגיאה בהסרת שחקן");
+        return;
+      }
+
+      setLeague(data);
+
+      closeConfirmModal();
+      showToast("השחקן הוסר בהצלחה");
+    } catch (error) {
+      console.error("Failed to remove personal player:", error);
+      alert("שגיאה בהסרת שחקן");
+    }
+  };
+
   if (loading) {
     return (
       <main className="mx-auto max-w-5xl px-6 py-12">
@@ -917,6 +943,14 @@ export default function LeagueDetailsPage() {
 
     return Object.values(cardsMap).sort((a, b) => b.blueCards - a.blueCards);
   };
+
+  const teamColors = [
+    "from-blue-600 to-blue-800",
+    "from-red-600 to-red-800",
+    "from-green-600 to-green-800",
+    "from-purple-600 to-purple-800",
+    "from-orange-500 to-orange-700",
+  ];
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-100 to-white px-6 py-10">
@@ -1195,6 +1229,7 @@ export default function LeagueDetailsPage() {
                       <th className="px-4 py-3 text-center">שערים</th>
                       <th className="px-4 py-3 text-center">בישולים</th>
                       <th className="px-4 py-3 text-center">משחקים</th>
+                      <th className="px-4 py-3 text-center">פעולות</th>
                     </tr>
                   </thead>
 
@@ -1228,6 +1263,28 @@ export default function LeagueDetailsPage() {
 
                           <td className="px-4 py-3 text-center">
                             {player.gamesPlayed}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {canManage && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openConfirmModal({
+                                    title: "הסרת שחקן",
+                                    message: `להסיר את ${player.fullName} מהליגה?`,
+                                    onConfirm: async () => {
+                                      await handleRemovePersonalPlayer(
+                                        player._id
+                                      );
+                                      closeConfirmModal();
+                                    },
+                                  })
+                                }
+                                className="rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-100"
+                              >
+                                הסר
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -1473,85 +1530,130 @@ export default function LeagueDetailsPage() {
                 אין עדיין קבוצות בליגה
               </div>
             ) : (
-              <div className="grid gap-3">
-                {league.teams.map((team) => (
+              <div className="grid gap-6 md:grid-cols-2">
+                {league.teams.map((team, index) => (
                   <div
                     key={team._id || team.name}
-                    className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-4"
+                    className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="font-medium text-gray-800">
-                          {team.name}
-                        </span>
-                        <p className="mt-1 text-sm text-gray-500">
-                          {team.players?.length || 0} שחקנים
-                        </p>
-                      </div>
+                    <div className="h-2 bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900" />
 
-                      {canManage && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            openConfirmModal({
-                              title: "מחיקת קבוצה",
-                              message: `למחוק את הקבוצה "${team.name}"?`,
-                              onConfirm: () => handleDeleteTeam(team.name),
-                            })
-                          }
-                          className="rounded-xl px-3 py-2 text-sm text-red-500 transition hover:bg-red-50 hover:text-red-700"
-                        >
-                          מחק
-                        </button>
-                      )}
+                    <div className="p-5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${
+                              teamColors[index % teamColors.length]
+                            } text-2xl font-extrabold text-white shadow-lg`}
+                          >
+                            {team.name?.charAt(0)}
+
+                            <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-[10px] text-white">
+                              ✓
+                            </div>
+                          </div>
+
+                          <div>
+                            <h3 className="text-lg font-bold text-gray-900">
+                              {team.name}
+                            </h3>
+
+                            <p className="text-sm text-gray-500">
+                              {team.players?.length || 0} שחקנים
+                            </p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium">
+                                👥 {team.players?.length || 0}
+                              </span>
+
+                              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+                                פעילה
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {canManage && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openConfirmModal({
+                                title: "מחיקת קבוצה",
+                                message: `למחוק את הקבוצה "${team.name}"?`,
+                                onConfirm: () => handleDeleteTeam(team.name),
+                              })
+                            }
+                            className="rounded-xl border border-red-100 px-4 py-2 text-sm font-medium text-red-500 transition hover:bg-red-50 hover:text-red-700"
+                          >
+                            מחק
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {currentUser ? (
-                      <div className="mt-4">
-                        <p className="mb-2 text-sm font-medium text-gray-700">
-                          שחקנים בקבוצה
-                        </p>
+                      <div className="mt-4 border-t border-gray-100 pt-4">
+                        <div className="mb-4 flex items-center justify-between">
+                          <p className="text-sm font-bold text-gray-700">
+                            סגל הקבוצה
+                          </p>
 
-                        {team.players.map((player, index) => (
-                          <div
-                            key={`${player.email}-${index}`}
-                            className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm text-gray-700"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Link
-                                href={`/leagues/${id}/players/${player.playerId}`}
-                                className="font-medium text-gray-800 hover:underline"
-                              >
-                                {player.fullName || player.email}
-                              </Link>
-                              {player.isCaptain && (
-                                <span className="flex items-center gap-0.5 rounded-full bg-yellow-400 px-2.5 py-0.5 text-xs font-bold text-black shadow-sm">
-                                  ★ קפטן
-                                </span>
+                          <span className="text-xs text-gray-400">
+                            {team.players?.length || 0} שחקנים
+                          </span>
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {team.players.map((player, index) => (
+                            <div
+                              key={`${player.email}-${index}`}
+                              className="flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white font-bold text-gray-800 shadow-sm">
+                                  {(player.fullName || player.email)?.charAt(0)}
+                                </div>
+
+                                <div>
+                                  <Link
+                                    href={`/leagues/${id}/players/${player.playerId}`}
+                                    className="font-bold text-gray-900 hover:underline"
+                                  >
+                                    {player.fullName || player.email}
+                                  </Link>
+
+                                  {player.isCaptain && (
+                                    <div className="mt-1">
+                                      <span className="inline-flex items-center rounded-full bg-yellow-400 px-2 py-0.5 text-xs font-bold text-black">
+                                        ★ קפטן
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {canManage && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    openConfirmModal({
+                                      title: "הסרת שחקן",
+                                      message: `להסיר את ${player.email} מהקבוצה ${team.name}?`,
+                                      onConfirm: () =>
+                                        handleRemovePlayer(
+                                          player.email,
+                                          team.name
+                                        ),
+                                    })
+                                  }
+                                  className="rounded-lg px-3 py-1 text-xs text-red-500 transition hover:bg-red-50 hover:text-red-700"
+                                >
+                                  הסר
+                                </button>
                               )}
                             </div>
-
-                            {canManage && (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  openConfirmModal({
-                                    title: "הסרת שחקן",
-                                    message: `להסיר את ${player.email} מהקבוצה ${team.name}?`,
-                                    onConfirm: () =>
-                                      handleRemovePlayer(
-                                        player.email,
-                                        team.name
-                                      ),
-                                  })
-                                }
-                                className="rounded-lg px-3 py-1 text-xs text-red-500 transition hover:bg-red-50 hover:text-red-700"
-                              >
-                                הסר
-                              </button>
-                            )}
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     ) : (
                       <div className="mt-4 rounded-xl border border-dashed border-gray-300 bg-white px-3 py-4 text-center text-sm text-gray-500">
@@ -2163,48 +2265,65 @@ export default function LeagueDetailsPage() {
                 </form>
               )}
               {!league.topScorers || league.topScorers.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
-                  אין עדיין מלך שערים
+                <div className="rounded-2xl border border-dashed border-amber-200 bg-white p-8 text-center text-gray-500">
+                  אין עדיין נתוני שערים
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-3">
-                  {[...league.topScorers]
-                    .sort((a, b) => Number(b.goals) - Number(a.goals))
-                    .slice(0, 3)
-                    .map((scorer, index) => {
-                      const medal =
-                        index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉";
+                <div className="overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full">
+                      <thead className="bg-amber-500 text-sm text-white">
+                        <tr>
+                          <th className="px-4 py-4 text-right">מקום</th>
+                          <th className="px-4 py-4 text-right">שחקן</th>
+                          <th className="px-4 py-4 text-right">קבוצה</th>
+                          <th className="px-4 py-4 text-center">שערים</th>
+                        </tr>
+                      </thead>
 
-                      return (
-                        <div
-                          key={scorer._id || index}
-                          className={`rounded-3xl border p-6 text-center shadow-md transition hover:-translate-y-1 hover:shadow-xl ${
-                            index === 0
-                              ? "border-yellow-200 bg-yellow-50"
-                              : index === 1
-                              ? "border-gray-200 bg-gray-50"
-                              : "border-orange-200 bg-orange-50"
-                          }`}
-                        >
-                          <div className="text-4xl">{medal}</div>
+                      <tbody className="divide-y divide-gray-100 text-sm">
+                        {[...league.topScorers]
+                          .sort((a, b) => Number(b.goals) - Number(a.goals))
+                          .map((player, index) => (
+                            <tr
+                              key={player._id || index}
+                              className="transition hover:bg-amber-50"
+                            >
+                              <td className="px-4 py-4">
+                                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 font-bold text-amber-700">
+                                  {index === 0
+                                    ? "🥇"
+                                    : index === 1
+                                    ? "🥈"
+                                    : index === 2
+                                    ? "🥉"
+                                    : index + 1}
+                                </span>
+                              </td>
 
-                          <h3 className="mt-3 text-xl font-extrabold text-gray-900">
-                            {scorer.playerName}
-                          </h3>
+                              <td className="px-4 py-4">
+                                <div className="font-bold text-gray-900">
+                                  {player.playerName}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  חלוץ
+                                </div>
+                              </td>
 
-                          <p className="mt-1 text-sm text-gray-500">
-                            {scorer.teamName}
-                          </p>
+                              <td className="px-4 py-4 text-gray-700">
+                                {player.teamName}
+                              </td>
 
-                          <div className="mt-5 rounded-2xl bg-white px-4 py-3 shadow-sm">
-                            <p className="text-sm text-gray-500">שערים</p>
-                            <p className="text-3xl font-extrabold text-gray-900">
-                              {scorer.goals}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
+                              <td className="px-4 py-4 text-center">
+                                <span className="rounded-full bg-amber-100 px-4 py-2 text-lg font-extrabold text-amber-700">
+                                  {player.goals}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </section>
