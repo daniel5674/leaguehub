@@ -131,6 +131,8 @@ const JoinRequestSchema = new mongoose.Schema(
 
 const PersonalPlayerSchema = new mongoose.Schema(
   {
+    userId: { type: String, default: "" },
+    email: { type: String, default: "" },
     fullName: { type: String, required: true },
     rating: {
       type: String,
@@ -140,6 +142,17 @@ const PersonalPlayerSchema = new mongoose.Schema(
     goals: { type: Number, default: 0 },
     assists: { type: Number, default: 0 },
     gamesPlayed: { type: Number, default: 0 },
+  },
+  { _id: true }
+);
+
+const WaitingListEntrySchema = new mongoose.Schema(
+  {
+    userId: { type: String, default: "" },
+    email: { type: String, default: "" },
+    fullName: { type: String, required: true },
+    rating: { type: String, enum: ["A", "B", "C", "D"], default: "D" },
+    addedAt: { type: Date, default: Date.now },
   },
   { _id: true }
 );
@@ -212,7 +225,9 @@ const LeagueSchema = new mongoose.Schema(
     topAssists: [TopAssistSchema],
     members: [MemberSchema],
     joinRequests: [JoinRequestSchema],
+    playerCap: { type: Number, default: null },
     personalPlayers: [PersonalPlayerSchema],
+    waitingList: [WaitingListEntrySchema],
     generatedTeams: [GeneratedTeamSchema],
   },
   { timestamps: true }

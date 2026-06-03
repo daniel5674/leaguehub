@@ -26,6 +26,17 @@ const UserSchema = new mongoose.Schema(
       enum: ["manager", "player"],
       required: true,
     },
+
+    notifications: [
+      {
+        message: { type: String },
+        leagueId: { type: String },
+        leagueName: { type: String },
+        type: { type: String, default: "info" },
+        read: { type: Boolean, default: false },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true },
 );
