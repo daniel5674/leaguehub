@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { connectToDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import PlayerProfile from "@/models/PlayerProfile";
 
 export async function POST(request) {
   try {
@@ -48,6 +49,15 @@ export async function POST(request) {
       role,
       fullName,
     });
+
+    if (role === "player") {
+      await PlayerProfile.create({
+        userId: user._id.toString(),
+        email: normalizedEmail,
+        fullName,
+        role,
+      });
+    }
 
     return NextResponse.json(
       {
