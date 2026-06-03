@@ -67,16 +67,6 @@ export default function LeagueDetailsPage() {
 
   const [blueCardForms, setBlueCardForms] = useState({});
 
-  const [personalPlayerForm, setPersonalPlayerForm] = useState({
-    fullName: "",
-    rating: "D",
-    goals: "",
-    assists: "",
-    gamesPlayed: "",
-  });
-
-  const [generatedTeamsCount, setGeneratedTeamsCount] = useState(2);
-
   const showToast = (message, type = "success") => {
     setToast({ message, type });
   };
@@ -137,6 +127,10 @@ export default function LeagueDetailsPage() {
       description: league.description || "",
       status: league.status || "",
     });
+
+    if (league.leagueType === "personal") {
+      setActiveTab("matches");
+    }
   }, [league]);
 
   const handleRequestJoin = async () => {
@@ -337,13 +331,6 @@ export default function LeagueDetailsPage() {
 
   const handleTopAssistChange = (e) => {
     setTopAssistForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handlePersonalPlayerChange = (e) => {
-    setPersonalPlayerForm((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -752,110 +739,6 @@ export default function LeagueDetailsPage() {
     }
   };
 
-  const handleAddPersonalPlayer = async (e) => {
-    e.preventDefault();
-
-    if (!personalPlayerForm.fullName.trim()) {
-      showToast("צריך להזין שם שחקן", "error");
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/leagues/${id}/personal-players`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          fullName: personalPlayerForm.fullName,
-          rating: personalPlayerForm.rating,
-          goals: personalPlayerForm.goals,
-          assists: personalPlayerForm.assists,
-          gamesPlayed: personalPlayerForm.gamesPlayed,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        showToast(data.message || "שגיאה בהוספת שחקן", "error");
-        return;
-      }
-
-      setLeague(data);
-
-      setPersonalPlayerForm({
-        fullName: "",
-        rating: "D",
-        goals: "",
-        assists: "",
-        gamesPlayed: "",
-      });
-
-      showToast("השחקן נוסף בהצלחה");
-    } catch (error) {
-      console.error(error);
-      showToast("שגיאה בהוספת שחקן", "error");
-    }
-  };
-
-  const handleGenerateTeams = async () => {
-    try {
-      const res = await fetch(`/api/leagues/${id}/generate-teams`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          teamsCount: Number(generatedTeamsCount),
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        showToast(data.message || "שגיאה ביצירת קבוצות", "error");
-        return;
-      }
-
-      setLeague(data);
-      showToast("הקבוצות נוצרו בהצלחה");
-    } catch (error) {
-      console.error(error);
-      showToast("שגיאה ביצירת קבוצות", "error");
-    }
-  };
-
-  const handleRemovePersonalPlayer = async (playerId) => {
-    try {
-      const res = await fetch(`/api/leagues/${id}/personal-players`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ playerId }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "שגיאה בהסרת שחקן");
-        return;
-      }
-
-      setLeague(data);
-
-      closeConfirmModal();
-      showToast("השחקן הוסר בהצלחה");
-    } catch (error) {
-      console.error("Failed to remove personal player:", error);
-      alert("שגיאה בהסרת שחקן");
-    }
-  };
-
   if (loading) {
     return (
       <main className="mx-auto max-w-5xl px-6 py-12">
@@ -1048,18 +931,32 @@ export default function LeagueDetailsPage() {
             </div>
           </div>
         </div>
+        {isPersonalLeague && canManage && (
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={() => router.push(`/leagues/${id}/match-day`)}
+              className="w-full rounded-3xl bg-gradient-to-r from-emerald-600 to-emerald-700 py-5 text-lg font-black text-white shadow-lg shadow-emerald-500/20 transition hover:from-emerald-500 hover:to-emerald-600 active:scale-[0.99]"
+            >
+              ⚽ יום משחק
+            </button>
+          </div>
+        )}
+
         <div className="sticky top-24 z-40 mb-8 flex flex-wrap gap-3 rounded-3xl bg-white/90 p-3 shadow-lg ring-1 ring-gray-100 backdrop-blur">
-          <button
-            type="button"
-            onClick={() => setActiveTab("teams")}
-            className={`rounded-2xl px-5 py-3 font-bold transition ${
-              activeTab === "teams"
-                ? "bg-slate-900 text-white shadow-md"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            🏆 קבוצות
-          </button>
+          {!isPersonalLeague && (
+            <button
+              type="button"
+              onClick={() => setActiveTab("teams")}
+              className={`rounded-2xl px-5 py-3 font-bold transition ${
+                activeTab === "teams"
+                  ? "bg-slate-900 text-white shadow-md"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              🏆 קבוצות
+            </button>
+          )}
 
           <button
             type="button"
@@ -1085,17 +982,27 @@ export default function LeagueDetailsPage() {
             📊 סטטיסטיקות
           </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("management")}
-            className={`rounded-2xl px-5 py-3 font-bold transition ${
-              activeTab === "management"
-                ? "bg-slate-900 text-white shadow-md"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            ⚙️ ניהול
-          </button>
+          {isPersonalLeague ? (
+            <button
+              type="button"
+              onClick={() => router.push(`/leagues/${id}/manage`)}
+              className="rounded-2xl px-5 py-3 font-bold text-gray-600 transition hover:bg-gray-100"
+            >
+              ⚙️ ניהול
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setActiveTab("management")}
+              className={`rounded-2xl px-5 py-3 font-bold transition ${
+                activeTab === "management"
+                  ? "bg-slate-900 text-white shadow-md"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              ⚙️ ניהול
+            </button>
+          )}
         </div>
 
         <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -1144,57 +1051,13 @@ export default function LeagueDetailsPage() {
               <h2 className="text-2xl font-bold text-purple-900">
                 שחקני הליגה האישית
               </h2>
-
               <span className="text-sm text-purple-700">
                 {league.personalPlayers?.length || 0} שחקנים
               </span>
             </div>
 
-            {canManage && (
-              <form
-                onSubmit={handleAddPersonalPlayer}
-                className="mb-6 grid gap-3 md:grid-cols-5"
-              >
-                <input
-                  type="text"
-                  name="fullName"
-                  placeholder="שם השחקן"
-                  value={personalPlayerForm.fullName}
-                  onChange={handlePersonalPlayerChange}
-                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                />
-
-                <select
-                  name="rating"
-                  value={personalPlayerForm.rating}
-                  onChange={handlePersonalPlayerChange}
-                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                >
-                  <option value="A">דירוג A</option>
-                  <option value="B">דירוג B</option>
-                  <option value="C">דירוג C</option>
-                  <option value="D">דירוג D</option>
-                </select>
-
-                <input
-                  type="number"
-                  min="0"
-                  name="goals"
-                  placeholder="שערים"
-                  value={personalPlayerForm.goals}
-                  onChange={handlePersonalPlayerChange}
-                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                />
-
-                <input
-                  type="number"
-                  min="0"
-                  name="assists"
-                  placeholder="בישולים"
-                  value={personalPlayerForm.assists}
-                  onChange={handlePersonalPlayerChange}
-                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                />
+            {/* placeholder to maintain structure — original form removed */}
+            {false && (
 
                 <input
                   type="number"

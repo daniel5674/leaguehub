@@ -131,6 +131,8 @@ const JoinRequestSchema = new mongoose.Schema(
 
 const PersonalPlayerSchema = new mongoose.Schema(
   {
+    userId: { type: String, default: "" },
+    email: { type: String, default: "" },
     fullName: { type: String, required: true },
     rating: {
       type: String,
