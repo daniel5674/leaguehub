@@ -24,17 +24,21 @@ export async function POST(request, { params }) {
       return NextResponse.json({ message: "משתמש לא נמצא" }, { status: 404 });
     }
 
-    if (user.role !== "player") {
-      return NextResponse.json(
-        { message: "רק שחקן יכול לשלוח בקשת הצטרפות" },
-        { status: 403 }
-      );
-    }
-
     const league = await League.findById(id);
 
     if (!league) {
       return NextResponse.json({ message: "הליגה לא נמצאה" }, { status: 404 });
+    }
+
+    const isLeagueOwner =
+      String(league.createdBy) === String(user.email) ||
+      String(league.createdBy) === String(user._id);
+
+    if (isLeagueOwner) {
+      return NextResponse.json(
+        { message: "לא ניתן להצטרף לליגה שאתה מנהל" },
+        { status: 403 }
+      );
     }
 
     const isPersonalLeague = league.leagueType === "personal";
