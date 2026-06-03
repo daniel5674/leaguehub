@@ -51,3 +51,45 @@ export async function POST(request, { params }) {
     );
   }
 }
+
+export async function DELETE(request, { params }) {
+  try {
+    await connectToDB();
+
+    const { id } = await params;
+    const body = await request.json();
+    const { playerId } = body;
+
+    const league = await League.findById(id);
+
+    if (!league) {
+      return NextResponse.json({ message: "הליגה לא נמצאה" }, { status: 404 });
+    }
+
+    if (league.leagueType !== "personal") {
+      return NextResponse.json(
+        { message: "אפשר להסיר שחקנים רק מליגה אישית" },
+        { status: 400 }
+      );
+    }
+
+    league.personalPlayers = league.personalPlayers.filter(
+      (player) => player._id.toString() !== playerId
+    );
+
+    league.generatedTeams = [];
+
+    await league.save();
+
+    return NextResponse.json({
+      ...league.toObject(),
+      id: league._id,
+    });
+  } catch (error) {
+    console.error("DELETE personal player error:", error);
+    return NextResponse.json(
+      { message: "שגיאה בהסרת שחקן אישי" },
+      { status: 500 }
+    );
+  }
+}
