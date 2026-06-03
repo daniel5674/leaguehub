@@ -889,7 +889,7 @@ export default function LeagueDetailsPage() {
 
   const normalizedCurrentEmail = currentUser?.email?.trim().toLowerCase();
 
-  const isPlayer = permissions?.canJoinLeague;
+  const canJoinAsPlayer = !!currentUser && !isOwner;
 
   const isGuest = !currentUser || !permissions?.hasRolePower;
 
@@ -979,9 +979,7 @@ export default function LeagueDetailsPage() {
                 {league.status}
               </span>
 
-              {currentUser &&
-                isPlayer &&
-                !isOwner &&
+              {canJoinAsPlayer &&
                 !alreadyInAnyTeam &&
                 !hasPendingJoinRequest && (
                   <div className="flex items-center gap-2">
@@ -1010,13 +1008,13 @@ export default function LeagueDetailsPage() {
                   </div>
                 )}
 
-              {currentUser && isPlayer && hasPendingJoinRequest && (
+              {canJoinAsPlayer && hasPendingJoinRequest && (
                 <span className="rounded-xl bg-yellow-100 px-4 py-2 text-sm text-yellow-700">
                   בקשה ממתינה לאישור
                 </span>
               )}
 
-              {currentUser && isPlayer && alreadyInAnyTeam && (
+              {canJoinAsPlayer && alreadyInAnyTeam && (
                 <span className="rounded-xl bg-green-100 px-4 py-2 text-sm text-green-700">
                   אתה כבר משויך לקבוצה בליגה
                 </span>
