@@ -1148,12 +1148,30 @@ export default function LeagueDetailsPage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   {league.generatedTeams.map((team, ti) => {
                     const palette = [
-                      { header: "bg-violet-600", badge: "bg-violet-100 text-violet-700" },
-                      { header: "bg-emerald-600", badge: "bg-emerald-100 text-emerald-700" },
-                      { header: "bg-blue-600", badge: "bg-blue-100 text-blue-700" },
-                      { header: "bg-rose-600", badge: "bg-rose-100 text-rose-700" },
-                      { header: "bg-amber-600", badge: "bg-amber-100 text-amber-700" },
-                      { header: "bg-cyan-600", badge: "bg-cyan-100 text-cyan-700" },
+                      {
+                        header: "bg-violet-600",
+                        badge: "bg-violet-100 text-violet-700",
+                      },
+                      {
+                        header: "bg-emerald-600",
+                        badge: "bg-emerald-100 text-emerald-700",
+                      },
+                      {
+                        header: "bg-blue-600",
+                        badge: "bg-blue-100 text-blue-700",
+                      },
+                      {
+                        header: "bg-rose-600",
+                        badge: "bg-rose-100 text-rose-700",
+                      },
+                      {
+                        header: "bg-amber-600",
+                        badge: "bg-amber-100 text-amber-700",
+                      },
+                      {
+                        header: "bg-cyan-600",
+                        badge: "bg-cyan-100 text-cyan-700",
+                      },
                     ];
                     const c = palette[ti % palette.length];
                     return (
@@ -1504,7 +1522,7 @@ export default function LeagueDetailsPage() {
             )}
           </section>
         )}
-        {activeTab === "matches" && (
+        {activeTab === "matches" && !isPersonalLeague && (
           <section className="mt-8 rounded-3xl border border-gray-200 p-6">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-2xl font-bold">משחקים בליגה</h2>

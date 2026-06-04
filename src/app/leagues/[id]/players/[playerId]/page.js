@@ -1,23 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 export default function PlayerPage() {
   const { id, playerId } = useParams();
+  const searchParams = useSearchParams();
+  const requestId = searchParams.get("requestId");
+
   const router = useRouter();
   const { currentUser } = useAuth();
 
   const [league, setLeague] = useState(null);
   const [playerData, setPlayerData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({
-    shirtNumber: "",
-    position: "",
-    image: "",
-  });
 
   useEffect(() => {
     const fetchLeague = async () => {
@@ -49,7 +46,51 @@ export default function PlayerPage() {
           }
         });
 
+        if (!foundPlayer && requestId) {
+          const joinRequest = data.joinRequests?.find(
+            (request) =>
+              String(request._id) === String(requestId) &&
+              String(request.playerId) === String(playerId)
+          );
+
+          if (joinRequest) {
+            foundPlayer = {
+              playerId: joinRequest.playerId,
+              email: joinRequest.playerEmail,
+              fullName: joinRequest.playerName,
+              isPendingRequest: true,
+              requestId: joinRequest._id,
+            };
+
+            foundTeam = {
+              name: joinRequest.teamName || "בקשת הצטרפות",
+            };
+          }
+        }
+
         if (foundPlayer) {
+          let globalProfile = null;
+
+          try {
+            const profileRes = await fetch("/api/player-profile/by-email", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                email: foundPlayer.email,
+              }),
+            });
+
+            const profileData = await profileRes.json();
+
+            if (profileRes.ok) {
+              globalProfile = profileData;
+            }
+          } catch (error) {
+            console.error("Failed to fetch global player profile:", error);
+          }
           const playerGoals =
             data.topScorers?.find(
               (scorer) =>
@@ -81,16 +122,15 @@ export default function PlayerPage() {
 
           setPlayerData({
             ...foundPlayer,
+            image: globalProfile?.image || foundPlayer.image || "",
+            shirtNumber:
+              globalProfile?.shirtNumber || foundPlayer.shirtNumber || "",
+            position: globalProfile?.position || foundPlayer.position || "",
+            rating: globalProfile?.rating || foundPlayer.rating || "D",
             teamName: foundTeam.name,
             goals: playerGoals,
             assists: playerAssists,
             blueCards: playerBlueCards,
-          });
-
-          setEditForm({
-            shirtNumber: foundPlayer.shirtNumber || "",
-            position: foundPlayer.position || "",
-            image: foundPlayer.image || "",
           });
         }
       } catch (error) {
@@ -103,7 +143,7 @@ export default function PlayerPage() {
     if (id && playerId) {
       fetchLeague();
     }
-  }, [id, playerId]);
+  }, [id, playerId, requestId]);
 
   const handleToggleCaptain = async () => {
     const newCaptainState = !playerData.isCaptain;
@@ -134,47 +174,28 @@ export default function PlayerPage() {
     }
   };
 
-  const handleEditChange = (e) => {
-    setEditForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleUpdatePlayer = async (e) => {
-    e.preventDefault();
-
+  const handleJoinRequest = async (action) => {
     try {
-      const res = await fetch(`/api/leagues/${id}/players/${playerId}`, {
+      const res = await fetch(`/api/leagues/${id}/join-requests/${requestId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify(editForm),
+        body: JSON.stringify({ action }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "שגיאה בעדכון שחקן");
+        alert(data.message || "שגיאה בעדכון הבקשה");
         return;
       }
 
-      const updatedPlayer = data.teams
-        .flatMap((team) =>
-          team.players.map((player) => ({
-            ...player,
-            teamName: team.name,
-          }))
-        )
-        .find((player) => String(player.playerId) === String(playerId));
-
-      setPlayerData(updatedPlayer);
-      setIsEditing(false);
+      router.push("/notifications");
     } catch (error) {
-      console.error("Update player failed:", error);
-      alert("שגיאה בעדכון שחקן");
+      console.error("Failed to update join request:", error);
+      alert("שגיאה בעדכון הבקשה");
     }
   };
 
@@ -260,14 +281,6 @@ export default function PlayerPage() {
         <div className="p-8">
           {canManage && (
             <div className="mb-6 flex items-center gap-3 flex-wrap">
-              <button
-                type="button"
-                onClick={() => setIsEditing((prev) => !prev)}
-                className="rounded-xl bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800"
-              >
-                {isEditing ? "סגור עריכה" : "ערוך שחקן"}
-              </button>
-
               {!playerData.isCaptain && (
                 <button
                   type="button"
@@ -293,47 +306,6 @@ export default function PlayerPage() {
                 </>
               )}
             </div>
-          )}
-
-          {canManage && isEditing && (
-            <form
-              onSubmit={handleUpdatePlayer}
-              className="mb-8 grid gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-4 md:grid-cols-3"
-            >
-              <input
-                type="number"
-                name="shirtNumber"
-                value={editForm.shirtNumber}
-                onChange={handleEditChange}
-                placeholder="מספר חולצה"
-                className="rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-              />
-
-              <input
-                type="text"
-                name="position"
-                value={editForm.position}
-                onChange={handleEditChange}
-                placeholder="עמדה"
-                className="rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-              />
-
-              <input
-                type="text"
-                name="image"
-                value={editForm.image}
-                onChange={handleEditChange}
-                placeholder="קישור לתמונה"
-                className="rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-              />
-
-              <button
-                type="submit"
-                className="md:col-span-3 rounded-xl bg-black px-5 py-3 text-white transition hover:bg-gray-800"
-              >
-                שמור שינויים
-              </button>
-            </form>
           )}
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
@@ -406,6 +378,35 @@ export default function PlayerPage() {
                 </div>
               </div>
             </div>
+            {canManage && requestId && playerData.isPendingRequest && (
+              <div className="mt-8 rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
+                <h2 className="text-xl font-bold text-yellow-900">
+                  בקשת הצטרפות ממתינה
+                </h2>
+
+                <p className="mt-2 text-sm text-yellow-700">
+                  השחקן ביקש להצטרף ל־{playerData.teamName}
+                </p>
+
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleJoinRequest("approve")}
+                    className="rounded-2xl bg-green-600 py-3 font-bold text-white hover:bg-green-700"
+                  >
+                    אשר
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleJoinRequest("reject")}
+                    className="rounded-2xl bg-red-600 py-3 font-bold text-white hover:bg-red-700"
+                  >
+                    דחה
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
