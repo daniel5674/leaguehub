@@ -2,16 +2,9 @@ import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 import League from "@/models/League";
 
-const ratingValue = {
-  A: 4,
-  B: 3,
-  C: 2,
-  D: 1,
-};
+const ratingOrder = { A: 0, B: 1, C: 2, D: 3 };
 
-const shuffleArray = (array) => {
-  return [...array].sort(() => Math.random() - 0.5);
-};
+const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
 
 export async function POST(request, { params }) {
   try {
@@ -33,15 +26,14 @@ export async function POST(request, { params }) {
       );
     }
 
-    const sourcePlayers = Array.isArray(body.players) && body.players.length > 0
-      ? body.players
-      : league.personalPlayers || [];
-
-    const players = shuffleArray([...sourcePlayers]);
+    const sourcePlayers =
+      Array.isArray(body.players) && body.players.length > 0
+        ? body.players
+        : league.personalPlayers || [];
 
     const teamsCount = Number(body.teamsCount) || 2;
 
-    if (players.length < 2) {
+    if (sourcePlayers.length < 2) {
       return NextResponse.json(
         { message: "צריך לפחות 2 שחקנים כדי ליצור קבוצות" },
         { status: 400 }
@@ -55,51 +47,43 @@ export async function POST(request, { params }) {
       );
     }
 
-    if (teamsCount > players.length) {
+    if (teamsCount > sourcePlayers.length) {
       return NextResponse.json(
         { message: "אי אפשר ליצור יותר קבוצות ממספר השחקנים" },
         { status: 400 }
       );
     }
 
-    const teams = Array.from({ length: teamsCount }, (_, index) => ({
-      name: `קבוצה ${index + 1}`,
-      players: [],
-      score: 0,
-    }));
-
-    const sortedPlayers = players.sort(
-      (a, b) => ratingValue[b.rating] - ratingValue[a.rating]
+    // Shuffle within rating groups, then sort by rating for snake draft
+    const shuffled = shuffleArray([...sourcePlayers]);
+    const sorted = shuffled.sort(
+      (a, b) => (ratingOrder[a.rating] ?? 3) - (ratingOrder[b.rating] ?? 3)
     );
 
-    sortedPlayers.forEach((player) => {
-      teams.sort((a, b) => {
-        if (a.players.length !== b.players.length) {
-          return a.players.length - b.players.length;
-        }
+    // Equal teams: only assign players that fit evenly
+    const playersPerTeam = Math.floor(sorted.length / teamsCount);
+    const assignable = sorted.slice(0, playersPerTeam * teamsCount);
 
-        return a.score - b.score;
-      });
+    const teams = Array.from({ length: teamsCount }, (_, i) => ({
+      name: `קבוצה ${i + 1}`,
+      players: [],
+    }));
 
-      teams[0].players.push({
+    // Snake draft: A→T1, A→T2, B→T2, B→T1, C→T1, ...
+    assignable.forEach((player, idx) => {
+      const round = Math.floor(idx / teamsCount);
+      const pos = idx % teamsCount;
+      const teamIdx = round % 2 === 0 ? pos : teamsCount - 1 - pos;
+      teams[teamIdx].players.push({
         fullName: player.fullName,
         rating: player.rating,
       });
-
-      teams[0].score += ratingValue[player.rating] || 1;
     });
 
-    league.generatedTeams = teams.map((team) => ({
-      name: team.name,
-      players: team.players,
-    }));
-
+    league.generatedTeams = teams;
     await league.save();
 
-    return NextResponse.json({
-      ...league.toObject(),
-      id: league._id,
-    });
+    return NextResponse.json({ ...league.toObject(), id: league._id });
   } catch (error) {
     console.error("Generate teams error:", error);
     return NextResponse.json(
