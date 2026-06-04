@@ -1843,91 +1843,37 @@ export default function LeagueDetailsPage() {
                                   </div>
                                 ))}
                               </div>
-                              {hasTwoReports && (
-                                <div className="mt-4">
-                                  {reportsMatch ? (
-                                    <div>
-                                      <div className="rounded-2xl bg-green-100 px-4 py-3 text-sm font-bold text-green-700">
-                                        ✅ הדיווחים תואמים
-                                      </div>
-
-                                      {canManage &&
-                                        reportsMatch &&
-                                        !match.isFinalApproved && (
-                                          <button
-                                            type="button"
-                                            onClick={() =>
-                                              handleApproveMatch(
-                                                matchKey,
-                                                approvedReport.homeScore,
-                                                approvedReport.awayScore
-                                              )
-                                            }
-                                            className="mt-3 rounded-xl bg-green-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-green-700"
-                                          >
-                                            אשר תוצאה
-                                          </button>
-                                        )}
-                                    </div>
-                                  ) : (
-                                    <div className="rounded-2xl bg-red-100 px-4 py-3 text-sm font-bold text-red-700">
-                                      ❌ הדיווחים לא תואמים
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                              {hasTwoReports &&
+                                canManage &&
+                                !match.isFinalApproved && (
+                                  <div className="mt-4">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        router.push(
+                                          `/leagues/${id}/matches/${matchKey}/review`
+                                        )
+                                      }
+                                      className="rounded-xl bg-black px-4 py-2 text-sm font-bold text-white transition hover:bg-gray-800"
+                                    >
+                                      בדיקת דיווח משחק
+                                    </button>
+                                  </div>
+                                )}
                             </div>
                           )}
-
                         {canReportMatch ? (
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="number"
-                              min="0"
-                              placeholder={match.homeTeam}
-                              value={scoreForms[matchKey]?.homeScore ?? ""}
-                              onChange={(e) =>
-                                handleScoreChange(
-                                  matchKey,
-                                  "homeScore",
-                                  e.target.value
-                                )
-                              }
-                              className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
-                            />
-
-                            <span className="text-gray-500">-</span>
-
-                            <input
-                              type="number"
-                              min="0"
-                              placeholder={match.awayTeam}
-                              value={scoreForms[matchKey]?.awayScore ?? ""}
-                              onChange={(e) =>
-                                handleScoreChange(
-                                  matchKey,
-                                  "awayScore",
-                                  e.target.value
-                                )
-                              }
-                              className="w-24 rounded-xl border border-gray-300 px-3 py-2 outline-none focus:border-black"
-                            />
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleSaveScore(
-                                  matchKey,
-                                  isHomeCaptain
-                                    ? match.homeTeam
-                                    : match.awayTeam
-                                )
-                              }
-                              className="rounded-xl bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800"
-                            >
-                              שלח דיווח
-                            </button>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              router.push(
+                                `/leagues/${id}/matches/${matchKey}/update`
+                              )
+                            }
+                            className="rounded-2xl bg-blue-600 px-6 py-3 font-bold text-white transition hover:bg-blue-700"
+                          >
+                            ⚽ עדכון משחק
+                          </button>
                         ) : (
                           <p className="text-sm text-gray-500">
                             רק קפטני הקבוצות יכולים לדווח תוצאה.

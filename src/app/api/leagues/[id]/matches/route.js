@@ -252,6 +252,40 @@ export async function PATCH(request, { params }) {
       String(league.createdBy) === String(currentUser.email) ||
       String(league.createdBy) === String(currentUser.userId);
 
+    if (action === "RESET_CAPTAIN_REPORTS") {
+      if (!isOwner) {
+        return NextResponse.json({ message: "אין הרשאה" }, { status: 403 });
+      }
+
+      const updatedMatches = league.matches.map((match) => {
+        if (String(match._id) !== String(matchId)) {
+          return match;
+        }
+
+        return {
+          ...match.toObject(),
+          captainReports: [],
+          homeScore: null,
+          awayScore: null,
+          score: "טרם נקבע",
+          isFinalApproved: false,
+        };
+      });
+
+      league.matches = updatedMatches;
+
+      await league.save();
+
+      return NextResponse.json({
+        ...league.toObject(),
+        id: league._id,
+        matches: league.matches.map((match) => ({
+          ...match.toObject(),
+          id: match._id,
+        })),
+      });
+    }
+
     if (action === "ADD_BLUE_CARD") {
       const updatedMatches = league.matches.map((match) => {
         if (String(match._id) !== String(matchId)) {
