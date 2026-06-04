@@ -129,7 +129,7 @@ export default function LeagueDetailsPage() {
     });
 
     if (league.leagueType === "personal") {
-      setActiveTab("matches");
+      setActiveTab("league-page");
     }
   }, [league]);
 
@@ -944,69 +944,90 @@ export default function LeagueDetailsPage() {
         )}
 
         <div className="sticky top-24 z-40 mb-8 flex flex-wrap gap-3 rounded-3xl bg-white/90 p-3 shadow-lg ring-1 ring-gray-100 backdrop-blur">
-          {!isPersonalLeague && (
-            <button
-              type="button"
-              onClick={() => setActiveTab("teams")}
-              className={`rounded-2xl px-5 py-3 font-bold transition ${
-                activeTab === "teams"
-                  ? "bg-slate-900 text-white shadow-md"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              🏆 קבוצות
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("matches")}
-            className={`rounded-2xl px-5 py-3 font-bold transition ${
-              activeTab === "matches"
-                ? "bg-slate-900 text-white shadow-md"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            ⚽ משחקים
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("stats")}
-            className={`rounded-2xl px-5 py-3 font-bold transition ${
-              activeTab === "stats"
-                ? "bg-slate-900 text-white shadow-md"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            📊 סטטיסטיקות
-          </button>
-
           {isPersonalLeague ? (
-            <button
-              type="button"
-              onClick={() => router.push(`/leagues/${id}/manage`)}
-              className="rounded-2xl px-5 py-3 font-bold text-gray-600 transition hover:bg-gray-100"
-            >
-              ⚙️ ניהול
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveTab("league-page")}
+                className={`rounded-2xl px-5 py-3 font-bold transition ${
+                  activeTab === "league-page"
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                🏟️ עמוד הליגה
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("matches")}
+                className={`rounded-2xl px-5 py-3 font-bold transition ${
+                  activeTab === "matches"
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                ⚽ משחקים
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push(`/leagues/${id}/manage`)}
+                className="rounded-2xl px-5 py-3 font-bold text-gray-600 transition hover:bg-gray-100"
+              >
+                ⚙️ ניהול
+              </button>
+            </>
           ) : (
-            <button
-              type="button"
-              onClick={() => setActiveTab("management")}
-              className={`rounded-2xl px-5 py-3 font-bold transition ${
-                activeTab === "management"
-                  ? "bg-slate-900 text-white shadow-md"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              ⚙️ ניהול
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveTab("teams")}
+                className={`rounded-2xl px-5 py-3 font-bold transition ${
+                  activeTab === "teams"
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                🏆 קבוצות
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("matches")}
+                className={`rounded-2xl px-5 py-3 font-bold transition ${
+                  activeTab === "matches"
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                ⚽ משחקים
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("stats")}
+                className={`rounded-2xl px-5 py-3 font-bold transition ${
+                  activeTab === "stats"
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                📊 סטטיסטיקות
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("management")}
+                className={`rounded-2xl px-5 py-3 font-bold transition ${
+                  activeTab === "management"
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                ⚙️ ניהול
+              </button>
+            </>
           )}
         </div>
 
-        <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-3xl border border-yellow-100 bg-yellow-50 p-5 shadow-sm">
+        <div className="mb-8 flex flex-wrap justify-center gap-4">
+          <div className="w-48 rounded-3xl border border-yellow-100 bg-yellow-50 p-5 shadow-sm">
             <div className="text-3xl">{isPersonalLeague ? "👥" : "🏆"}</div>
             <p className="mt-2 text-3xl font-extrabold text-gray-900">
               {isPersonalLeague
@@ -1018,7 +1039,7 @@ export default function LeagueDetailsPage() {
             </p>
           </div>
 
-          <div className="rounded-3xl border border-green-100 bg-green-50 p-5 shadow-sm">
+          <div className="w-48 rounded-3xl border border-green-100 bg-green-50 p-5 shadow-sm">
             <div className="text-3xl">⚽</div>
             <p className="mt-2 text-3xl font-extrabold text-gray-900">
               {league.matches?.length || 0}
@@ -1026,7 +1047,7 @@ export default function LeagueDetailsPage() {
             <p className="text-sm text-gray-600">משחקים</p>
           </div>
 
-          <div className="rounded-3xl border border-red-100 bg-red-50 p-5 shadow-sm">
+          <div className="w-48 rounded-3xl border border-red-100 bg-red-50 p-5 shadow-sm">
             <div className="text-3xl">🥅</div>
             <p className="mt-2 text-3xl font-extrabold text-gray-900">
               {(league.topScorers || []).reduce(
@@ -1037,19 +1058,21 @@ export default function LeagueDetailsPage() {
             <p className="text-sm text-gray-600">שערים בליגה</p>
           </div>
 
-          <div className="rounded-3xl border border-blue-100 bg-blue-50 p-5 shadow-sm">
-            <div className="text-3xl">🟦</div>
-            <p className="mt-2 text-3xl font-extrabold text-gray-900">
-              {getBlueCardsTable().reduce(
-                (sum, player) => sum + (player.blueCards || 0),
-                0
-              )}
-            </p>
-            <p className="text-sm text-gray-600">כרטיסים כחולים</p>
-          </div>
+          {!isPersonalLeague && (
+            <div className="w-48 rounded-3xl border border-blue-100 bg-blue-50 p-5 shadow-sm">
+              <div className="text-3xl">🟦</div>
+              <p className="mt-2 text-3xl font-extrabold text-gray-900">
+                {getBlueCardsTable().reduce(
+                  (sum, player) => sum + (player.blueCards || 0),
+                  0
+                )}
+              </p>
+              <p className="text-sm text-gray-600">כרטיסים כחולים</p>
+            </div>
+          )}
         </div>
 
-        {isPersonalLeague && (
+        {activeTab === "league-page" && isPersonalLeague && (
           <section className="mb-8 rounded-3xl border border-purple-200 bg-purple-50 p-6">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-purple-900">
@@ -1072,6 +1095,9 @@ export default function LeagueDetailsPage() {
                       <th className="pb-3 pr-2">#</th>
                       <th className="pb-3">שחקן</th>
                       <th className="pb-3 text-center">דירוג</th>
+                      <th className="pb-3 text-center">שערים</th>
+                      <th className="pb-3 text-center">בישולים</th>
+                      <th className="pb-3 text-center">משחקים</th>
                       {canManage && <th className="pb-3" />}
                     </tr>
                   </thead>
@@ -1098,6 +1124,15 @@ export default function LeagueDetailsPage() {
                           <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-bold text-purple-700">
                             {player.rating}
                           </span>
+                        </td>
+                        <td className="py-3 text-center text-sm font-semibold text-gray-700">
+                          {player.goals || 0}
+                        </td>
+                        <td className="py-3 text-center text-sm font-semibold text-gray-700">
+                          {player.assists || 0}
+                        </td>
+                        <td className="py-3 text-center text-sm font-semibold text-gray-700">
+                          {player.gamesPlayed || 0}
                         </td>
                         {canManage && (
                           <td className="py-3 text-left">
@@ -1187,6 +1222,58 @@ export default function LeagueDetailsPage() {
                     );
                   })}
                 </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {activeTab === "matches" && isPersonalLeague && (
+          <section className="mb-8 rounded-3xl border border-gray-200 p-6">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-2xl font-bold">היסטוריית משחקים</h2>
+              <span className="text-sm text-gray-500">
+                {league.matches?.length || 0} משחקים
+              </span>
+            </div>
+
+            {!league.matches || league.matches.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-gray-300 p-10 text-center">
+                <p className="text-lg font-semibold text-gray-400">אין משחקים במערכת</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {league.matches.map((match) => (
+                  <div
+                    key={match._id}
+                    className="rounded-2xl border border-gray-200 bg-gray-50 p-4"
+                  >
+                    <div className="flex items-center justify-between text-center">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-extrabold text-gray-900">{match.homeTeam}</h3>
+                      </div>
+                      <div className="mx-6">
+                        <div className="rounded-2xl bg-black px-6 py-3 text-center text-white shadow-md">
+                          <div className="text-3xl font-extrabold">
+                            {match.homeScore !== null && match.homeScore !== undefined
+                              ? `${match.homeScore} : ${match.awayScore}`
+                              : "- : -"}
+                          </div>
+                          <div className="mt-1 text-xs uppercase tracking-wider text-gray-300">
+                            {match.isFinalApproved ? "הסתיים" : "טרם שוחק"}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-extrabold text-gray-900">{match.awayTeam}</h3>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-3 text-sm text-gray-600">
+                      <span className="rounded-full bg-gray-100 px-3 py-1">📅 {match.date}</span>
+                      <span className="rounded-full bg-gray-100 px-3 py-1">🕒 {match.time}</span>
+                      <span className="rounded-full bg-gray-100 px-3 py-1">📍 {match.location}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </section>
@@ -1504,7 +1591,7 @@ export default function LeagueDetailsPage() {
             )}
           </section>
         )}
-        {activeTab === "matches" && (
+        {activeTab === "matches" && !isPersonalLeague && (
           <section className="mt-8 rounded-3xl border border-gray-200 p-6">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-2xl font-bold">משחקים בליגה</h2>
@@ -1513,82 +1600,79 @@ export default function LeagueDetailsPage() {
               </span>
             </div>
 
-            {league.teams?.length < 2 ? (
-              <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
-                צריך לפחות 2 קבוצות כדי להוסיף משחק
-              </div>
-            ) : canManage ? (
-              <form
-                onSubmit={handleAddMatch}
-                className="mb-6 grid gap-3 md:grid-cols-2"
-              >
-                <select
-                  name="homeTeam"
-                  value={matchForm.homeTeam}
-                  onChange={handleMatchChange}
-                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+            {!isPersonalLeague && (
+              league.teams?.length < 2 ? (
+                <div className="mb-6 rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+                  צריך לפחות 2 קבוצות כדי להוסיף משחק
+                </div>
+              ) : canManage ? (
+                <form
+                  onSubmit={handleAddMatch}
+                  className="mb-6 grid gap-3 md:grid-cols-2"
                 >
-                  <option value="">בחר קבוצה בית</option>
-                  {league.teams.map((team) => (
-                    <option key={team._id || team.name} value={team.name}>
-                      {team.name}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  name="awayTeam"
-                  value={matchForm.awayTeam}
-                  onChange={handleMatchChange}
-                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                >
-                  <option value="">בחר קבוצה חוץ</option>
-                  {league.teams
-                    .filter((team) => team.name !== matchForm.homeTeam)
-                    .map((team) => (
+                  <select
+                    name="homeTeam"
+                    value={matchForm.homeTeam}
+                    onChange={handleMatchChange}
+                    className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                  >
+                    <option value="">בחר קבוצה בית</option>
+                    {league.teams.map((team) => (
                       <option key={team._id || team.name} value={team.name}>
                         {team.name}
                       </option>
                     ))}
-                </select>
-
-                <input
-                  type="date"
-                  name="date"
-                  value={matchForm.date}
-                  onChange={handleMatchChange}
-                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                />
-
-                <input
-                  type="time"
-                  name="time"
-                  value={matchForm.time}
-                  onChange={handleMatchChange}
-                  className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                />
-
-                <input
-                  type="text"
-                  name="location"
-                  placeholder="מיקום המשחק"
-                  value={matchForm.location}
-                  onChange={handleMatchChange}
-                  className="md:col-span-2 rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                />
-
-                <button
-                  type="submit"
-                  disabled={matchSubmitting}
-                  className="md:col-span-2 rounded-2xl bg-black px-5 py-3 text-white transition hover:bg-gray-800 disabled:opacity-60"
-                >
-                  {matchSubmitting ? "מוסיף משחק..." : "הוסף משחק"}
-                </button>
-              </form>
-            ) : (
-              <p className="mb-6 text-sm text-gray-500">
-                רק יוצר הליגה יכול להוסיף, למחוק ולעדכן משחקים.
-              </p>
+                  </select>
+                  <select
+                    name="awayTeam"
+                    value={matchForm.awayTeam}
+                    onChange={handleMatchChange}
+                    className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                  >
+                    <option value="">בחר קבוצה חוץ</option>
+                    {league.teams
+                      .filter((team) => team.name !== matchForm.homeTeam)
+                      .map((team) => (
+                        <option key={team._id || team.name} value={team.name}>
+                          {team.name}
+                        </option>
+                      ))}
+                  </select>
+                  <input
+                    type="date"
+                    name="date"
+                    value={matchForm.date}
+                    onChange={handleMatchChange}
+                    className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                  />
+                  <input
+                    type="time"
+                    name="time"
+                    value={matchForm.time}
+                    onChange={handleMatchChange}
+                    className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                  />
+                  <input
+                    type="text"
+                    name="location"
+                    placeholder="מיקום המשחק"
+                    value={matchForm.location}
+                    onChange={handleMatchChange}
+                    className="md:col-span-2 rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                  />
+                  <button
+                    type="submit"
+                    disabled={matchSubmitting}
+                    className="md:col-span-2 rounded-2xl bg-black px-5 py-3 text-white transition hover:bg-gray-800 disabled:opacity-60"
+                  >
+                    {matchSubmitting ? "מוסיף משחק..." : "הוסף משחק"}
+                  </button>
+                </form>
+              ) : (
+                <p className="mb-6 text-sm text-gray-500">
+                  רק יוצר הליגה יכול להוסיף, למחוק ולעדכן משחקים.
+                </p>
+              )
             )}
 
             {!league.matches || league.matches.length === 0 ? (
@@ -1945,6 +2029,7 @@ export default function LeagueDetailsPage() {
         )}
         {activeTab === "stats" && (
           <>
+            {!isPersonalLeague && (
             <section className="mt-8 rounded-3xl border border-gray-200 p-6">
               <div className="mb-5 flex items-center justify-between">
                 <h2 className="text-2xl font-bold">טבלת הליגה</h2>
@@ -2045,6 +2130,7 @@ export default function LeagueDetailsPage() {
                 </div>
               )}
             </section>
+            )}
 
             <section className="mt-8 rounded-3xl border border-gray-200 p-6">
               <div className="mb-5 flex items-center justify-between">
@@ -2373,31 +2459,53 @@ export default function LeagueDetailsPage() {
         )}
 
         <section className="mt-8 rounded-3xl border border-gray-200 p-6">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-2xl font-bold">חברי הליגה</h2>
-            <span className="text-sm text-gray-500">
-              {league.members?.length || 0} חברים
-            </span>
-          </div>
-
-          {!league.members || league.members.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
-              עדיין אין חברים בליגה
-            </div>
-          ) : (
-            <div className="grid gap-3">
-              {league.members.map((member, index) => (
-                <div
-                  key={`${member.email}-${index}`}
-                  className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3"
-                >
-                  <span className="font-medium text-gray-800">
-                    {member.fullName || member.email}
+          {(() => {
+            const regularMembers = (league.members || []).map((m) => ({
+              key: m.email,
+              name: m.fullName || m.email,
+            }));
+            const personalEmails = new Set(
+              (league.personalPlayers || []).map((p) => p.email).filter(Boolean)
+            );
+            const personalMembers = (league.personalPlayers || []).map((p) => ({
+              key: `pp-${p._id}`,
+              name: p.fullName,
+            }));
+            const allMembers = isPersonalLeague
+              ? [
+                  ...personalMembers,
+                  ...regularMembers.filter((m) => !personalEmails.has(m.key)),
+                ]
+              : regularMembers;
+            return (
+              <>
+                <div className="mb-5 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold">חברי הליגה</h2>
+                  <span className="text-sm text-gray-500">
+                    {allMembers.length} חברים
                   </span>
                 </div>
-              ))}
-            </div>
-          )}
+                {allMembers.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+                    עדיין אין חברים בליגה
+                  </div>
+                ) : (
+                  <div className="grid gap-3">
+                    {allMembers.map((member) => (
+                      <div
+                        key={member.key}
+                        className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3"
+                      >
+                        <span className="font-medium text-gray-800">
+                          {member.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </section>
       </div>
 

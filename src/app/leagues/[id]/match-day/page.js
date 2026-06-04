@@ -36,6 +36,35 @@ function formatMatchDate(dateStr) {
   }
 }
 
+function Spinner({ value, onChange, min = 0, max = 20, label, disabled }) {
+  return (
+    <div className="flex items-center gap-2">
+      {label && <span className="text-sm font-semibold text-white/70">{label}</span>}
+      <div className={`flex items-center overflow-hidden rounded-2xl border border-white/20 bg-white/10 ${disabled ? "opacity-40" : ""}`}>
+        <button
+          type="button"
+          onClick={() => !disabled && onChange(Math.max(min, value - 1))}
+          disabled={disabled}
+          className="px-3 py-2 text-lg font-bold text-white/60 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed"
+        >
+          −
+        </button>
+        <span className="min-w-[2.5rem] text-center text-base font-black text-white">
+          {value || "∞"}
+        </span>
+        <button
+          type="button"
+          onClick={() => !disabled && onChange(value === 0 ? min + 1 : Math.min(max, value + 1))}
+          disabled={disabled}
+          className="px-3 py-2 text-lg font-bold text-white/60 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function MatchDayPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -44,9 +73,14 @@ export default function MatchDayPage() {
   const [league, setLeague] = useState(null);
   const [todayPlayers, setTodayPlayers] = useState([]);
   const [waitingList, setWaitingList] = useState([]);
-  const [dailyCap, setDailyCap] = useState("");
+  const [goalkeepers, setGoalkeepers] = useState([]);
+  const [dailyCap, setDailyCap] = useState(0);
+  const [goalkeeperCount, setGoalkeeperCount] = useState(1);
   const [teamsCount, setTeamsCount] = useState(2);
   const [generating, setGenerating] = useState(false);
+  const [finalTeams, setFinalTeams] = useState(null);
+  const [showTeams, setShowTeams] = useState(true);
+  const [settingsConfirmed, setSettingsConfirmed] = useState(false);
   const [toast, setToast] = useState(null);
 
   const showToast = (msg, type = "success") => {
@@ -78,10 +112,44 @@ export default function MatchDayPage() {
   const roster = (league?.personalPlayers || []).filter(
     (p) =>
       !todayPlayers.some((t) => t._id === p._id) &&
-      !waitingList.some((w) => w._id === p._id)
+      !waitingList.some((w) => w._id === p._id) &&
+      !goalkeepers.some((g) => g._id === p._id)
   );
 
+  const handleConfirmSettings = () => {
+    setSettingsConfirmed(true);
+  };
+
+  const handleCancel = () => {
+    setTodayPlayers([]);
+    setWaitingList([]);
+    setGoalkeepers([]);
+    setFinalTeams(null);
+    setShowTeams(false);
+    setSettingsConfirmed(false);
+  };
+
+  const handleGoalkeeperCountChange = (newCount) => {
+    setGoalkeeperCount(newCount);
+    setGoalkeepers((prev) => prev.slice(0, newCount));
+  };
+
+  const handleDailyCapChange = (newCap) => {
+    setDailyCap(newCap);
+    if (newCap > 0) {
+      setTodayPlayers((prev) => {
+        if (prev.length > newCap) {
+          const overflow = prev.slice(newCap);
+          setWaitingList((wl) => [...wl, ...overflow]);
+          return prev.slice(0, newCap);
+        }
+        return prev;
+      });
+    }
+  };
+
   const selectPlayer = (player) => {
+    if (!settingsConfirmed) return;
     const cap = Number(dailyCap);
     if (cap && todayPlayers.length >= cap) {
       setWaitingList((prev) => [...prev, player]);
@@ -105,6 +173,21 @@ export default function MatchDayPage() {
     setWaitingList((prev) => prev.filter((p) => p._id !== playerId));
   };
 
+  const toggleGoalkeeper = (player) => {
+    if (!settingsConfirmed) return;
+    if (goalkeepers.some((g) => g._id === player._id)) {
+      setGoalkeepers((prev) => prev.filter((g) => g._id !== player._id));
+    } else if (goalkeepers.length < goalkeeperCount) {
+      setGoalkeepers((prev) => [...prev, player]);
+    } else {
+      showToast(`כבר בחרת ${goalkeeperCount} שוערים`, "error");
+    }
+  };
+
+  const removeGoalkeeper = (playerId) => {
+    setGoalkeepers((prev) => prev.filter((g) => g._id !== playerId));
+  };
+
   const handleGenerateTeams = async () => {
     if (todayPlayers.length < 2) {
       showToast("צריך לפחות 2 שחקנים ברשימת המשחק", "error");
@@ -119,12 +202,14 @@ export default function MatchDayPage() {
     });
     const data = await res.json();
     setGenerating(false);
-    if (res.ok) {
-      setLeague(data);
-      showToast("הכוחות נוצרו בהצלחה!");
-    } else {
+    if (!res.ok) {
       showToast(data.message || "שגיאה", "error");
+      return;
     }
+    setLeague(data);
+    setFinalTeams(data.generatedTeams || []);
+    setShowTeams(true);
+    showToast("הכוחות נוצרו!");
   };
 
   if (!league) {
@@ -136,6 +221,7 @@ export default function MatchDayPage() {
   }
 
   const allPlayers = league.personalPlayers || [];
+  const displayTeams = showTeams ? (finalTeams || league.generatedTeams) : null;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#060e1a]" dir="rtl">
@@ -155,8 +241,7 @@ export default function MatchDayPage() {
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "radial-gradient(ellipse at 50% 0%, rgba(100,200,100,0.05) 0%, transparent 60%)",
+            background: "radial-gradient(ellipse at 50% 0%, rgba(100,200,100,0.05) 0%, transparent 60%)",
           }}
         />
       </div>
@@ -219,30 +304,68 @@ export default function MatchDayPage() {
           </div>
         )}
 
+        {/* Settings bar */}
         {isOwner && (
-          <div className="flex items-center gap-4 rounded-3xl border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-sm">
-            <span className="text-sm font-semibold text-white/70">
-              כמה שחקנים משחקים היום?
-            </span>
-            <input
-              type="number"
-              min="2"
-              max="50"
-              value={dailyCap}
-              onChange={(e) => setDailyCap(e.target.value)}
-              placeholder="ללא מגבלה"
-              className="w-28 rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-center text-sm font-bold text-white outline-none placeholder-white/30 focus:border-emerald-400"
-            />
-            {dailyCap ? (
-              <span className="text-sm text-white/40">
-                נבחרו {todayPlayers.length}/{dailyCap}
-                {waitingList.length > 0 && ` · ${waitingList.length} ממתינים`}
-              </span>
-            ) : todayPlayers.length > 0 ? (
-              <span className="text-sm text-white/40">
-                נבחרו {todayPlayers.length}
-              </span>
-            ) : null}
+          <div className="rounded-3xl border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-sm">
+            {!settingsConfirmed ? (
+              <div className="flex flex-wrap items-center gap-4">
+                <Spinner
+                  label="שחקנים היום"
+                  value={dailyCap}
+                  onChange={handleDailyCapChange}
+                  min={0}
+                  max={50}
+                />
+                <div className="h-6 w-px bg-white/10" />
+                <Spinner
+                  label="שוערים"
+                  value={goalkeeperCount}
+                  onChange={handleGoalkeeperCountChange}
+                  min={1}
+                  max={6}
+                />
+                <div className="mr-auto">
+                  <button
+                    type="button"
+                    onClick={handleConfirmSettings}
+                    className="rounded-2xl bg-emerald-500 px-6 py-2.5 text-sm font-black text-white transition hover:bg-emerald-400"
+                  >
+                    אישור
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-white/50">שחקנים היום:</span>
+                  <span className="rounded-xl bg-white/10 px-4 py-1.5 text-base font-black text-white">
+                    {dailyCap || "∞"}
+                  </span>
+                </div>
+                <div className="h-6 w-px bg-white/10" />
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-white/50">שוערים:</span>
+                  <span className="rounded-xl bg-white/10 px-4 py-1.5 text-base font-black text-white">
+                    {goalkeeperCount}
+                  </span>
+                </div>
+                {dailyCap > 0 && (
+                  <span className="text-sm text-white/40">
+                    נבחרו {todayPlayers.length + goalkeepers.length}/{dailyCap}
+                    {waitingList.length > 0 && ` · ${waitingList.length} ממתינים`}
+                  </span>
+                )}
+                <div className="mr-auto">
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="rounded-2xl border border-red-500/40 px-6 py-2.5 text-sm font-bold text-red-400 transition hover:bg-red-500/10"
+                  >
+                    ביטול
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -251,6 +374,7 @@ export default function MatchDayPage() {
             waitingList.length > 0 ? "lg:grid-cols-3" : "lg:grid-cols-2"
           }`}
         >
+          {/* Roster */}
           <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-bold text-white/80">כל השחקנים</h2>
@@ -259,25 +383,27 @@ export default function MatchDayPage() {
               </span>
             </div>
 
+            {!settingsConfirmed && (
+              <p className="mb-4 rounded-xl bg-white/5 py-3 text-center text-xs text-white/30">
+                אשר הגדרות כדי לבחור שחקנים
+              </p>
+            )}
+
             {allPlayers.length === 0 ? (
               <p className="py-8 text-center text-sm text-white/30">
                 אין שחקנים רשומים. הוסף שחקנים בעמוד הניהול.
               </p>
-            ) : roster.length === 0 ? (
+            ) : roster.length === 0 && settingsConfirmed ? (
               <p className="py-8 text-center text-sm text-white/30">
                 כל השחקנים נבחרו
               </p>
             ) : (
               <div className="space-y-2">
                 {roster.map((player) => (
-                  <button
+                  <div
                     key={player._id}
-                    type="button"
-                    onClick={() => isOwner && selectPlayer(player)}
-                    className={`flex w-full items-center justify-between rounded-2xl border border-white/5 bg-white/5 px-4 py-3 text-right transition ${
-                      isOwner
-                        ? "cursor-pointer hover:border-emerald-500/40 hover:bg-emerald-500/10"
-                        : "cursor-default"
+                    className={`flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 px-3 py-2.5 ${
+                      !settingsConfirmed ? "opacity-40" : ""
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -288,7 +414,7 @@ export default function MatchDayPage() {
                         {player.fullName}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                           RATING_COLORS[player.rating] || RATING_COLORS.D
@@ -296,29 +422,83 @@ export default function MatchDayPage() {
                       >
                         {player.rating}
                       </span>
-                      {isOwner && (
-                        <span className="text-xs text-white/30">+</span>
+                      {isOwner && settingsConfirmed && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => toggleGoalkeeper(player)}
+                            title="סמן כשוער"
+                            className="rounded-lg px-2 py-1 text-xs font-bold text-amber-400/60 transition hover:bg-amber-400/10 hover:text-amber-300"
+                          >
+                            🥅
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => selectPlayer(player)}
+                            className="rounded-lg px-2 py-1 text-xs font-bold text-white/30 transition hover:bg-emerald-500/10 hover:text-emerald-300"
+                          >
+                            +
+                          </button>
+                        </>
                       )}
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             )}
           </div>
 
+          {/* Today's squad */}
           <div className="rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-5">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-bold text-emerald-300">משחק היום</h2>
               <span className="rounded-full bg-emerald-500/20 px-3 py-0.5 text-sm font-bold text-emerald-300">
-                {todayPlayers.length}
+                {todayPlayers.length + goalkeepers.length}
                 {dailyCap ? `/${dailyCap}` : ""}
               </span>
             </div>
 
-            {todayPlayers.length === 0 ? (
+            {goalkeepers.length > 0 && (
+              <div className="mb-3 space-y-1.5">
+                {goalkeepers.map((gk) => (
+                  <div
+                    key={gk._id}
+                    className="flex items-center justify-between rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-2.5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-base">🥅</span>
+                      <span className="text-sm font-bold text-amber-200">
+                        {gk.fullName}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-xs font-bold text-amber-300">
+                        שוער
+                      </span>
+                      {isOwner && (
+                        <button
+                          type="button"
+                          onClick={() => removeGoalkeeper(gk._id)}
+                          className="rounded-lg p-1 text-white/30 transition hover:text-red-400"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {todayPlayers.length > 0 && (
+                  <div className="my-2 border-t border-emerald-500/10" />
+                )}
+              </div>
+            )}
+
+            {todayPlayers.length === 0 && goalkeepers.length === 0 ? (
               <div className="py-8 text-center">
                 <p className="text-sm text-white/30">
-                  לחץ על שחקן ברשימה כדי להוסיף
+                  {settingsConfirmed
+                    ? "לחץ + ברשימה כדי להוסיף שחקן"
+                    : "אשר הגדרות כדי להתחיל"}
                 </p>
               </div>
             ) : (
@@ -360,6 +540,7 @@ export default function MatchDayPage() {
             )}
           </div>
 
+          {/* Waiting list */}
           {waitingList.length > 0 && (
             <div className="rounded-3xl border border-amber-500/20 bg-amber-500/5 p-5">
               <div className="mb-4 flex items-center justify-between">
@@ -410,23 +591,19 @@ export default function MatchDayPage() {
           )}
         </div>
 
-        {isOwner && (
+        {/* Generate teams */}
+        {isOwner && settingsConfirmed && (
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-bold text-white">צור קבוצות מאוזנות</h2>
               <div className="flex items-center gap-2">
-                <label className="text-xs text-white/50">כמה קבוצות?</label>
-                <select
+                <Spinner
+                  label="קבוצות"
                   value={teamsCount}
-                  onChange={(e) => setTeamsCount(Number(e.target.value))}
-                  className="rounded-xl border border-white/10 bg-white/10 px-3 py-1.5 text-sm font-bold text-white outline-none"
-                >
-                  {[2, 3, 4, 5, 6].map((n) => (
-                    <option key={n} value={n} className="bg-gray-900">
-                      {n}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setTeamsCount}
+                  min={2}
+                  max={6}
+                />
               </div>
             </div>
             <button
@@ -447,13 +624,18 @@ export default function MatchDayPage() {
           </div>
         )}
 
-        {league.generatedTeams?.length > 0 && (
+        {/* Generated teams display */}
+        {displayTeams?.length > 0 && (
           <div>
-            <h2 className="mb-4 text-center text-lg font-black text-white">
-              הכוחות האחרונים
-            </h2>
+            <div className="mb-8 text-center">
+              <h2 className="bg-gradient-to-r from-emerald-300 via-white to-emerald-300 bg-clip-text text-4xl font-black tracking-tight text-transparent drop-shadow-lg">
+                הכוחות
+              </h2>
+              <div className="mx-auto mt-2 h-0.5 w-16 rounded-full bg-emerald-500/40" />
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
-              {league.generatedTeams.map((team, ti) => (
+              {displayTeams.map((team, ti) => (
                 <div
                   key={team._id || team.name}
                   className={`rounded-3xl bg-gradient-to-br p-5 shadow-lg ${
@@ -481,6 +663,27 @@ export default function MatchDayPage() {
                 </div>
               ))}
             </div>
+
+            {goalkeepers.length > 0 && (
+              <div className="mt-6 rounded-3xl border border-amber-400/20 bg-amber-400/5 p-5">
+                <h3 className="mb-4 text-center text-base font-black text-amber-300">
+                  🥅 שוערים
+                </h3>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {goalkeepers.map((gk) => (
+                    <div
+                      key={gk._id}
+                      className="flex items-center gap-2 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-2.5"
+                    >
+                      <span className="text-sm font-bold text-amber-200">{gk.fullName}</span>
+                      <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-xs font-bold text-amber-300">
+                        {gk.rating}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
