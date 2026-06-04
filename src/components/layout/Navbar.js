@@ -22,6 +22,7 @@ export default function Navbar() {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [playerNotifications, setPlayerNotifications] = useState([]);
 
   const menuRef = useRef(null);
   const notificationsRef = useRef(null);
@@ -29,6 +30,24 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const fetchPlayerNotifications = async () => {
+    try {
+      const res = await fetch("/api/notifications", { credentials: "include" });
+      const data = await res.json();
+      if (res.ok) setPlayerNotifications(data.notifications || []);
+    } catch {
+      setPlayerNotifications([]);
+    }
+  };
+
+  const markPlayerNotifsRead = async () => {
+    await fetch("/api/notifications", {
+      method: "PATCH",
+      credentials: "include",
+    });
+    setPlayerNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -188,15 +207,26 @@ export default function Navbar() {
       setRequests([]);
       setPendingCount(0);
     }
+    if (currentUser) {
+      fetchPlayerNotifications();
+    } else {
+      setPlayerNotifications([]);
+    }
   }, [currentUser]);
 
   useEffect(() => {
     if (currentUser?.role !== "manager") return;
-
     const interval = setInterval(() => {
       fetchNotifications();
-    }, 5000); // כל 5 שניות
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [currentUser]);
 
+  useEffect(() => {
+    if (!currentUser) return;
+    const interval = setInterval(() => {
+      fetchPlayerNotifications();
+    }, 15000);
     return () => clearInterval(interval);
   }, [currentUser]);
 
@@ -251,74 +281,119 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center gap-3">
-            {currentUser?.role === "manager" && (
-              <div className="relative" ref={notificationsRef}>
-                <button
-                  type="button"
-                  onClick={() => setNotificationsOpen((prev) => !prev)}
-                  className="relative rounded-full border border-gray-300 px-3 py-2 text-sm transition hover:bg-gray-100"
-                >
-                  🔔
-                  {pendingCount > 0 && (
-                    <span className="absolute -right-1 -top-1 rounded-full bg-red-500 px-1.5 text-[10px] text-white">
-                      {pendingCount}
-                    </span>
-                  )}
-                </button>
-
-                {notificationsOpen && (
-                  <div className="absolute left-0 mt-3 w-80 rounded-2xl border border-gray-200 bg-white p-3 shadow-lg">
-                    <div className="mb-3 flex items-center justify-between">
-                      <h3 className="font-bold text-gray-900">התראות</h3>
-                      <span className="text-xs text-gray-500">
-                        {pendingCount} ממתינות
+            {currentUser && (() => {
+              const unreadPlayer = playerNotifications.filter((n) => !n.read).length;
+              const totalBadge = pendingCount + unreadPlayer;
+              return (
+                <div className="relative" ref={notificationsRef}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotificationsOpen((prev) => !prev);
+                      if (unreadPlayer > 0) markPlayerNotifsRead();
+                    }}
+                    className="relative rounded-full border border-gray-300 px-3 py-2 text-sm transition hover:bg-gray-100"
+                  >
+                    🔔
+                    {totalBadge > 0 && (
+                      <span className="absolute -right-1 -top-1 rounded-full bg-red-500 px-1.5 text-[10px] text-white">
+                        {totalBadge}
                       </span>
-                    </div>
-
-                    {requests.length === 0 ? (
-                      <p className="text-sm text-gray-500">אין התראות</p>
-                    ) : (
-                      <div className="max-h-96 space-y-3 overflow-y-auto">
-                        {requests.map((req) => (
-                          <div
-                            key={req._id}
-                            className="rounded-xl border border-gray-200 p-3"
-                          >
-                            <p className="text-sm font-medium text-gray-900">
-                              {req.playerName || req.playerEmail}
-                            </p>
-
-                            <p className="mt-1 text-xs text-gray-500">
-                              רוצה להצטרף ל־{req.teamName}
-                            </p>
-
-                            <p className="mt-1 text-xs text-gray-500">
-                              ליגה: {req.leagueName}
-                            </p>
-
-                            <button
-                              type="button"
-                              onClick={() => openPlayerProfile(req)}
-                              className="mt-3 block w-full rounded-xl bg-black px-3 py-2 text-center text-sm font-semibold text-white transition hover:bg-gray-800"
-                            >
-                              הצג פרטי שחקן
-                            </button>
-                          </div>
-                        ))}
-                      </div>
                     )}
+                  </button>
 
-                    <Link
-                      href="/notifications"
-                      onClick={() => setNotificationsOpen(false)}
-                      className="mt-3 block rounded-xl bg-gray-100 px-4 py-2 text-center text-sm text-gray-700 transition hover:bg-gray-200"
-                    >
-                      לכל ההתראות
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
+                  {notificationsOpen && (
+                    <div className="absolute left-0 mt-3 w-80 rounded-2xl border border-gray-200 bg-white p-3 shadow-lg">
+                      <div className="mb-3 flex items-center justify-between">
+                        <h3 className="font-bold text-gray-900">התראות</h3>
+                        {totalBadge > 0 && (
+                          <span className="text-xs text-gray-500">
+                            {totalBadge} חדשות
+                          </span>
+                        )}
+                      </div>
+
+                      {currentUser.role === "manager" && (
+                        <>
+                          {requests.length > 0 && (
+                            <div className="mb-3">
+                              <p className="mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                בקשות הצטרפות
+                              </p>
+                              <div className="space-y-3">
+                                {requests.map((req) => (
+                                  <div
+                                    key={req._id}
+                                    className="rounded-xl border border-gray-200 p-3"
+                                  >
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {req.playerName || req.playerEmail}
+                                    </p>
+                                    <p className="mt-1 text-xs text-gray-500">
+                                      רוצה להצטרף ל־{req.teamName}
+                                    </p>
+                                    <p className="mt-1 text-xs text-gray-500">
+                                      ליגה: {req.leagueName}
+                                    </p>
+                                    <button
+                                      type="button"
+                                      onClick={() => openPlayerProfile(req)}
+                                      className="mt-3 block w-full rounded-xl bg-black px-3 py-2 text-center text-sm font-semibold text-white transition hover:bg-gray-800"
+                                    >
+                                      הצג פרטי שחקן
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {requests.length > 0 && playerNotifications.length > 0 && (
+                            <hr className="my-3 border-gray-100" />
+                          )}
+                        </>
+                      )}
+
+                      {playerNotifications.length > 0 ? (
+                        <div className="space-y-2">
+                          {playerNotifications.slice(0, 8).map((n, i) => (
+                            <div
+                              key={i}
+                              className={`rounded-xl p-3 text-sm ${
+                                n.read
+                                  ? "bg-gray-50 text-gray-600"
+                                  : "bg-blue-50 font-medium text-gray-800"
+                              }`}
+                            >
+                              {n.message}
+                              {n.leagueName && (
+                                <p className="mt-0.5 text-xs text-gray-400">
+                                  {n.leagueName}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        (currentUser.role !== "manager" ||
+                          requests.length === 0) && (
+                          <p className="text-sm text-gray-500">אין התראות</p>
+                        )
+                      )}
+
+                      {currentUser.role === "manager" && (
+                        <Link
+                          href="/notifications"
+                          onClick={() => setNotificationsOpen(false)}
+                          className="mt-3 block rounded-xl bg-gray-100 px-4 py-2 text-center text-sm text-gray-700 transition hover:bg-gray-200"
+                        >
+                          לכל ההתראות
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="relative" ref={menuRef}>
               {!currentUser ? (
