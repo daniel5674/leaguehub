@@ -31,6 +31,16 @@ const PlayerProfileSchema = new mongoose.Schema(
       default: "",
     },
 
+    shirtNumber: {
+      type: String,
+      default: "",
+    },
+
+    image: {
+      type: String,
+      default: "",
+    },
+
     preferredFoot: {
       type: String,
       default: "",
