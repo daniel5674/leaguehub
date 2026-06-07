@@ -232,6 +232,8 @@ export async function PATCH(request, { params }) {
       playerName,
       teamName,
       minute,
+      scorers,
+      assists,
     } = body;
 
     await connectToDB();
@@ -347,6 +349,9 @@ export async function PATCH(request, { params }) {
               homeScore: Number(homeScore),
               awayScore: Number(awayScore),
 
+              scorers: scorers || [],
+              assists: assists || [],
+
               blueCards: match.blueCards || [],
             },
           ],
@@ -371,6 +376,77 @@ export async function PATCH(request, { params }) {
       if (!isOwner) {
         return NextResponse.json({ message: "אין הרשאה" }, { status: 403 });
       }
+
+      const matchToApprove = league.matches.find(
+        (match) => String(match._id) === String(matchId)
+      );
+
+      if (!matchToApprove) {
+        return NextResponse.json({ message: "המשחק לא נמצא" }, { status: 404 });
+      }
+
+      if (matchToApprove.isFinalApproved) {
+        return NextResponse.json(
+          { message: "המשחק כבר אושר" },
+          { status: 400 }
+        );
+      }
+
+      const approvedReport = matchToApprove.captainReports?.[0];
+
+      const addGoalsToTable = (scorers = []) => {
+        scorers.forEach((scorer) => {
+          const goalsToAdd = Number(scorer.goals) || 0;
+          if (!scorer.playerName || !scorer.teamName || goalsToAdd <= 0) return;
+
+          const existingScorer = league.topScorers.find(
+            (item) =>
+              item.playerName?.trim().toLowerCase() ===
+                scorer.playerName?.trim().toLowerCase() &&
+              item.teamName?.trim().toLowerCase() ===
+                scorer.teamName?.trim().toLowerCase()
+          );
+
+          if (existingScorer) {
+            existingScorer.goals += goalsToAdd;
+          } else {
+            league.topScorers.push({
+              playerName: scorer.playerName,
+              teamName: scorer.teamName,
+              goals: goalsToAdd,
+            });
+          }
+        });
+      };
+
+      const addAssistsToTable = (assists = []) => {
+        assists.forEach((assist) => {
+          const assistsToAdd = Number(assist.assists) || 0;
+          if (!assist.playerName || !assist.teamName || assistsToAdd <= 0)
+            return;
+
+          const existingAssist = league.topAssists.find(
+            (item) =>
+              item.playerName?.trim().toLowerCase() ===
+                assist.playerName?.trim().toLowerCase() &&
+              item.teamName?.trim().toLowerCase() ===
+                assist.teamName?.trim().toLowerCase()
+          );
+
+          if (existingAssist) {
+            existingAssist.assists += assistsToAdd;
+          } else {
+            league.topAssists.push({
+              playerName: assist.playerName,
+              teamName: assist.teamName,
+              assists: assistsToAdd,
+            });
+          }
+        });
+      };
+
+      addGoalsToTable(approvedReport?.scorers || []);
+      addAssistsToTable(approvedReport?.assists || []);
 
       const updatedMatches = league.matches.map((match) => {
         if (String(match._id) !== String(matchId)) return match;

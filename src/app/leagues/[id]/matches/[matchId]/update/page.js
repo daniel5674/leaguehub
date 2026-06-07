@@ -185,35 +185,29 @@ export default function UpdateMatchPage() {
     try {
       setSubmitting(true);
 
-      for (const goal of goalForms) {
-        if (goal.playerName && goal.teamName && goal.goals !== "") {
-          await fetch(`/api/leagues/${id}/top-scorers`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              playerName: goal.playerName,
-              teamName: goal.teamName,
-              goals: Number(goal.goals),
-            }),
-          });
-        }
-      }
+      const cleanScorers = goalForms
+        .filter((goal) => goal.playerName && goal.teamName && goal.goals !== "")
+        .map((goal) => ({
+          playerId: goal.playerId,
+          playerName: goal.playerName,
+          teamName: goal.teamName,
+          goals: Number(goal.goals),
+        }));
 
-      for (const assist of assistForms) {
-        if (assist.playerName && assist.teamName && assist.assists !== "") {
-          await fetch(`/api/leagues/${id}/top-assists`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({
-              playerName: assist.playerName,
-              teamName: assist.teamName,
-              assists: Number(assist.assists),
-            }),
-          });
-        }
-      }
+      const cleanAssists = assistForms
+        .filter(
+          (assist) =>
+            assist.playerName && assist.teamName && assist.assists !== ""
+        )
+        .map((assist) => ({
+          playerId: assist.playerId,
+          playerName: assist.playerName,
+          teamName: assist.teamName,
+          assists: Number(assist.assists),
+        }));
+
+      console.log("GOALS:", cleanScorers);
+      console.log("ASSISTS:", cleanAssists);
 
       const res = await fetch(`/api/leagues/${id}/matches`, {
         method: "PATCH",
@@ -229,6 +223,9 @@ export default function UpdateMatchPage() {
           captainName:
             currentUser?.fullName || currentUser?.name || currentUser?.email,
           teamName: captainTeamName,
+
+          scorers: cleanScorers,
+          assists: cleanAssists,
         }),
       });
 
