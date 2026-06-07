@@ -3,6 +3,7 @@ import { connectToDB } from "@/lib/mongodb";
 import League from "@/models/League";
 import User from "@/models/User";
 import { getUserFromToken } from "@/lib/getUserFromToken";
+import PlayerProfile from "@/models/PlayerProfile";
 
 async function notifyUser(email, message, leagueId, leagueName) {
   try {
@@ -154,6 +155,13 @@ export async function PATCH(request, { params }) {
     }
 
     player.rating = rating;
+    if (player.email) {
+      await PlayerProfile.findOneAndUpdate(
+        { email: player.email },
+        { rating },
+        { new: true }
+      );
+    }
     league.generatedTeams = [];
 
     await league.save();
