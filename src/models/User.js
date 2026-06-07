@@ -32,13 +32,21 @@ const UserSchema = new mongoose.Schema(
         message: { type: String },
         leagueId: { type: String },
         leagueName: { type: String },
+
+        matchId: { type: String, default: "" },
+
+        actionType: {
+          type: String,
+          default: "info",
+        },
+
         type: { type: String, default: "info" },
         read: { type: Boolean, default: false },
         createdAt: { type: Date, default: Date.now },
       },
     ],
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default mongoose.models.User || mongoose.model("User", UserSchema);

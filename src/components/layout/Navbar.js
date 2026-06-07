@@ -375,11 +375,27 @@ export default function Navbar() {
                                     : "bg-blue-50 font-medium text-gray-800"
                                 }`}
                               >
-                                {n.message}
+                                <p>{n.message}</p>
+
                                 {n.leagueName && (
                                   <p className="mt-0.5 text-xs text-gray-400">
                                     {n.leagueName}
                                   </p>
+                                )}
+
+                                {n.actionType === "report-match" && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setNotificationsOpen(false);
+                                      router.push(
+                                        `/leagues/${n.leagueId}/matches/${n.matchId}/update`
+                                      );
+                                    }}
+                                    className="mt-3 block w-full rounded-xl bg-black px-3 py-2 text-center text-sm font-semibold text-white transition hover:bg-gray-800"
+                                  >
+                                    דווח משחק
+                                  </button>
                                 )}
                               </div>
                             ))}
