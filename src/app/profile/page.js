@@ -148,7 +148,7 @@ export default function ProfilePage() {
 
                 <div className="mt-3 flex flex-wrap gap-2">
                   <span className="rounded-full bg-white/10 px-3 py-1 text-sm font-bold text-white">
-                    דירוג {profile.rating || "D"}
+                    דירוג {profile.rating || "לא דורג"}{" "}
                   </span>
 
                   {profile.goals >= 10 && (
@@ -345,7 +345,9 @@ export default function ProfilePage() {
 
               <div className="flex justify-between border-b border-gray-100 pb-2">
                 <span className="text-gray-500">דירוג</span>
-                <span className="font-medium">{profile.rating || "D"}</span>
+                <span className="font-medium">
+                  {profile.rating || "לא דורג"}
+                </span>
               </div>
 
               <div className="flex justify-between">
