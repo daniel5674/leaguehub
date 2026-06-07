@@ -154,8 +154,8 @@ const PersonalPlayerSchema = new mongoose.Schema(
     fullName: { type: String, required: true },
     rating: {
       type: String,
-      enum: ["A", "B", "C", "D"],
-      default: "D",
+      enum: ["", "A", "B", "C", "D"],
+      default: "",
     },
     goals: { type: Number, default: 0 },
     assists: { type: Number, default: 0 },

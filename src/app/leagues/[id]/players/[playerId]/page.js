@@ -35,16 +35,28 @@ export default function PlayerPage() {
         let foundPlayer = null;
         let foundTeam = null;
 
-        data.teams?.forEach((team) => {
-          const player = team.players?.find(
-            (player) => String(player.playerId) === String(playerId)
+        if (data.leagueType === "personal") {
+          foundPlayer = data.personalPlayers?.find(
+            (player) => String(player._id) === String(playerId)
           );
 
-          if (player) {
-            foundPlayer = player;
-            foundTeam = team;
+          if (foundPlayer) {
+            foundTeam = {
+              name: "ליגה אישית",
+            };
           }
-        });
+        } else {
+          data.teams?.forEach((team) => {
+            const player = team.players?.find(
+              (player) => String(player.playerId) === String(playerId)
+            );
+
+            if (player) {
+              foundPlayer = player;
+              foundTeam = team;
+            }
+          });
+        }
 
         if (!foundPlayer && requestId) {
           const joinRequest = data.joinRequests?.find(
@@ -120,13 +132,16 @@ export default function PlayerPage() {
               return total + cardsCount;
             }, 0) || 0;
 
+          console.log("FOUND PLAYER:", foundPlayer);
+          console.log("PLAYER RATING:", foundPlayer?.rating);
+
           setPlayerData({
             ...foundPlayer,
             image: globalProfile?.image || foundPlayer.image || "",
             shirtNumber:
               globalProfile?.shirtNumber || foundPlayer.shirtNumber || "",
             position: globalProfile?.position || foundPlayer.position || "",
-            rating: globalProfile?.rating || foundPlayer.rating || "D",
+            rating: foundPlayer.rating || globalProfile?.rating || "",
             teamName: foundTeam.name,
             goals: playerGoals,
             assists: playerAssists,
@@ -243,6 +258,9 @@ export default function PlayerPage() {
                 <div className="mt-1 flex items-center gap-3">
                   <h1 className="text-4xl font-black">{playerData.fullName}</h1>
                   <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-purple-500 px-3 py-1 text-sm font-bold text-white">
+                      דירוג {playerData.rating || "לא דורג"}
+                    </span>
                     {playerData.isCaptain && (
                       <span className="rounded-full bg-yellow-400 px-3 py-1 text-sm font-bold text-black">
                         👑 קפטן

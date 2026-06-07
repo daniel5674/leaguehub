@@ -28,63 +28,90 @@ export async function GET() {
     }
 
     const leagues = await League.find({
-      "teams.players.email": normalizedEmail,
+      $or: [
+        { "teams.players.email": normalizedEmail },
+        { "personalPlayers.email": normalizedEmail },
+      ],
     });
 
-    const leagueStats = leagues.map((league) => {
-      let playerTeam = null;
-      let playerInLeague = null;
+    const leagueStats = leagues
+      .map((league) => {
+        if (league.leagueType === "personal") {
+          const personalPlayer = league.personalPlayers?.find(
+            (p) => p.email?.trim().toLowerCase() === normalizedEmail
+          );
 
-      league.teams?.forEach((team) => {
-        const player = team.players?.find(
-          (p) => p.email?.trim().toLowerCase() === normalizedEmail
-        );
+          if (!personalPlayer) return null;
 
-        if (player) {
-          playerTeam = team;
-          playerInLeague = player;
+          return {
+            leagueId: league._id,
+            leagueName: league.name,
+            teamName: "ליגה אישית",
+            isCaptain: false,
+            goals: personalPlayer.goals || 0,
+            assists: personalPlayer.assists || 0,
+            blueCards: 0,
+            rating: personalPlayer.rating || "",
+          };
         }
-      });
 
-      const goals =
-        league.topScorers?.find(
-          (scorer) =>
-            scorer.playerName?.trim().toLowerCase() ===
-              playerInLeague?.fullName?.trim().toLowerCase() &&
-            scorer.teamName?.trim().toLowerCase() ===
-              playerTeam?.name?.trim().toLowerCase()
-        )?.goals || 0;
+        let playerTeam = null;
+        let playerInLeague = null;
 
-      const assists =
-        league.topAssists?.find(
-          (assist) =>
-            assist.playerName?.trim().toLowerCase() ===
-              playerInLeague?.fullName?.trim().toLowerCase() &&
-            assist.teamName?.trim().toLowerCase() ===
-              playerTeam?.name?.trim().toLowerCase()
-        )?.assists || 0;
+        league.teams?.forEach((team) => {
+          const player = team.players?.find(
+            (p) => p.email?.trim().toLowerCase() === normalizedEmail
+          );
 
-      const blueCards =
-        league.matches?.reduce((total, match) => {
-          const count =
-            match.blueCards?.filter(
-              (card) =>
-                String(card.playerId) === String(playerInLeague?.playerId)
-            ).length || 0;
+          if (player) {
+            playerTeam = team;
+            playerInLeague = player;
+          }
+        });
 
-          return total + count;
-        }, 0) || 0;
+        if (!playerInLeague || !playerTeam) return null;
 
-      return {
-        leagueId: league._id,
-        leagueName: league.name,
-        teamName: playerTeam?.name || "",
-        isCaptain: !!playerInLeague?.isCaptain,
-        goals,
-        assists,
-        blueCards,
-      };
-    });
+        const goals =
+          league.topScorers?.find(
+            (scorer) =>
+              scorer.playerName?.trim().toLowerCase() ===
+                playerInLeague?.fullName?.trim().toLowerCase() &&
+              scorer.teamName?.trim().toLowerCase() ===
+                playerTeam?.name?.trim().toLowerCase()
+          )?.goals || 0;
+
+        const assists =
+          league.topAssists?.find(
+            (assist) =>
+              assist.playerName?.trim().toLowerCase() ===
+                playerInLeague?.fullName?.trim().toLowerCase() &&
+              assist.teamName?.trim().toLowerCase() ===
+                playerTeam?.name?.trim().toLowerCase()
+          )?.assists || 0;
+
+        const blueCards =
+          league.matches?.reduce((total, match) => {
+            const count =
+              match.blueCards?.filter(
+                (card) =>
+                  String(card.playerId) === String(playerInLeague?.playerId)
+              ).length || 0;
+
+            return total + count;
+          }, 0) || 0;
+
+        return {
+          leagueId: league._id,
+          leagueName: league.name,
+          teamName: playerTeam?.name || "",
+          isCaptain: !!playerInLeague?.isCaptain,
+          goals,
+          assists,
+          blueCards,
+          rating: playerInLeague?.rating || "",
+        };
+      })
+      .filter(Boolean);
 
     const totals = leagueStats.reduce(
       (sum, league) => ({
@@ -95,8 +122,12 @@ export async function GET() {
       { goals: 0, assists: 0, blueCards: 0 }
     );
 
+    const personalLeagueRating =
+      leagueStats.find((league) => league.rating)?.rating || "";
+
     return NextResponse.json({
       ...profile.toObject(),
+      rating: personalLeagueRating || profile.rating || "",
       goals: totals.goals,
       assists: totals.assists,
       blueCards: totals.blueCards,
@@ -111,6 +142,7 @@ export async function GET() {
     );
   }
 }
+
 export async function PATCH(request) {
   try {
     await connectToDB();

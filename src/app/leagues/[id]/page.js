@@ -1115,15 +1115,60 @@ export default function LeagueDetailsPage() {
                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-200 text-sm font-bold text-purple-800">
                               {player.fullName?.charAt(0)}
                             </div>
-                            <span className="text-sm font-semibold text-gray-900">
+                            <Link
+                              href={`/leagues/${id}/players/${player._id}`}
+                              className="text-sm font-semibold text-gray-900 hover:underline"
+                            >
                               {player.fullName}
-                            </span>
+                            </Link>
                           </div>
                         </td>
                         <td className="py-3 text-center">
-                          <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-bold text-purple-700">
-                            {player.rating}
-                          </span>
+                          {canManage ? (
+                            <select
+                              value={player.rating || ""}
+                              onChange={async (e) => {
+                                const res = await fetch(
+                                  `/api/leagues/${id}/personal-players`,
+                                  {
+                                    method: "PATCH",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                    },
+                                    credentials: "include",
+                                    body: JSON.stringify({
+                                      playerId: String(player._id),
+                                      rating: e.target.value,
+                                    }),
+                                  }
+                                );
+
+                                const data = await res.json();
+
+                                if (!res.ok) {
+                                  showToast(
+                                    data.message || "שגיאה בעדכון דירוג",
+                                    "error"
+                                  );
+                                  return;
+                                }
+
+                                setLeague(data);
+                                showToast("הדירוג עודכן");
+                              }}
+                              className="rounded-xl border border-purple-300 px-2 py-1 text-sm"
+                            >
+                              <option value="">ללא דירוג</option>
+                              <option value="A">A</option>
+                              <option value="B">B</option>
+                              <option value="C">C</option>
+                              <option value="D">D</option>
+                            </select>
+                          ) : (
+                            <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-bold text-purple-700">
+                              {player.rating || "לא דורג"}
+                            </span>
+                          )}
                         </td>
                         <td className="py-3 text-center text-sm font-semibold text-gray-700">
                           {player.goals || 0}
@@ -1256,7 +1301,9 @@ export default function LeagueDetailsPage() {
 
             {!league.matches || league.matches.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-gray-300 p-10 text-center">
-                <p className="text-lg font-semibold text-gray-400">אין משחקים במערכת</p>
+                <p className="text-lg font-semibold text-gray-400">
+                  אין משחקים במערכת
+                </p>
               </div>
             ) : (
               <div className="grid gap-4">
@@ -1267,12 +1314,15 @@ export default function LeagueDetailsPage() {
                   >
                     <div className="flex items-center justify-between text-center">
                       <div className="flex-1">
-                        <h3 className="text-lg font-extrabold text-gray-900">{match.homeTeam}</h3>
+                        <h3 className="text-lg font-extrabold text-gray-900">
+                          {match.homeTeam}
+                        </h3>
                       </div>
                       <div className="mx-6">
                         <div className="rounded-2xl bg-black px-6 py-3 text-center text-white shadow-md">
                           <div className="text-3xl font-extrabold">
-                            {match.homeScore !== null && match.homeScore !== undefined
+                            {match.homeScore !== null &&
+                            match.homeScore !== undefined
                               ? `${match.homeScore} : ${match.awayScore}`
                               : "- : -"}
                           </div>
@@ -1282,13 +1332,21 @@ export default function LeagueDetailsPage() {
                         </div>
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-extrabold text-gray-900">{match.awayTeam}</h3>
+                        <h3 className="text-lg font-extrabold text-gray-900">
+                          {match.awayTeam}
+                        </h3>
                       </div>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-3 text-sm text-gray-600">
-                      <span className="rounded-full bg-gray-100 px-3 py-1">📅 {match.date}</span>
-                      <span className="rounded-full bg-gray-100 px-3 py-1">🕒 {match.time}</span>
-                      <span className="rounded-full bg-gray-100 px-3 py-1">📍 {match.location}</span>
+                      <span className="rounded-full bg-gray-100 px-3 py-1">
+                        📅 {match.date}
+                      </span>
+                      <span className="rounded-full bg-gray-100 px-3 py-1">
+                        🕒 {match.time}
+                      </span>
+                      <span className="rounded-full bg-gray-100 px-3 py-1">
+                        📍 {match.location}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -1618,8 +1676,8 @@ export default function LeagueDetailsPage() {
               </span>
             </div>
 
-            {!isPersonalLeague && (
-              league.teams?.length < 2 ? (
+            {!isPersonalLeague &&
+              (league.teams?.length < 2 ? (
                 <div className="mb-6 rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
                   צריך לפחות 2 קבוצות כדי להוסיף משחק
                 </div>
@@ -1690,8 +1748,7 @@ export default function LeagueDetailsPage() {
                 <p className="mb-6 text-sm text-gray-500">
                   רק יוצר הליגה יכול להוסיף, למחוק ולעדכן משחקים.
                 </p>
-              )
-            )}
+              ))}
 
             {!league.matches || league.matches.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
@@ -1994,106 +2051,106 @@ export default function LeagueDetailsPage() {
         {activeTab === "stats" && (
           <>
             {!isPersonalLeague && (
-            <section className="mt-8 rounded-3xl border border-gray-200 p-6">
-              <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-2xl font-bold">טבלת הליגה</h2>
-                <span className="text-sm text-gray-500">
-                  {league.standings?.length || 0} קבוצות
-                </span>
-              </div>
-
-              {!league.standings || league.standings.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
-                  עדיין אין טבלה להצגה
+              <section className="mt-8 rounded-3xl border border-gray-200 p-6">
+                <div className="mb-5 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold">טבלת הליגה</h2>
+                  <span className="text-sm text-gray-500">
+                    {league.standings?.length || 0} קבוצות
+                  </span>
                 </div>
-              ) : (
-                <div className="overflow-x-auto rounded-3xl bg-white shadow-md ring-1 ring-gray-100">
-                  <table className="min-w-full overflow-hidden">
-                    <thead className="bg-slate-900 text-sm text-white">
-                      <tr>
-                        <th className="px-4 py-4 text-right">מקום</th>
-                        <th className="px-4 py-4 text-right">קבוצה</th>
-                        <th className="px-4 py-4 text-center">מש'</th>
-                        <th className="px-4 py-4 text-center">נ'</th>
-                        <th className="px-4 py-4 text-center">ת'</th>
-                        <th className="px-4 py-4 text-center">ה'</th>
-                        <th className="px-4 py-4 text-center">ז'</th>
-                        <th className="px-4 py-4 text-center">ח'</th>
-                        <th className="px-4 py-4 text-center">הפרש</th>
-                        <th className="px-4 py-4 text-center">נק'</th>
-                      </tr>
-                    </thead>
 
-                    <tbody className="divide-y divide-gray-100 bg-white text-sm">
-                      {league.standings.map((row, index) => {
-                        const medal =
-                          index === 0
-                            ? "🥇"
-                            : index === 1
-                            ? "🥈"
-                            : index === 2
-                            ? "🥉"
-                            : index + 1;
+                {!league.standings || league.standings.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+                    עדיין אין טבלה להצגה
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto rounded-3xl bg-white shadow-md ring-1 ring-gray-100">
+                    <table className="min-w-full overflow-hidden">
+                      <thead className="bg-slate-900 text-sm text-white">
+                        <tr>
+                          <th className="px-4 py-4 text-right">מקום</th>
+                          <th className="px-4 py-4 text-right">קבוצה</th>
+                          <th className="px-4 py-4 text-center">מש'</th>
+                          <th className="px-4 py-4 text-center">נ'</th>
+                          <th className="px-4 py-4 text-center">ת'</th>
+                          <th className="px-4 py-4 text-center">ה'</th>
+                          <th className="px-4 py-4 text-center">ז'</th>
+                          <th className="px-4 py-4 text-center">ח'</th>
+                          <th className="px-4 py-4 text-center">הפרש</th>
+                          <th className="px-4 py-4 text-center">נק'</th>
+                        </tr>
+                      </thead>
 
-                        return (
-                          <tr
-                            key={row.team}
-                            className="transition hover:bg-slate-50"
-                          >
-                            <td className="px-4 py-4 font-bold text-gray-800">
-                              {medal}
-                            </td>
+                      <tbody className="divide-y divide-gray-100 bg-white text-sm">
+                        {league.standings.map((row, index) => {
+                          const medal =
+                            index === 0
+                              ? "🥇"
+                              : index === 1
+                              ? "🥈"
+                              : index === 2
+                              ? "🥉"
+                              : index + 1;
 
-                            <td className="px-4 py-4 font-bold text-gray-900">
-                              {row.team}
-                            </td>
-
-                            <td className="px-4 py-4 text-center">
-                              {row.played}
-                            </td>
-                            <td className="px-4 py-4 text-center">
-                              {row.wins}
-                            </td>
-                            <td className="px-4 py-4 text-center">
-                              {row.draws}
-                            </td>
-                            <td className="px-4 py-4 text-center">
-                              {row.losses}
-                            </td>
-                            <td className="px-4 py-4 text-center">
-                              {row.goalsFor}
-                            </td>
-                            <td className="px-4 py-4 text-center">
-                              {row.goalsAgainst}
-                            </td>
-
-                            <td
-                              className={`px-4 py-4 text-center font-bold ${
-                                row.goalDifference > 0
-                                  ? "text-green-600"
-                                  : row.goalDifference < 0
-                                  ? "text-red-500"
-                                  : "text-gray-500"
-                              }`}
+                          return (
+                            <tr
+                              key={row.team}
+                              className="transition hover:bg-slate-50"
                             >
-                              {row.goalDifference > 0
-                                ? `+${row.goalDifference}`
-                                : row.goalDifference}
-                            </td>
+                              <td className="px-4 py-4 font-bold text-gray-800">
+                                {medal}
+                              </td>
 
-                            <td className="px-4 py-4 text-center">
-                              <span className="rounded-full bg-slate-900 px-3 py-1 text-sm font-bold text-white">
-                                {row.points}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </section>
+                              <td className="px-4 py-4 font-bold text-gray-900">
+                                {row.team}
+                              </td>
+
+                              <td className="px-4 py-4 text-center">
+                                {row.played}
+                              </td>
+                              <td className="px-4 py-4 text-center">
+                                {row.wins}
+                              </td>
+                              <td className="px-4 py-4 text-center">
+                                {row.draws}
+                              </td>
+                              <td className="px-4 py-4 text-center">
+                                {row.losses}
+                              </td>
+                              <td className="px-4 py-4 text-center">
+                                {row.goalsFor}
+                              </td>
+                              <td className="px-4 py-4 text-center">
+                                {row.goalsAgainst}
+                              </td>
+
+                              <td
+                                className={`px-4 py-4 text-center font-bold ${
+                                  row.goalDifference > 0
+                                    ? "text-green-600"
+                                    : row.goalDifference < 0
+                                    ? "text-red-500"
+                                    : "text-gray-500"
+                                }`}
+                              >
+                                {row.goalDifference > 0
+                                  ? `+${row.goalDifference}`
+                                  : row.goalDifference}
+                              </td>
+
+                              <td className="px-4 py-4 text-center">
+                                <span className="rounded-full bg-slate-900 px-3 py-1 text-sm font-bold text-white">
+                                  {row.points}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
             )}
 
             <section className="mt-8 rounded-3xl border border-gray-200 p-6">
