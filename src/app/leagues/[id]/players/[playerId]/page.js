@@ -132,8 +132,8 @@ export default function PlayerPage() {
               return total + cardsCount;
             }, 0) || 0;
 
-          console.log("FOUND PLAYER:", foundPlayer);
-          console.log("PLAYER RATING:", foundPlayer?.rating);
+          console.log("GLOBAL PROFILE:", globalProfile);
+          console.log("GLOBAL PROFILE RATING:", globalProfile?.rating);
 
           setPlayerData({
             ...foundPlayer,
@@ -141,7 +141,7 @@ export default function PlayerPage() {
             shirtNumber:
               globalProfile?.shirtNumber || foundPlayer.shirtNumber || "",
             position: globalProfile?.position || foundPlayer.position || "",
-            rating: foundPlayer.rating || globalProfile?.rating || "",
+            rating: globalProfile?.rating || foundPlayer.rating || "D",
             teamName: foundTeam.name,
             goals: playerGoals,
             assists: playerAssists,

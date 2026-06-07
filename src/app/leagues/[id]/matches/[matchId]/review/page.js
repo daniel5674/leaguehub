@@ -58,24 +58,43 @@ export default function ReviewMatchReportPage() {
 
   const hasTwoReports = reports.length >= 2;
 
-  const normalizeStats = (items = []) => {
-    return items
-      .map((item) => ({
-        playerId: item.playerId || "",
-        playerName: item.playerName?.trim().toLowerCase() || "",
-        teamName: item.teamName?.trim().toLowerCase() || "",
-      }))
-      .sort((a, b) =>
-        `${a.playerId}-${a.playerName}-${a.teamName}`.localeCompare(
-          `${b.playerId}-${b.playerName}-${b.teamName}`
-        )
-      );
+  const getAmount = (item, amountField) => {
+    if (amountField === "goals") {
+      return Number(item.goals || item.goalCount || item.count || 1);
+    }
+
+    if (amountField === "assists") {
+      return Number(item.assists || item.assistCount || item.count || 1);
+    }
+
+    return 1;
   };
 
-  const areSameStats = (arr1 = [], arr2 = []) => {
+  const normalizeStats = (items = [], amountField = "goals") => {
+    const map = {};
+
+    items.forEach((item) => {
+      const key = `${item.playerId || ""}-${item.playerName
+        ?.trim()
+        .toLowerCase()}-${item.teamName?.trim().toLowerCase()}`;
+
+      const amount = getAmount(item, amountField);
+
+      map[key] = (map[key] || 0) + amount;
+    });
+
+    return Object.keys(map)
+      .map((key) => ({
+        key,
+        amount: map[key],
+      }))
+      .sort((a, b) => a.key.localeCompare(b.key));
+  };
+
+  const areSameStats = (arr1 = [], arr2 = [], amountField = "goals") => {
     return (
-      JSON.stringify(normalizeStats(arr1)) ===
-      JSON.stringify(normalizeStats(arr2))
+      JSON.stringify(normalizeStats(arr1, amountField)) ===
+      JSON.stringify(normalizeStats(arr2, amountField))
     );
   };
 
@@ -83,8 +102,8 @@ export default function ReviewMatchReportPage() {
     hasTwoReports &&
     Number(reports[0].homeScore) === Number(reports[1].homeScore) &&
     Number(reports[0].awayScore) === Number(reports[1].awayScore) &&
-    areSameStats(reports[0].scorers, reports[1].scorers) &&
-    areSameStats(reports[0].assists, reports[1].assists);
+    areSameStats(reports[0].scorers, reports[1].scorers, "goals") &&
+    areSameStats(reports[0].assists, reports[1].assists, "assists");
 
   const approvedReport = reportsMatch ? reports[0] : null;
 
