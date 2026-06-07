@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 import League from "@/models/League";
+import User from "@/models/User";
 import { getUserFromToken } from "@/lib/getUserFromToken";
 
 function calculateStandings(teams, matches) {
@@ -94,11 +95,6 @@ export async function POST(request, { params }) {
       String(league.createdBy) === String(currentUser.email) ||
       String(league.createdBy) === String(currentUser.userId);
 
-    console.log("league.createdBy:", league.createdBy);
-    console.log("currentUser.email:", currentUser.email);
-    console.log("currentUser.userId:", currentUser.userId);
-    console.log("isOwner:", isOwner);
-
     if (!isOwner) {
       return NextResponse.json({ message: "אין הרשאה" }, { status: 403 });
     }
@@ -127,13 +123,82 @@ export async function POST(request, { params }) {
       awayScore: null,
     };
 
-    const updatedMatches = [...league.matches, newMatch];
-    const updatedStandings = calculateStandings(league.teams, updatedMatches);
-
-    league.matches = updatedMatches;
-    league.standings = updatedStandings;
+    league.matches.push(newMatch);
+    league.standings = calculateStandings(league.teams, league.matches);
 
     await league.save();
+
+    const savedMatch = league.matches[league.matches.length - 1];
+
+    const homeTeam = league.teams.find(
+      (team) =>
+        team.name?.trim().toLowerCase() ===
+        savedMatch.homeTeam?.trim().toLowerCase()
+    );
+
+    const awayTeam = league.teams.find(
+      (team) =>
+        team.name?.trim().toLowerCase() ===
+        savedMatch.awayTeam?.trim().toLowerCase()
+    );
+
+    const captains = [
+      ...(homeTeam?.players?.filter((player) => player.isCaptain) || []),
+      ...(awayTeam?.players?.filter((player) => player.isCaptain) || []),
+    ];
+
+    console.log("savedMatch:", savedMatch);
+    console.log("homeTeam:", homeTeam?.name);
+    console.log("awayTeam:", awayTeam?.name);
+    console.log(
+      "captains:",
+      captains.map((captain) => ({
+        fullName: captain.fullName,
+        email: captain.email,
+        isCaptain: captain.isCaptain,
+      }))
+    );
+
+    for (const captain of captains) {
+      if (!captain.email) {
+        console.log("Captain without email:", captain);
+        continue;
+      }
+
+      const user = await User.findOne({
+        email: captain.email.trim().toLowerCase(),
+      });
+
+      console.log("Looking for user:", captain.email);
+      console.log("Found user:", user?.email);
+
+      if (!user) continue;
+
+      const alreadyHasNotification = user.notifications.some(
+        (notification) =>
+          String(notification.matchId) === String(savedMatch._id) &&
+          notification.actionType === "report-match"
+      );
+
+      if (alreadyHasNotification) {
+        console.log("Notification already exists for:", user.email);
+        continue;
+      }
+
+      user.notifications.push({
+        message: `יש לך משחק שממתין לדיווח: ${savedMatch.homeTeam} נגד ${savedMatch.awayTeam}`,
+        leagueId: String(league._id),
+        leagueName: league.name,
+        matchId: String(savedMatch._id),
+        actionType: "report-match",
+        type: "match-report",
+        read: false,
+      });
+
+      await user.save();
+
+      console.log("Notification added to:", user.email);
+    }
 
     return NextResponse.json(
       {
