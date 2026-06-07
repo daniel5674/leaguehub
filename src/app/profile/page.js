@@ -147,9 +147,13 @@ export default function ProfilePage() {
                 <p className="mt-2 text-gray-300">{profile.email}</p>
 
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-white/10 px-3 py-1 text-sm font-bold text-white">
-                    דירוג {profile.rating || "לא דורג"}{" "}
-                  </span>
+                  <div className="mt-1 flex items-center gap-3">
+                    <h1 className="text-4xl font-black">{profile.fullName}</h1>
+
+                    <span className="rounded-full bg-purple-500 px-3 py-1 text-sm font-bold text-white">
+                      דירוג {profile.rating || "לא דורג"}
+                    </span>
+                  </div>
 
                   {profile.goals >= 10 && (
                     <span className="rounded-full bg-green-500 px-3 py-1 text-sm font-bold text-white">
