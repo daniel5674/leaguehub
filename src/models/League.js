@@ -9,6 +9,24 @@ const MatchReportSchema = new mongoose.Schema(
     homeScore: { type: Number, required: true },
     awayScore: { type: Number, required: true },
 
+    scorers: [
+      {
+        playerId: { type: String, default: "" },
+        playerName: { type: String, required: true },
+        teamName: { type: String, required: true },
+        goals: { type: Number, default: 1 },
+      },
+    ],
+
+    assists: [
+      {
+        playerId: { type: String, default: "" },
+        playerName: { type: String, required: true },
+        teamName: { type: String, required: true },
+        assists: { type: Number, default: 1 },
+      },
+    ],
+
     blueCards: [
       {
         playerId: { type: String, default: "" },

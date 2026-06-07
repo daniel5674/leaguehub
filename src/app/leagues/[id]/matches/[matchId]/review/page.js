@@ -1,26 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { useParams, useRouter } from "next/navigation";
-
 import { useAuth } from "@/context/AuthContext";
-
 import Toast from "@/components/ui/Toast";
 
 export default function ReviewMatchReportPage() {
   const { id, matchId } = useParams();
-
   const router = useRouter();
-
   const { currentUser } = useAuth();
 
   const [league, setLeague] = useState(null);
-
   const [match, setMatch] = useState(null);
-
   const [loading, setLoading] = useState(true);
-
   const [toast, setToast] = useState({ message: "", type: "success" });
 
   const showToast = (message, type = "success") => {
@@ -36,9 +28,7 @@ export default function ReviewMatchReportPage() {
 
     if (!res.ok) {
       showToast(data.message || "שגיאה בטעינת הליגה", "error");
-
       setLoading(false);
-
       return;
     }
 
@@ -47,15 +37,12 @@ export default function ReviewMatchReportPage() {
     );
 
     setLeague(data);
-
     setMatch(currentMatch || null);
-
     setLoading(false);
   };
 
   useEffect(() => {
     if (!id || !matchId) return;
-
     fetchLeague();
   }, [id, matchId]);
 
@@ -71,10 +58,33 @@ export default function ReviewMatchReportPage() {
 
   const hasTwoReports = reports.length >= 2;
 
+  const normalizeStats = (items = []) => {
+    return items
+      .map((item) => ({
+        playerId: item.playerId || "",
+        playerName: item.playerName?.trim().toLowerCase() || "",
+        teamName: item.teamName?.trim().toLowerCase() || "",
+      }))
+      .sort((a, b) =>
+        `${a.playerId}-${a.playerName}-${a.teamName}`.localeCompare(
+          `${b.playerId}-${b.playerName}-${b.teamName}`
+        )
+      );
+  };
+
+  const areSameStats = (arr1 = [], arr2 = []) => {
+    return (
+      JSON.stringify(normalizeStats(arr1)) ===
+      JSON.stringify(normalizeStats(arr2))
+    );
+  };
+
   const reportsMatch =
     hasTwoReports &&
     Number(reports[0].homeScore) === Number(reports[1].homeScore) &&
-    Number(reports[0].awayScore) === Number(reports[1].awayScore);
+    Number(reports[0].awayScore) === Number(reports[1].awayScore) &&
+    areSameStats(reports[0].scorers, reports[1].scorers) &&
+    areSameStats(reports[0].assists, reports[1].assists);
 
   const approvedReport = reportsMatch ? reports[0] : null;
 
@@ -83,20 +93,14 @@ export default function ReviewMatchReportPage() {
 
     const res = await fetch(`/api/leagues/${id}/matches`, {
       method: "PATCH",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       credentials: "include",
-
       body: JSON.stringify({
         action: "UPDATE_SCORE",
-
         matchId,
-
         homeScore: Number(approvedReport.homeScore),
-
         awayScore: Number(approvedReport.awayScore),
       }),
     });
@@ -105,28 +109,22 @@ export default function ReviewMatchReportPage() {
 
     if (!res.ok) {
       showToast(data.message || "שגיאה באישור תוצאה", "error");
-
       return;
     }
 
     showToast("התוצאה אושרה בהצלחה");
-
     router.push(`/leagues/${id}`);
   };
 
   const handleResetReports = async () => {
     const res = await fetch(`/api/leagues/${id}/matches`, {
       method: "PATCH",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       credentials: "include",
-
       body: JSON.stringify({
         action: "RESET_CAPTAIN_REPORTS",
-
         matchId,
       }),
     });
@@ -135,12 +133,10 @@ export default function ReviewMatchReportPage() {
 
     if (!res.ok) {
       showToast(data.message || "שגיאה באיפוס הדיווחים", "error");
-
       return;
     }
 
     showToast("הדיווחים אופסו, הקפטנים יכולים לדווח מחדש");
-
     router.push(`/leagues/${id}`);
   };
 
@@ -193,7 +189,6 @@ export default function ReviewMatchReportPage() {
                   ? `${reports[0].homeScore} : ${reports[0].awayScore}`
                   : "- : -"}
               </div>
-
               <div className="mt-1 text-sm text-gray-300">דיווח קפטנים</div>
             </div>
 
@@ -234,10 +229,47 @@ export default function ReviewMatchReportPage() {
 
                 <div className="mt-5 rounded-2xl bg-white px-4 py-4 text-center">
                   <p className="text-sm font-bold text-gray-500">תוצאה</p>
-
                   <p className="mt-1 text-3xl font-black text-gray-900">
                     {report.homeScore} - {report.awayScore}
                   </p>
+                </div>
+
+                <div className="mt-4 rounded-2xl bg-green-50 p-4">
+                  <p className="mb-3 font-black text-green-800">כובשי שערים</p>
+
+                  {!report.scorers || report.scorers.length === 0 ? (
+                    <p className="text-sm text-gray-500">אין כובשים בדיווח</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {report.scorers.map((scorer, scorerIndex) => (
+                        <div
+                          key={scorerIndex}
+                          className="rounded-xl bg-white px-3 py-2 text-sm"
+                        >
+                          ⚽ {scorer.playerName} | {scorer.teamName}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-4 rounded-2xl bg-yellow-50 p-4">
+                  <p className="mb-3 font-black text-yellow-800">מבשלי שערים</p>
+
+                  {!report.assists || report.assists.length === 0 ? (
+                    <p className="text-sm text-gray-500">אין בישולים בדיווח</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {report.assists.map((assist, assistIndex) => (
+                        <div
+                          key={assistIndex}
+                          className="rounded-xl bg-white px-3 py-2 text-sm"
+                        >
+                          🅰️ {assist.playerName} | {assist.teamName}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-4 rounded-2xl bg-blue-50 p-4">
