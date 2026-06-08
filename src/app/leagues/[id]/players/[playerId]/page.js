@@ -146,6 +146,7 @@ export default function PlayerPage() {
             goals: playerGoals,
             assists: playerAssists,
             blueCards: playerBlueCards,
+            mvpAwards: foundPlayer.mvpAwards || 0,
           });
         }
       } catch (error) {
@@ -326,7 +327,7 @@ export default function PlayerPage() {
             </div>
           )}
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
             <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
               <div className="text-3xl">🏆</div>
               <p className="mt-2 text-3xl font-black text-gray-900">
@@ -357,6 +358,16 @@ export default function PlayerPage() {
                 {playerData.assists}
               </p>
               <p className="text-sm text-gray-600">בישולים</p>
+            </div>
+
+            <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+              <div className="text-3xl">⭐</div>
+
+              <p className="mt-2 text-5xl font-black text-yellow-700">
+                {playerData.mvpAwards || 0}
+              </p>
+
+              <p className="text-sm text-gray-600">MVP</p>
             </div>
 
             <div className="rounded-3xl border border-blue-200 bg-blue-50 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">

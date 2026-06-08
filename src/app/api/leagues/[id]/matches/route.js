@@ -325,9 +325,7 @@ export async function PATCH(request, { params }) {
       }
 
       const updatedMatches = league.matches.map((match) => {
-        if (String(match._id) !== String(matchId)) {
-          return match;
-        }
+        if (String(match._id) !== String(matchId)) return match;
 
         return {
           ...match.toObject(),
@@ -336,6 +334,9 @@ export async function PATCH(request, { params }) {
           awayScore: null,
           score: "טרם נקבע",
           isFinalApproved: false,
+          isApprovedByManager: false,
+          mvpPlayerId: "",
+          mvpPlayerName: "",
         };
       });
 
@@ -455,7 +456,13 @@ export async function PATCH(request, { params }) {
     }
 
     if (action === "SUBMIT_MATCH_REPORT") {
-      const { captainUserId, captainName, teamName } = body;
+      const {
+        captainUserId,
+        captainName,
+        teamName,
+        mvpPlayerId,
+        mvpPlayerName,
+      } = body;
 
       const updatedMatches = league.matches.map((match) => {
         if (String(match._id) !== String(matchId)) {
@@ -480,6 +487,9 @@ export async function PATCH(request, { params }) {
 
               homeScore: Number(homeScore),
               awayScore: Number(awayScore),
+
+              mvpPlayerId,
+              mvpPlayerName,
 
               scorers: scorers || [],
               assists: assists || [],
@@ -574,6 +584,12 @@ export async function PATCH(request, { params }) {
 
       const approvedReport = matchToApprove.captainReports?.[0];
 
+      const approvedMvpPlayerId =
+        body.finalMvpPlayerId || approvedReport?.mvpPlayerId || "";
+
+      const approvedMvpPlayerName =
+        body.finalMvpPlayerName || approvedReport?.mvpPlayerName || "";
+
       const addGoalsToTable = (scorers = []) => {
         scorers.forEach((scorer) => {
           const goalsToAdd = Number(scorer.goals) || 0;
@@ -628,6 +644,53 @@ export async function PATCH(request, { params }) {
       addGoalsToTable(approvedReport?.scorers || []);
       addAssistsToTable(approvedReport?.assists || []);
 
+      console.log("approvedReport:", approvedReport);
+      console.log("approvedMvpPlayerName:", approvedMvpPlayerName);
+
+      if (approvedMvpPlayerName) {
+        league.personalPlayers?.forEach((player) => {
+          if (
+            player.fullName?.trim().toLowerCase() ===
+            approvedMvpPlayerName?.trim().toLowerCase()
+          ) {
+            player.mvpAwards = (player.mvpAwards || 0) + 1;
+          }
+        });
+
+        league.teams?.forEach((team) => {
+          team.players?.forEach((player) => {
+            if (
+              player.fullName?.trim().toLowerCase() ===
+              approvedMvpPlayerName?.trim().toLowerCase()
+            ) {
+              player.mvpAwards = (player.mvpAwards || 0) + 1;
+            }
+          });
+        });
+
+        if (!league.topMvps) {
+          league.topMvps = [];
+        }
+
+        const existingMvp = league.topMvps?.find(
+          (item) =>
+            item.playerName?.trim().toLowerCase() ===
+            approvedMvpPlayerName?.trim().toLowerCase()
+        );
+
+        if (existingMvp) {
+          existingMvp.mvpAwards += 1;
+        } else {
+          league.topMvps.push({
+            playerName: approvedMvpPlayerName,
+            teamName: approvedReport.teamName,
+            mvpAwards: 1,
+          });
+        }
+
+        console.log("TOP MVP TABLE:", league.topMvps);
+      }
+
       const updatedMatches = league.matches.map((match) => {
         if (String(match._id) !== String(matchId)) return match;
 
@@ -637,6 +700,11 @@ export async function PATCH(request, { params }) {
           awayScore: Number(awayScore),
           score: `${homeScore}-${awayScore}`,
           isFinalApproved: true,
+          isApprovedByManager: true,
+          approvedAt: new Date(),
+
+          mvpPlayerId: approvedMvpPlayerId,
+          mvpPlayerName: approvedMvpPlayerName,
         };
       });
 

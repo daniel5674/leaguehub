@@ -2397,6 +2397,45 @@ export default function LeagueDetailsPage() {
                 </div>
               )}
             </section>
+            <section className="mt-8 rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
+              <div className="mb-5 flex items-center justify-between">
+                <h2 className="text-2xl font-bold">🏆 מצטייני הליגה</h2>
+
+                <span className="text-sm text-gray-500">
+                  {league.topMvps?.length || 0} שחקנים
+                </span>
+              </div>
+
+              {league.topMvps?.length > 0 ? (
+                <div className="space-y-3">
+                  {[...league.topMvps]
+                    .sort((a, b) => b.mvpAwards - a.mvpAwards)
+                    .map((player, index) => (
+                      <div
+                        key={player._id}
+                        className="flex items-center justify-between rounded-2xl bg-white p-4"
+                      >
+                        <div>
+                          <p className="font-bold">{player.playerName}</p>
+                          <p className="text-sm text-gray-500">
+                            {player.teamName}
+                          </p>
+                        </div>
+
+                        <div className="text-center">
+                          <p className="text-2xl font-black text-yellow-600">
+                            {player.mvpAwards}
+                          </p>
+
+                          <p className="text-xs text-gray-500">MVP</p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="text-gray-500">אין נתוני MVP עדיין</p>
+              )}
+            </section>
             <section className="mt-8 rounded-3xl border border-blue-100 bg-gradient-to-br from-white via-blue-50/40 to-white p-6 shadow-sm">
               <div className="mb-6 flex items-center justify-between">
                 <div>
