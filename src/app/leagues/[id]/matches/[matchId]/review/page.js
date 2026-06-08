@@ -14,6 +14,10 @@ export default function ReviewMatchReportPage() {
   const [match, setMatch] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({ message: "", type: "success" });
+  const [selectedMvp, setSelectedMvp] = useState({
+    playerId: "",
+    playerName: "",
+  });
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
@@ -107,8 +111,29 @@ export default function ReviewMatchReportPage() {
 
   const approvedReport = reportsMatch ? reports[0] : null;
 
+  const sameMvpSelected =
+    hasTwoReports &&
+    reports[0]?.mvpPlayerId &&
+    reports[0]?.mvpPlayerId === reports[1]?.mvpPlayerId;
+
+  const allMvpOptions = reports.flatMap((report) => {
+    if (!report.mvpPlayerId || !report.mvpPlayerName) return [];
+
+    return [
+      {
+        playerId: report.mvpPlayerId,
+        playerName: report.mvpPlayerName,
+      },
+    ];
+  });
+
   const handleApproveMatch = async () => {
     if (!approvedReport) return;
+
+    if (!sameMvpSelected && !selectedMvp.playerId) {
+      showToast("יש לבחור MVP סופי", "error");
+      return;
+    }
 
     const res = await fetch(`/api/leagues/${id}/matches`, {
       method: "PATCH",
@@ -121,6 +146,13 @@ export default function ReviewMatchReportPage() {
         matchId,
         homeScore: Number(approvedReport.homeScore),
         awayScore: Number(approvedReport.awayScore),
+        finalMvpPlayerId: sameMvpSelected
+          ? reports[0]?.mvpPlayerId
+          : selectedMvp.playerId,
+
+        finalMvpPlayerName: sameMvpSelected
+          ? reports[0]?.mvpPlayerName
+          : selectedMvp.playerName,
       }),
     });
 
@@ -246,6 +278,20 @@ export default function ReviewMatchReportPage() {
                   קבוצה: {report.teamName}
                 </p>
 
+                <div className="mt-4 rounded-2xl bg-yellow-50 p-4">
+                  <p className="mb-2 font-black text-yellow-800">
+                    ⭐ שחקן מצטיין שנבחר
+                  </p>
+
+                  {report.mvpPlayerName ? (
+                    <div className="rounded-xl bg-white px-3 py-2 text-sm">
+                      ⭐ {report.mvpPlayerName}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">לא נבחר שחקן מצטיין</p>
+                  )}
+                </div>
+
                 <div className="mt-5 rounded-2xl bg-white px-4 py-4 text-center">
                   <p className="text-sm font-bold text-gray-500">תוצאה</p>
                   <p className="mt-1 text-3xl font-black text-gray-900">
@@ -317,6 +363,41 @@ export default function ReviewMatchReportPage() {
               </div>
             ))}
           </div>
+
+          {reportsMatch && !sameMvpSelected && (
+            <div className="mb-6 rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
+              <h3 className="mb-4 text-xl font-black text-yellow-800">
+                ⭐ הקפטנים בחרו MVP שונה
+              </h3>
+
+              <p className="mb-4 text-sm text-gray-600">
+                בחר את ה-MVP הסופי לפני אישור המשחק
+              </p>
+
+              <select
+                value={selectedMvp.playerId}
+                onChange={(e) => {
+                  const selected = allMvpOptions.find(
+                    (player) => player.playerId === e.target.value
+                  );
+
+                  setSelectedMvp({
+                    playerId: selected?.playerId || "",
+                    playerName: selected?.playerName || "",
+                  });
+                }}
+                className="w-full rounded-2xl border border-gray-300 px-4 py-3"
+              >
+                <option value="">בחר MVP סופי</option>
+
+                {allMvpOptions.map((player) => (
+                  <option key={player.playerId} value={player.playerId}>
+                    {player.playerName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="mt-8 flex flex-col gap-3 md:flex-row">
             {reportsMatch && (

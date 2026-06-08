@@ -27,6 +27,16 @@ const MatchReportSchema = new mongoose.Schema(
       },
     ],
 
+    mvpPlayerId: {
+      type: String,
+      default: "",
+    },
+
+    mvpPlayerName: {
+      type: String,
+      default: "",
+    },
+
     blueCards: [
       {
         playerId: { type: String, default: "" },
@@ -78,6 +88,16 @@ const MatchSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    mvpPlayerId: {
+      type: String,
+      default: "",
+    },
+
+    mvpPlayerName: {
+      type: String,
+      default: "",
+    },
   },
   { _id: true }
 );
@@ -111,6 +131,15 @@ const TopAssistSchema = new mongoose.Schema(
     playerName: { type: String, required: true },
     teamName: { type: String, required: true },
     assists: { type: Number, default: 0 },
+  },
+  { _id: true }
+);
+
+const TopMvpSchema = new mongoose.Schema(
+  {
+    playerName: { type: String, required: true },
+    teamName: { type: String, required: true },
+    mvpAwards: { type: Number, default: 0 },
   },
   { _id: true }
 );
@@ -152,14 +181,21 @@ const PersonalPlayerSchema = new mongoose.Schema(
     userId: { type: String, default: "" },
     email: { type: String, default: "" },
     fullName: { type: String, required: true },
+
     rating: {
       type: String,
       enum: ["", "A", "B", "C", "D"],
       default: "",
     },
+
     goals: { type: Number, default: 0 },
     assists: { type: Number, default: 0 },
     gamesPlayed: { type: Number, default: 0 },
+
+    mvpAwards: {
+      type: Number,
+      default: 0,
+    },
   },
   { _id: true }
 );
@@ -194,6 +230,7 @@ const LeagueSchema = new mongoose.Schema(
     status: { type: String, default: "פתוחה" },
     teamsCount: { type: Number, default: 0 },
     createdBy: { type: String, required: true },
+
     teams: [
       {
         name: { type: String, required: true },
@@ -222,14 +259,26 @@ const LeagueSchema = new mongoose.Schema(
               type: Boolean,
               default: false,
             },
+
+            mvpAwards: {
+              type: Number,
+              default: 0,
+            },
           },
         ],
       },
     ],
+
     matches: [MatchSchema],
     standings: [StandingSchema],
     topScorers: [TopScorerSchema],
     topAssists: [TopAssistSchema],
+
+    topMvps: {
+      type: [TopMvpSchema],
+      default: [],
+    },
+
     members: [MemberSchema],
     joinRequests: [JoinRequestSchema],
     personalPlayers: [PersonalPlayerSchema],

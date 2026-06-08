@@ -35,6 +35,11 @@ export default function UpdateMatchPage() {
     minute: "",
   });
 
+  const [mvpPlayer, setMvpPlayer] = useState({
+    playerId: "",
+    playerName: "",
+  });
+
   const [toast, setToast] = useState({ message: "", type: "success" });
 
   const showToast = (message, type = "success") => {
@@ -226,6 +231,8 @@ export default function UpdateMatchPage() {
 
           scorers: cleanScorers,
           assists: cleanAssists,
+          mvpPlayerId: mvpPlayer.playerId,
+          mvpPlayerName: mvpPlayer.playerName,
         }),
       });
 
@@ -579,6 +586,35 @@ export default function UpdateMatchPage() {
                 ))}
               </div>
             )}
+          </div>
+
+          <div className="mt-6 rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
+            <h3 className="mb-4 text-xl font-black text-yellow-800">
+              ⭐ שחקן מצטיין המשחק
+            </h3>
+
+            <select
+              value={mvpPlayer.playerId}
+              onChange={(e) => {
+                const selectedPlayer = allPlayers.find(
+                  (player) => String(player.playerId) === String(e.target.value)
+                );
+
+                setMvpPlayer({
+                  playerId: e.target.value,
+                  playerName: selectedPlayer?.fullName || "",
+                });
+              }}
+              className="w-full rounded-2xl border border-gray-300 px-4 py-3"
+            >
+              <option value="">בחר שחקן מצטיין</option>
+
+              {allPlayers.map((player) => (
+                <option key={player.playerId} value={player.playerId}>
+                  {player.fullName || player.email} - {player.teamName}
+                </option>
+              ))}
+            </select>
           </div>
 
           <button
