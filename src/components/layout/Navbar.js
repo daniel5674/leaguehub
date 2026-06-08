@@ -397,6 +397,22 @@ export default function Navbar() {
                                     דווח משחק
                                   </button>
                                 )}
+
+                                {n.actionType === "review-match-report" && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setNotificationsOpen(false);
+
+                                      router.push(
+                                        `/leagues/${n.leagueId}/matches/${n.matchId}/review`
+                                      );
+                                    }}
+                                    className="mt-3 block w-full rounded-xl bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white transition hover:bg-blue-700"
+                                  >
+                                    בדוק דיווח משחק
+                                  </button>
+                                )}
                               </div>
                             ))}
                           </div>
