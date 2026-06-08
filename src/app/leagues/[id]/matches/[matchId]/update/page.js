@@ -237,7 +237,12 @@ export default function UpdateMatchPage() {
       }
 
       showToast("הדיווח נשלח בהצלחה");
-      router.push(`/leagues/${id}`);
+
+      router.refresh();
+
+      setTimeout(() => {
+        router.push(`/leagues/${id}`);
+      }, 300);
     } catch (error) {
       console.error("Submit report failed:", error);
       showToast("שגיאה בשליחת דיווח", "error");

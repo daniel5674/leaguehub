@@ -343,6 +343,73 @@ export async function PATCH(request, { params }) {
 
       await league.save();
 
+      const resetMatch = league.matches.find(
+        (match) => String(match._id) === String(matchId)
+      );
+
+      const manager = await User.findOne({
+        email: currentUser.email?.trim().toLowerCase(),
+      });
+
+      if (manager) {
+        manager.notifications = manager.notifications.filter(
+          (notification) =>
+            !(
+              String(notification.matchId) === String(matchId) &&
+              notification.actionType === "review-match-report"
+            )
+        );
+
+        await manager.save();
+      }
+
+      const homeTeam = league.teams.find(
+        (team) =>
+          team.name?.trim().toLowerCase() ===
+          resetMatch?.homeTeam?.trim().toLowerCase()
+      );
+
+      const awayTeam = league.teams.find(
+        (team) =>
+          team.name?.trim().toLowerCase() ===
+          resetMatch?.awayTeam?.trim().toLowerCase()
+      );
+
+      const captains = [
+        ...(homeTeam?.players?.filter((player) => player.isCaptain) || []),
+        ...(awayTeam?.players?.filter((player) => player.isCaptain) || []),
+      ];
+
+      for (const captain of captains) {
+        if (!captain.email) continue;
+
+        const user = await User.findOne({
+          email: captain.email.trim().toLowerCase(),
+        });
+
+        if (!user) continue;
+
+        const alreadyHasNotification = user.notifications.some(
+          (notification) =>
+            String(notification.matchId) === String(matchId) &&
+            notification.actionType === "report-match"
+        );
+
+        if (alreadyHasNotification) continue;
+
+        user.notifications.push({
+          message: `הדיווח למשחק ${resetMatch.homeTeam} נגד ${resetMatch.awayTeam} נדחה. יש לשלוח דיווח מחדש.`,
+          leagueId: String(league._id),
+          leagueName: league.name,
+          matchId: String(matchId),
+          actionType: "report-match",
+          type: "match-report",
+          read: false,
+        });
+
+        await user.save();
+      }
+
       return NextResponse.json({
         ...league.toObject(),
         id: league._id,
@@ -426,6 +493,54 @@ export async function PATCH(request, { params }) {
       league.matches = updatedMatches;
 
       await league.save();
+
+      const reportingUser = await User.findOne({
+        email: currentUser.email?.trim().toLowerCase(),
+      });
+
+      if (reportingUser) {
+        reportingUser.notifications = reportingUser.notifications.filter(
+          (notification) =>
+            !(
+              String(notification.matchId) === String(matchId) &&
+              notification.actionType === "report-match"
+            )
+        );
+
+        await reportingUser.save();
+      }
+
+      const updatedMatch = league.matches.find(
+        (match) => String(match._id) === String(matchId)
+      );
+
+      if ((updatedMatch?.captainReports?.length || 0) >= 2) {
+        const manager = await User.findOne({
+          email: String(league.createdBy).trim().toLowerCase(),
+        });
+
+        if (manager) {
+          const alreadyHasNotification = manager.notifications?.some(
+            (notification) =>
+              String(notification.matchId) === String(matchId) &&
+              notification.actionType === "review-match-report"
+          );
+
+          if (!alreadyHasNotification) {
+            manager.notifications.push({
+              message: `התקבלו שני דיווחים למשחק ${updatedMatch.homeTeam} נגד ${updatedMatch.awayTeam}.`,
+              leagueId: String(league._id),
+              leagueName: league.name,
+              matchId: String(matchId),
+              actionType: "review-match-report",
+              type: "match-review",
+              read: false,
+            });
+
+            await manager.save();
+          }
+        }
+      }
 
       return NextResponse.json({
         ...league.toObject(),
@@ -529,6 +644,22 @@ export async function PATCH(request, { params }) {
 
       league.matches = updatedMatches;
       league.standings = updatedStandings;
+
+      const manager = await User.findOne({
+        email: currentUser.email?.trim().toLowerCase(),
+      });
+
+      if (manager) {
+        manager.notifications = manager.notifications.filter(
+          (notification) =>
+            !(
+              String(notification.matchId) === String(matchId) &&
+              notification.actionType === "review-match-report"
+            )
+        );
+
+        await manager.save();
+      }
     }
 
     await league.save();
