@@ -6,6 +6,19 @@ import { useAuth } from "@/context/AuthContext";
 import Toast from "@/components/ui/Toast";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import Link from "next/link";
+import {
+  pageBg,
+  pageGlow,
+  card,
+  softCard,
+  input,
+  primaryButton,
+  secondaryButton,
+  dangerButton,
+  tabActive,
+  tabInactive,
+  statCard,
+} from "@/lib/uiStyles";
 
 export default function LeagueDetailsPage() {
   const params = useParams();
@@ -741,16 +754,20 @@ export default function LeagueDetailsPage() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <p className="text-gray-500">טוען ליגה...</p>
+      <main dir="rtl" className={pageBg}>
+        <div className="relative mx-auto max-w-5xl">
+          <p className="text-slate-300">טוען ליגה...</p>
+        </div>
       </main>
     );
   }
 
   if (!league) {
     return (
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <p className="text-red-500">הליגה לא נמצאה</p>
+      <main dir="rtl" className={pageBg}>
+        <div className={`${softCard} relative mx-auto max-w-5xl p-6`}>
+          <p className="font-bold text-red-300">הליגה לא נמצאה</p>
+        </div>
       </main>
     );
   }
@@ -837,15 +854,15 @@ export default function LeagueDetailsPage() {
   ];
 
   return (
-    <main
-      dir="rtl"
-      className="relative min-h-screen overflow-hidden bg-[#050b14] px-4 py-8 text-white"
-    >
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
+    <main dir="rtl" className={pageBg}>
+      <div className={pageGlow}>
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/20 blur-3xl" />
 
-        <div className="absolute bottom-0 left-1/2 h-[420px] w-[760px] -translate-x-1/2 opacity-5">
+        <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-green-400/15 blur-3xl" />
+
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.12),transparent_60%)]" />
+
+        <div className="absolute bottom-0 left-1/2 h-[420px] w-[760px] -translate-x-1/2 opacity-[0.08]">
           <div className="absolute bottom-0 h-full w-full rounded-t-[380px] border-4 border-white" />
           <div className="absolute bottom-0 left-1/2 h-full w-px -translate-x-1/2 bg-white" />
           <div className="absolute bottom-0 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full border-4 border-white" />
@@ -854,7 +871,7 @@ export default function LeagueDetailsPage() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-6xl">
-        <div className="mb-5 rounded-[2rem] border border-white/10 bg-white/[0.06] px-5 py-5 text-white shadow-2xl backdrop-blur">
+        <div className={`${card} mb-5 px-6 py-6 text-white`}>
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="mb-3 flex items-center gap-2">
@@ -870,6 +887,37 @@ export default function LeagueDetailsPage() {
               <p className="mt-2 text-slate-300">
                 {league.location} • {league.sport}
               </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <div className="rounded-2xl bg-white/10 px-4 py-2">
+                  <p className="text-xs text-gray-400">שחקנים</p>
+                  <p className="text-lg font-black">
+                    {isPersonalLeague
+                      ? league.personalPlayers?.length || 0
+                      : league.members?.length || 0}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-white/10 px-4 py-2">
+                  <p className="text-xs text-gray-400">משחקים</p>
+                  <p className="text-lg font-black">
+                    {league.matches?.length || 0}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-white/10 px-4 py-2">
+                  <p className="text-xs text-gray-400">
+                    {isPersonalLeague ? "שערים" : "קבוצות"}
+                  </p>
+                  <p className="text-lg font-black">
+                    {isPersonalLeague
+                      ? (league.topScorers || []).reduce(
+                          (sum, player) => sum + (player.goals || 0),
+                          0
+                        )
+                      : league.teams?.length || 0}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center gap-3">
@@ -958,7 +1006,9 @@ export default function LeagueDetailsPage() {
           </div>
         )}
 
-        <div className="sticky top-24 z-40 mb-5 flex flex-wrap gap-2 rounded-3xl border border-white/10 bg-white/[0.06] p-2 shadow-xl backdrop-blur">
+        <div
+          className={`${softCard} sticky top-24 z-40 mb-5 flex flex-wrap gap-2 p-2 shadow-xl`}
+        >
           {isPersonalLeague ? (
             <>
               <button
@@ -1080,18 +1130,18 @@ export default function LeagueDetailsPage() {
         </div>
 
         {activeTab === "league-page" && isPersonalLeague && (
-          <section className="mb-8 rounded-3xl border border-purple-200 bg-purple-50 p-6">
+          <section className="mb-8 rounded-[2rem] border border-white/10 bg-white/[0.09] p-6 backdrop-blur">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-purple-900">
+              <h2 className="text-2xl font-black text-white">
                 שחקני הליגה האישית
               </h2>
-              <span className="text-sm text-purple-700">
+              <span className="text-sm font-bold text-gray-400">
                 {league.personalPlayers?.length || 0} שחקנים
               </span>
             </div>
 
             {!league.personalPlayers || league.personalPlayers.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-purple-300 bg-white p-8 text-center text-gray-500">
+              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-8 text-center text-gray-400">
                 עדיין אין שחקנים בליגה האישית
               </div>
             ) : (
@@ -1124,7 +1174,7 @@ export default function LeagueDetailsPage() {
                             </div>
                             <Link
                               href={`/leagues/${id}/players/${player._id}`}
-                              className="text-sm font-semibold text-gray-900 hover:underline"
+                              className="text-sm font-bold text-white transition hover:text-emerald-300 hover:underline"
                             >
                               {player.fullName}
                             </Link>
@@ -1177,13 +1227,13 @@ export default function LeagueDetailsPage() {
                             </span>
                           )}
                         </td>
-                        <td className="py-3 text-center text-sm font-semibold text-gray-700">
+                        <td className="py-3 text-center text-sm font-semibold text-gray-200">
                           {player.goals || 0}
                         </td>
-                        <td className="py-3 text-center text-sm font-semibold text-gray-700">
+                        <td className="py-3 text-center text-sm font-semibold text-gray-200">
                           {player.assists || 0}
                         </td>
-                        <td className="py-3 text-center text-sm font-semibold text-gray-700">
+                        <td className="py-3 text-center text-sm font-semibold text-gray-200">
                           {player.gamesPlayed || 0}
                         </td>
                         {canManage && (
@@ -1301,7 +1351,7 @@ export default function LeagueDetailsPage() {
         )}
 
         {activeTab === "matches" && isPersonalLeague && (
-          <section className="mb-8 rounded-3xl border border-gray-200 p-6">
+          <section className={`${softCard} mb-8 p-6`}>
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-2xl font-bold">היסטוריית משחקים</h2>
               <span className="text-sm text-gray-500">
@@ -1320,11 +1370,11 @@ export default function LeagueDetailsPage() {
                 {league.matches.map((match) => (
                   <div
                     key={match._id}
-                    className="rounded-2xl border border-gray-200 bg-gray-50 p-4"
+                    className="rounded-2xl border border-white/10 bg-white/[0.05] p-4 transition hover:bg-white/[0.09]"
                   >
                     <div className="flex items-center justify-between text-center">
                       <div className="flex-1">
-                        <h3 className="text-lg font-extrabold text-gray-900">
+                        <h3 className="text-lg font-extrabold text-white">
                           {match.homeTeam}
                         </h3>
                       </div>
@@ -1342,7 +1392,7 @@ export default function LeagueDetailsPage() {
                         </div>
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-extrabold text-gray-900">
+                        <h3 className="text-lg font-extrabold text-white">
                           {match.awayTeam}
                         </h3>
                       </div>
@@ -1368,7 +1418,7 @@ export default function LeagueDetailsPage() {
         {isGuest && (
           <div className="mb-8 rounded-3xl border border-yellow-200 bg-yellow-50 p-6 text-center">
             <div className="text-4xl">🔒</div>
-            <h2 className="mt-3 text-xl font-bold text-gray-900">
+            <h2 className="mt-3 text-xl font-bold text-white">
               התוכן המלא זמין למשתמשים מחוברים בלבד
             </h2>
             <p className="mt-2 text-sm text-gray-600">
@@ -1384,7 +1434,7 @@ export default function LeagueDetailsPage() {
         )}
 
         {activeTab === "management" && canManage && (
-          <section className="mb-8 rounded-3xl border border-gray-200 p-6">
+          <section className={`${softCard} mb-8 p-6`}>
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-2xl font-bold">בקשות הצטרפות</h2>
               <span className="text-sm text-gray-500">
@@ -1401,13 +1451,13 @@ export default function LeagueDetailsPage() {
                 {visibleJoinRequests.map((request) => (
                   <div
                     key={request._id}
-                    className="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3"
+                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3"
                   >
                     <div>
-                      <p className="font-medium text-gray-800">
+                      <p className="font-medium text-white">
                         {request.playerName || request.playerEmail}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-400">
                         רוצה להצטרף לקבוצה: {request.teamName}
                       </p>
                     </div>
@@ -1416,7 +1466,7 @@ export default function LeagueDetailsPage() {
                       <button
                         type="button"
                         onClick={() => handleApproveJoinRequest(request._id)}
-                        className="rounded-xl bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-800"
+                        className={primaryButton}
                       >
                         אשר
                       </button>
@@ -1424,7 +1474,7 @@ export default function LeagueDetailsPage() {
                       <button
                         type="button"
                         onClick={() => handleRejectJoinRequest(request._id)}
-                        className="rounded-xl bg-red-500 px-4 py-2 text-sm text-white transition hover:bg-red-600"
+                        className={dangerButton}
                       >
                         דחה
                       </button>
@@ -1437,7 +1487,7 @@ export default function LeagueDetailsPage() {
         )}
 
         {canManage && isEditing && (
-          <section className="mb-8 rounded-3xl border border-gray-200 p-6">
+          <section className={`${softCard} mb-8 p-6`}>
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-2xl font-bold">עריכת ליגה</h2>
             </div>
@@ -1452,7 +1502,7 @@ export default function LeagueDetailsPage() {
                 value={editForm.name}
                 onChange={handleEditChange}
                 placeholder="שם הליגה"
-                className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
               />
 
               <input
@@ -1461,7 +1511,7 @@ export default function LeagueDetailsPage() {
                 value={editForm.sport}
                 onChange={handleEditChange}
                 placeholder="ספורט"
-                className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
               />
 
               <input
@@ -1470,14 +1520,14 @@ export default function LeagueDetailsPage() {
                 value={editForm.location}
                 onChange={handleEditChange}
                 placeholder="מיקום"
-                className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
               />
 
               <select
                 name="status"
                 value={editForm.status}
                 onChange={handleEditChange}
-                className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
               >
                 <option value="פתוחה">פתוחה</option>
                 <option value="פעילה">פעילה</option>
@@ -1489,13 +1539,13 @@ export default function LeagueDetailsPage() {
                 value={editForm.description}
                 onChange={handleEditChange}
                 placeholder="תיאור"
-                className="md:col-span-2 min-h-28 rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                className="md:col-span-2 min-h-28 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
               />
 
               <button
                 type="submit"
                 disabled={editSubmitting}
-                className="md:col-span-2 rounded-2xl bg-black px-5 py-3 text-white transition hover:bg-gray-800 disabled:opacity-60"
+                className="md:col-span-2 rounded-2xl bg-emerald-400 px-5 py-3 font-black text-slate-950 transition hover:bg-emerald-300 disabled:opacity-60"
               >
                 {editSubmitting ? "שומר..." : "שמור שינויים"}
               </button>
@@ -1503,7 +1553,7 @@ export default function LeagueDetailsPage() {
           </section>
         )}
         {activeTab === "teams" && (
-          <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur">
+          <section className={`${softCard} p-6`}>
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-2xl font-black text-white">קבוצות בליגה</h2>
               <span className="text-sm text-gray-400">
@@ -1518,7 +1568,7 @@ export default function LeagueDetailsPage() {
                   value={teamName}
                   onChange={(e) => setTeamName(e.target.value)}
                   placeholder="הכנס שם קבוצה"
-                  className="flex-1 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
+                  className="flex-1 rounded-2xl border border-white/10 bg-white/[0.09] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
                 />
 
                 <button
@@ -1540,7 +1590,7 @@ export default function LeagueDetailsPage() {
                 {league.teams.map((team, index) => (
                   <div
                     key={team._id || team.name}
-                    className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-md backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-white/[0.09]"
+                    className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.09] shadow-md backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-white/[0.09]"
                   >
                     <div className="h-1.5 bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400" />
 
@@ -1617,7 +1667,7 @@ export default function LeagueDetailsPage() {
           </section>
         )}
         {activeTab === "matches" && !isPersonalLeague && (
-          <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur">
+          <section className={`${softCard} mt-8 p-6`}>
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-2xl font-black text-white">משחקים בליגה</h2>
 
@@ -1833,7 +1883,7 @@ export default function LeagueDetailsPage() {
           </section>
         )}
         {activeTab === "stats" && (
-          <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur">
+          <section className={`${softCard} mt-8 p-6`}>
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-2xl font-black text-white">סטטיסטיקות</h2>
               <span className="text-sm font-bold text-gray-400">
@@ -1842,7 +1892,7 @@ export default function LeagueDetailsPage() {
             </div>
 
             {!isPersonalLeague && (
-              <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.06] p-5">
+              <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.09] p-5">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="text-xl font-black text-white">טבלת הליגה</h3>
                   <span className="text-sm font-bold text-gray-400">
@@ -2022,7 +2072,7 @@ export default function LeagueDetailsPage() {
           </section>
         )}
 
-        <section className="mt-8 rounded-3xl border border-gray-200 p-6">
+        <section className={`${softCard} p-6`}>
           {(() => {
             const regularMembers = (league.members || []).map((m) => {
               const playerFromTeam = league.teams
@@ -2045,40 +2095,43 @@ export default function LeagueDetailsPage() {
               playerId: p._id,
               name: p.fullName,
             }));
+
             const allMembers = isPersonalLeague
               ? [
                   ...personalMembers,
                   ...regularMembers.filter((m) => !personalEmails.has(m.key)),
                 ]
               : regularMembers;
+
             return (
               <>
                 <div className="mb-5 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">חברי הליגה</h2>
-                  <span className="text-sm text-gray-500">
+                  <h2 className="text-2xl font-black text-white">חברי הליגה</h2>
+                  <span className="rounded-full bg-white/10 px-3 py-1 text-sm font-bold text-gray-300">
                     {allMembers.length} חברים
                   </span>
                 </div>
+
                 {allMembers.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-8 text-center text-gray-400">
                     עדיין אין חברים בליגה
                   </div>
                 ) : (
-                  <div className="grid gap-3">
+                  <div className="grid gap-3 md:grid-cols-2">
                     {allMembers.map((member) => (
                       <div
                         key={member.key}
-                        className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3"
+                        className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 transition hover:bg-white/[0.09]"
                       >
                         {member.playerId ? (
                           <Link
                             href={`/leagues/${id}/players/${member.playerId}`}
-                            className="font-medium text-gray-800 transition hover:text-emerald-600 hover:underline"
+                            className="font-black text-white transition hover:text-emerald-400 hover:underline"
                           >
                             {member.name}
                           </Link>
                         ) : (
-                          <span className="font-medium text-gray-800">
+                          <span className="font-black text-white">
                             {member.name}
                           </span>
                         )}
@@ -2113,7 +2166,7 @@ export default function LeagueDetailsPage() {
 
 function LeagueMiniCard({ icon, value, title }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 shadow-sm backdrop-blur">
+    <div className={`${statCard} p-5`}>
       <div className="flex flex-col items-center text-center">
         <div className="text-3xl">{icon}</div>
 
@@ -2133,7 +2186,7 @@ function StatsLeaderCard({
   emptyText,
 }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+    <div className={`${statCard} p-5`}>
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-black text-white">{title}</h3>
         <span className="text-2xl">{icon}</span>

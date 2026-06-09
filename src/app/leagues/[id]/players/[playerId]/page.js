@@ -3,6 +3,16 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import {
+  pageBg,
+  pageGlow,
+  card,
+  softCard,
+  secondaryButton,
+  primaryButton,
+  dangerButton,
+  statCard,
+} from "@/lib/uiStyles";
 
 export default function PlayerPage() {
   const { id, playerId } = useParams();
@@ -217,11 +227,8 @@ export default function PlayerPage() {
 
   if (loading) {
     return (
-      <main
-        dir="rtl"
-        className="relative min-h-screen overflow-hidden bg-slate-950 px-6 py-12 text-white"
-      >
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <main dir="rtl" className={pageBg}>
+        <div className={pageGlow}>
           <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
           <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
 
@@ -242,11 +249,8 @@ export default function PlayerPage() {
 
   if (!league || !playerData) {
     return (
-      <main
-        dir="rtl"
-        className="relative min-h-screen overflow-hidden bg-slate-950 px-6 py-12 text-white"
-      >
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <main dir="rtl" className={pageBg}>
+        <div className={pageGlow}>
           <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
           <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
         </div>
@@ -264,11 +268,8 @@ export default function PlayerPage() {
       String(league.createdBy) === String(currentUser._id || currentUser.id));
 
   return (
-    <main
-      dir="rtl"
-      className="relative min-h-screen overflow-hidden bg-slate-950 px-6 py-12 text-white"
-    >
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <main dir="rtl" className={pageBg}>
+      <div className={pageGlow}>
         <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
         <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
       </div>
@@ -277,13 +278,13 @@ export default function PlayerPage() {
         <button
           type="button"
           onClick={() => router.push(`/leagues/${id}`)}
-          className="mb-6 rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-slate-200 backdrop-blur transition hover:bg-white/15"
+          className={`${secondaryButton} mb-6 text-sm`}
         >
           חזרה לליגה
         </button>
 
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 shadow-2xl backdrop-blur">
-          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <section className={`${card} relative overflow-hidden`}>
+          <div className={pageGlow}>
             <div className="absolute bottom-0 left-1/2 h-[700px] w-[1200px] -translate-x-1/2 opacity-[0.06]">
               <div className="absolute bottom-0 h-full w-full rounded-t-[500px] border-4 border-white" />
               <div className="absolute bottom-0 left-1/2 h-full w-px -translate-x-1/2 bg-white" />
@@ -393,7 +394,7 @@ export default function PlayerPage() {
             )}
 
             <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
-              <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
+              <div className={`${statCard} p-4`}>
                 <div className="text-2xl">🏆</div>
                 <p className="mt-2 truncate text-xl font-black text-white">
                   {playerData.teamName}
@@ -401,7 +402,7 @@ export default function PlayerPage() {
                 <p className="text-xs text-slate-400">קבוצה</p>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
+              <div className={`${statCard} p-4`}>
                 <div className="text-2xl">🎯</div>
                 <p className="mt-2 truncate text-xl font-black text-white">
                   {playerData.position || "-"}
@@ -489,7 +490,7 @@ export default function PlayerPage() {
                     <button
                       type="button"
                       onClick={() => handleJoinRequest("approve")}
-                      className="rounded-2xl bg-emerald-400 py-3 font-black text-slate-950 transition hover:bg-emerald-300"
+                      className={`${primaryButton} py-3`}
                     >
                       אשר
                     </button>
@@ -497,7 +498,7 @@ export default function PlayerPage() {
                     <button
                       type="button"
                       onClick={() => handleJoinRequest("reject")}
-                      className="rounded-2xl bg-red-500 py-3 font-black text-white transition hover:bg-red-600"
+                      className={`${dangerButton} py-3`}
                     >
                       דחה
                     </button>
