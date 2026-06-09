@@ -1555,10 +1555,14 @@ export default function LeagueDetailsPage() {
                           </div>
 
                           <div>
-                            <h3 className="text-lg font-bold text-gray-900">
+                            <Link
+                              href={`/leagues/${id}/teams/${encodeURIComponent(
+                                team.name
+                              )}`}
+                              className="text-lg font-bold text-gray-900 transition hover:text-blue-600 hover:underline"
+                            >
                               {team.name}
-                            </h3>
-
+                            </Link>
                             <p className="text-sm text-gray-500">
                               {team.players?.length || 0} שחקנים
                             </p>
