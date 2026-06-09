@@ -109,6 +109,25 @@ export default function ReviewMatchReportPage() {
     areSameStats(reports[0].scorers, reports[1].scorers, "goals") &&
     areSameStats(reports[0].assists, reports[1].assists, "assists");
 
+  const scoresMatch =
+    hasTwoReports &&
+    Number(reports[0].homeScore) === Number(reports[1].homeScore) &&
+    Number(reports[0].awayScore) === Number(reports[1].awayScore);
+
+  const scorersMatch =
+    hasTwoReports &&
+    areSameStats(reports[0].scorers, reports[1].scorers, "goals");
+
+  const assistsMatch =
+    hasTwoReports &&
+    areSameStats(reports[0].assists, reports[1].assists, "assists");
+
+  const hasMvpConflict =
+    reportsMatch &&
+    reports[0]?.mvpPlayerId &&
+    reports[1]?.mvpPlayerId &&
+    reports[0].mvpPlayerId !== reports[1].mvpPlayerId;
+
   const approvedReport = reportsMatch ? reports[0] : null;
 
   const sameMvpSelected =
@@ -257,6 +276,14 @@ export default function ReviewMatchReportPage() {
               <p className="text-xl font-black text-red-700">
                 ❌ הדיווחים לא תואמים
               </p>
+
+              {hasTwoReports && (
+                <div className="mt-4 text-sm font-bold text-red-700">
+                  {!scoresMatch && <p>התוצאה לא תואמת</p>}
+                  {!scorersMatch && <p>כובשי השערים לא תואמים</p>}
+                  {!assistsMatch && <p>המבשלים לא תואמים</p>}
+                </div>
+              )}
             </div>
           )}
 
@@ -364,7 +391,7 @@ export default function ReviewMatchReportPage() {
             ))}
           </div>
 
-          {reportsMatch && !sameMvpSelected && (
+          {hasMvpConflict && (
             <div className="mb-6 rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
               <h3 className="mb-4 text-xl font-black text-yellow-800">
                 ⭐ הקפטנים בחרו MVP שונה
