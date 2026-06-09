@@ -4,6 +4,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import {
+  navbar,
+  dropdown,
+  navLink,
+  navLinkActive,
+  navLinkInactive,
+} from "@/lib/uiStyles";
 
 const publicLinks = [
   { href: "/", label: "בית" },
@@ -236,14 +243,17 @@ export default function Navbar() {
   }
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050b14]/90 text-white backdrop-blur-xl">
+      <header className={navbar}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex flex-row-reverse items-center gap-4">
             <Link
               href="/"
-              className="text-3xl font-black tracking-tight text-white transition hover:text-emerald-300"
+              className="group flex items-center gap-2 text-3xl font-black tracking-tight text-white transition hover:text-emerald-300"
             >
-              LeagueHub
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-400 text-lg text-slate-950 shadow-lg shadow-emerald-500/20 transition group-hover:scale-105">
+                ⚽
+              </span>
+              <span>LeagueHub</span>
             </Link>
 
             {currentUser && (
@@ -307,7 +317,7 @@ export default function Navbar() {
                     </button>
 
                     {notificationsOpen && (
-                      <div className="absolute left-0 mt-3 w-80 rounded-3xl border border-white/10 bg-[#0b1220] p-3 text-white shadow-2xl">
+                      <div className="absolute left-0 mt-3 w-80 rounded-3xl border border-white/10 bg-[#0b1d13] p-3 text-white shadow-2xl">
                         <div className="mb-3 flex items-center justify-between">
                           <h3 className="font-black">התראות</h3>
 
@@ -453,7 +463,7 @@ export default function Navbar() {
                   </button>
 
                   {menuOpen && (
-                    <div className="absolute left-0 mt-3 w-44 rounded-2xl border border-white/10 bg-[#0b1220] p-2 shadow-2xl">
+                    <div className="absolute left-0 mt-3 w-44 rounded-2xl border border-white/10 bg-[#0b1d13] p-2 shadow-2xl">
                       <Link
                         href="/login"
                         onClick={() => setMenuOpen(false)}
@@ -482,7 +492,7 @@ export default function Navbar() {
                   </button>
 
                   {menuOpen && (
-                    <div className="absolute left-0 mt-3 w-52 rounded-2xl border border-white/10 bg-[#0b1220] p-2 shadow-2xl">
+                    <div className="absolute left-0 mt-3 w-52 rounded-2xl border border-white/10 bg-[#0b1d13]p-2 shadow-2xl">
                       {currentUser?.role === "manager" && (
                         <Link
                           href="/leagues/create"

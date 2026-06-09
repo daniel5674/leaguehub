@@ -4,6 +4,16 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import {
+  pageBg,
+  pageGlow,
+  card,
+  softCard,
+  input,
+  primaryButton,
+  secondaryButton,
+  dangerButton,
+} from "@/lib/uiStyles";
 
 const RATING_COLORS = {
   A: "bg-emerald-100 text-emerald-700",
@@ -118,11 +128,8 @@ export default function ManagePage() {
   });
 
   return (
-    <main
-      dir="rtl"
-      className="relative min-h-screen overflow-hidden bg-[#050b14] px-6 py-10 text-white"
-    >
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <main dir="rtl" className={pageBg}>
+      <div className={pageGlow}>
         <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
         <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
 
@@ -147,7 +154,9 @@ export default function ManagePage() {
       )}
 
       <div className="relative z-10 mx-auto max-w-5xl">
-        <div className="mb-6 flex flex-col gap-4 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur md:flex-row md:items-center md:justify-between">
+        <div
+          className={`${card} mb-6 flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between`}
+        >
           <div>
             <span className="mb-3 inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-xs font-black text-emerald-300">
               ניהול ליגה אישית
@@ -163,13 +172,13 @@ export default function ManagePage() {
           <button
             type="button"
             onClick={() => router.push(`/leagues/${id}`)}
-            className="rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-slate-200 transition hover:bg-white/15"
+            className={secondaryButton}
           >
             חזרה לליגה ←
           </button>
         </div>
 
-        <section className="mb-6 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur">
+        <section className={`${softCard} mb-6 p-6 shadow-2xl`}>
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-black text-white">שחקנים רשומים</h2>
@@ -231,7 +240,7 @@ export default function ManagePage() {
                         type="button"
                         onClick={() => handleRemovePlayer(String(player._id))}
                         disabled={removingId === String(player._id)}
-                        className="rounded-xl border border-red-400/20 px-3 py-2 text-sm font-black text-red-300 transition hover:bg-red-500/10 disabled:opacity-40"
+                        className={`${dangerButton} px-3 py-2 text-sm disabled:opacity-40`}
                       >
                         ✕
                       </button>
@@ -244,7 +253,7 @@ export default function ManagePage() {
         </section>
 
         {isOwner && (
-          <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur">
+          <section className={`${softCard} p-6 shadow-2xl`}>
             <div className="mb-5">
               <h2 className="text-xl font-black text-white">הוסף שחקן</h2>
               <p className="mt-1 text-sm text-slate-400">
@@ -257,7 +266,7 @@ export default function ManagePage() {
               placeholder="חיפוש לפי שם או אימייל..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="mb-4 w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
+              className={`${input} mb-4 w-full text-sm font-bold`}
             />
 
             {filteredUsers.length === 0 ? (
@@ -314,7 +323,7 @@ export default function ManagePage() {
                           type="button"
                           onClick={() => handleAddPlayer(u)}
                           disabled={isAdding}
-                          className="rounded-xl bg-emerald-400 px-4 py-2 text-xs font-black text-slate-950 transition hover:bg-emerald-300 disabled:opacity-50"
+                          className={`${primaryButton} px-4 py-2 text-xs`}
                         >
                           {isAdding ? "..." : "+ הוסף"}
                         </button>

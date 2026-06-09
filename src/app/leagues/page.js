@@ -3,6 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import {
+  pageBg,
+  pageGlow,
+  card,
+  softCard,
+  primaryButton,
+  secondaryButton,
+  tabActive,
+  tabInactive,
+} from "@/lib/uiStyles";
 
 export default function LeaguesPage() {
   const [leagues, setLeagues] = useState([]);
@@ -72,10 +82,7 @@ export default function LeaguesPage() {
 
   if (loading) {
     return (
-      <main
-        dir="rtl"
-        className="min-h-screen bg-[#050b14] px-6 py-12 text-white"
-      >
+      <main dir="rtl" className={pageBg}>
         <div className="mx-auto max-w-6xl">
           <p className="text-gray-400">טוען ליגות...</p>
         </div>
@@ -84,11 +91,8 @@ export default function LeaguesPage() {
   }
 
   return (
-    <main
-      dir="rtl"
-      className="relative min-h-screen overflow-hidden bg-[#050b14] px-4 py-8 text-white"
-    >
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <main dir="rtl" className={pageBg}>
+      <div className={pageGlow}>
         <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
         <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
 
@@ -101,7 +105,7 @@ export default function LeaguesPage() {
       </div>
 
       <section className="relative z-10 mx-auto max-w-6xl">
-        <div className="mb-5 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur">
+        <div className={`${card} mb-5 p-6`}>
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
               <span className="mb-3 inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-black text-emerald-300">
@@ -119,10 +123,7 @@ export default function LeaguesPage() {
             </div>
 
             {currentUser?.role === "manager" ? (
-              <Link
-                href="/leagues/create"
-                className="rounded-2xl bg-emerald-400 px-5 py-3 text-center text-sm font-black text-slate-950 transition hover:bg-emerald-300"
-              >
+              <Link href="/leagues/create" className={primaryButton}>
                 + צור ליגה
               </Link>
             ) : !currentUser ? (
@@ -142,7 +143,7 @@ export default function LeaguesPage() {
           <LeagueStat value={totalMatches} title="משחקים" />
         </div>
 
-        <div className="mb-6 flex gap-2 overflow-x-auto rounded-3xl border border-white/10 bg-white/[0.06] p-2 backdrop-blur">
+        <div className={`${softCard} mb-6 flex gap-2 overflow-x-auto p-2`}>
           <TabButton
             active={activeTab === "all"}
             onClick={() => setActiveTab("all")}
@@ -226,9 +227,7 @@ function TabButton({ active, onClick, children }) {
       type="button"
       onClick={onClick}
       className={`whitespace-nowrap rounded-2xl px-5 py-3 text-sm font-black transition ${
-        active
-          ? "bg-emerald-400 text-slate-950 shadow-md"
-          : "text-gray-300 hover:bg-white/10"
+        active ? tabActive : tabInactive
       }`}
     >
       {children}
@@ -238,7 +237,7 @@ function TabButton({ active, onClick, children }) {
 
 function LeagueStat({ value, title }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 text-center backdrop-blur">
+    <div className={`${softCard} p-5 text-center`}>
       <p className="text-3xl font-black text-white">{value}</p>
       <p className="mt-1 text-sm font-bold text-gray-400">{title}</p>
     </div>
@@ -258,7 +257,9 @@ function LeagueCard({ league, index, isPersonal, currentUser }) {
     : league.teamsCount || league.teams?.length || 0;
 
   return (
-    <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-white/[0.09]">
+    <div
+      className={`${softCard} group relative overflow-hidden transition duration-300 hover:-translate-y-1 hover:bg-white/[0.09]`}
+    >
       {!currentUser && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl bg-black/45 backdrop-blur-sm">
           <div className="mb-2 text-3xl">🔒</div>

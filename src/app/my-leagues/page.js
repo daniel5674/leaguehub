@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import {
+  pageBg,
+  pageGlow,
+  card,
+  softCard,
+  primaryButton,
+} from "@/lib/uiStyles";
 
 export default function MyLeaguesPage() {
   const { currentUser, isLoaded } = useAuth();
@@ -48,11 +55,8 @@ export default function MyLeaguesPage() {
 
   if (!isLoaded || loading) {
     return (
-      <main
-        dir="rtl"
-        className="relative min-h-screen overflow-hidden bg-slate-950 px-6 py-12 text-white"
-      >
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <main dir="rtl" className={pageBg}>
+        <div className={pageGlow}>
           <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
           <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
         </div>
@@ -65,11 +69,8 @@ export default function MyLeaguesPage() {
   }
 
   return (
-    <main
-      dir="rtl"
-      className="relative min-h-screen overflow-hidden bg-slate-950 px-6 py-12 text-white"
-    >
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <main dir="rtl" className={pageBg}>
+      <div className={pageGlow}>
         <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
 
         <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
@@ -83,7 +84,9 @@ export default function MyLeaguesPage() {
       </div>
 
       <div className="relative mx-auto max-w-6xl">
-        <div className="mb-10 flex flex-col gap-5 rounded-3xl border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur md:flex-row md:items-center md:justify-between">
+        <div
+          className={`${card} mb-10 flex flex-col gap-5 p-6 md:flex-row md:items-center md:justify-between`}
+        >
           <div>
             <span className="mb-3 inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-sm font-bold text-emerald-300">
               LeagueHub
@@ -99,14 +102,16 @@ export default function MyLeaguesPage() {
 
           <Link
             href="/leagues/create"
-            className="rounded-2xl bg-emerald-400 px-5 py-3 text-center text-sm font-black text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300"
+            className={`${primaryButton} text-center text-sm shadow-lg shadow-emerald-500/20`}
           >
             צור ליגה חדשה
           </Link>
         </div>
 
         {leagues.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-white/15 bg-white/10 p-12 text-center backdrop-blur">
+          <div
+            className={`${softCard} border-dashed border-white/15 p-12 text-center`}
+          >
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-400/10 text-3xl">
               🏆
             </div>
@@ -119,7 +124,7 @@ export default function MyLeaguesPage() {
 
             <Link
               href="/leagues/create"
-              className="inline-flex rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+              className={`${primaryButton} inline-flex text-sm`}
             >
               צור ליגה ראשונה
             </Link>
@@ -130,7 +135,7 @@ export default function MyLeaguesPage() {
               <Link
                 key={league.id || league._id}
                 href={`/leagues/${league.id || league._id}`}
-                className="group rounded-3xl border border-white/10 bg-white/10 p-5 shadow-xl backdrop-blur transition hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-white/15"
+                className={`${softCard} group p-5 shadow-xl transition hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-white/[0.10]`}
               >
                 <div className="mb-5 flex items-start justify-between gap-4">
                   <div>
