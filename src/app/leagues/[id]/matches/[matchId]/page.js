@@ -65,90 +65,94 @@ export default function MatchDetailsPage() {
   }
 
   return (
-    <main dir="rtl" className="min-h-screen bg-slate-100 px-6 py-10">
-      <div className="mx-auto max-w-5xl">
+    <main
+      dir="rtl"
+      className="relative min-h-screen overflow-hidden bg-[#050b14] px-4 py-8 text-white"
+    >
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
+
+        <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
+
+        <div className="absolute bottom-0 left-1/2 h-[420px] w-[760px] -translate-x-1/2 opacity-5">
+          <div className="absolute bottom-0 h-full w-full rounded-t-[380px] border-4 border-white" />
+          <div className="absolute bottom-0 left-1/2 h-full w-px -translate-x-1/2 bg-white" />
+          <div className="absolute bottom-0 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full border-4 border-white" />
+          <div className="absolute bottom-0 left-1/2 h-52 w-80 -translate-x-1/2 border-4 border-white" />
+        </div>
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-5xl">
         <button
           type="button"
           onClick={() => router.back()}
-          className="mb-6 rounded-2xl bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm"
+          className="mb-5 rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white backdrop-blur transition hover:bg-white/15"
         >
           חזרה
         </button>
-        <section className="relative mb-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-900 p-8 text-white shadow-2xl">
-          <div className="absolute -left-20 -top-20 h-56 w-56 rounded-full bg-emerald-400/20 blur-3xl" />
-          <div className="absolute -bottom-24 -right-20 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
 
-          <div className="relative">
-            <div className="mb-8 flex items-center justify-between">
-              <span className="rounded-full bg-white/10 px-4 py-2 text-sm font-bold text-gray-200 backdrop-blur">
-                פרטי משחק
-              </span>
+        <section className="mb-5 rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl backdrop-blur">
+          <div className="mb-5 flex items-center justify-between">
+            <span className="rounded-full bg-white/10 px-4 py-2 text-sm font-bold text-gray-200">
+              פרטי משחק
+            </span>
 
-              <span
-                className={`rounded-full px-4 py-2 text-sm font-black ${
-                  match.isFinalApproved
-                    ? "bg-green-400 text-black"
-                    : "bg-yellow-400 text-black"
-                }`}
-              >
-                {match.isFinalApproved ? "תוצאה סופית" : "ממתין לאישור"}
-              </span>
-            </div>
-
-            <div className="grid items-center gap-6 md:grid-cols-3">
-              <div className="rounded-3xl bg-white/10 p-6 text-center backdrop-blur">
-                <p className="mb-2 text-sm font-bold text-gray-300">בית</p>
-                <h1 className="text-3xl font-black">{match.homeTeam}</h1>
-              </div>
-
-              <div className="rounded-[2rem] bg-white p-8 text-center text-black shadow-2xl">
-                <p className="text-6xl font-black tracking-tight">
-                  {match.homeScore ?? "-"} - {match.awayScore ?? "-"}
-                </p>
-                <p className="mt-3 text-sm font-bold text-gray-500">
-                  תוצאת המשחק
-                </p>
-              </div>
-
-              <div className="rounded-3xl bg-white/10 p-6 text-center backdrop-blur">
-                <p className="mb-2 text-sm font-bold text-gray-300">חוץ</p>
-                <h1 className="text-3xl font-black">{match.awayTeam}</h1>
-              </div>
-            </div>
-
-            {match.mvpPlayerName && (
-              <button
-                type="button"
-                onClick={() => {
-                  const mvpPlayer = match.captainReports
-                    ?.flatMap((report) => [
-                      ...(report.scorers || []),
-                      ...(report.assists || []),
-                      ...(report.blueCards || []),
-                    ])
-                    ?.find(
-                      (player) => player.playerName === match.mvpPlayerName
-                    );
-
-                  if (mvpPlayer?.playerId) {
-                    router.push(`/leagues/${id}/players/${mvpPlayer.playerId}`);
-                  }
-                }}
-                className="mx-auto mt-8 block rounded-3xl bg-yellow-400 px-8 py-4 text-center text-lg font-black text-black shadow-lg transition hover:-translate-y-1 hover:bg-yellow-300"
-              >
-                ⭐ MVP המשחק: {match.mvpPlayerName}
-              </button>
-            )}
+            <span
+              className={`rounded-full px-4 py-2 text-xs font-black ${
+                match.isFinalApproved
+                  ? "bg-emerald-400 text-slate-950"
+                  : "bg-yellow-400 text-slate-950"
+              }`}
+            >
+              {match.isFinalApproved ? "תוצאה סופית" : "ממתין לאישור"}
+            </span>
           </div>
+
+          <div className="grid items-center gap-3 md:grid-cols-3">
+            <MatchTeamBox label="בית" name={match.homeTeam} />
+
+            <div className="rounded-3xl bg-white p-5 text-center text-slate-950 shadow-xl">
+              <p className="text-5xl font-black tracking-tight">
+                {match.homeScore ?? "-"} - {match.awayScore ?? "-"}
+              </p>
+              <p className="mt-2 text-xs font-bold text-gray-500">
+                תוצאת המשחק
+              </p>
+            </div>
+
+            <MatchTeamBox label="חוץ" name={match.awayTeam} />
+          </div>
+
+          {match.mvpPlayerName && (
+            <button
+              type="button"
+              onClick={() => {
+                const mvpPlayer = match.captainReports
+                  ?.flatMap((report) => [
+                    ...(report.scorers || []),
+                    ...(report.assists || []),
+                    ...(report.blueCards || []),
+                  ])
+                  ?.find((player) => player.playerName === match.mvpPlayerName);
+
+                if (mvpPlayer?.playerId) {
+                  router.push(`/leagues/${id}/players/${mvpPlayer.playerId}`);
+                }
+              }}
+              className="mx-auto mt-5 flex items-center justify-center rounded-2xl bg-yellow-400/95 px-5 py-3 text-sm font-black text-slate-950 shadow-lg transition hover:-translate-y-0.5 hover:bg-yellow-300"
+            >
+              ⭐ MVP המשחק: {match.mvpPlayerName}
+            </button>
+          )}
         </section>
 
-        <section className="mb-6 grid gap-4 md:grid-cols-3">
+        <section className="mb-5 grid gap-3 md:grid-cols-3">
           <InfoCard title="תאריך" value={match.date || "לא הוגדר"} />
           <InfoCard title="שעה" value={match.time || "לא הוגדרה"} />
           <InfoCard title="מיקום" value={match.location || "לא הוגדר"} />
         </section>
 
-        <section className="grid gap-6 md:grid-cols-2">
+        <section className="grid gap-4 md:grid-cols-2">
           <MatchListCard
             title="כובשי שערים"
             emptyText="אין כובשים במשחק"
@@ -184,12 +188,22 @@ export default function MatchDetailsPage() {
 
 function InfoCard({ title, value }) {
   return (
-    <div className="rounded-3xl border border-gray-200 bg-white p-5 text-center shadow-sm">
-      <p className="text-sm font-bold text-gray-500">{title}</p>
-      <p className="mt-2 text-xl font-black text-gray-900">{value}</p>
+    <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-4 text-center shadow-sm backdrop-blur">
+      <p className="text-xs font-bold text-gray-400">{title}</p>
+      <p className="mt-2 text-lg font-black text-white">{value}</p>
     </div>
   );
 }
+
+function MatchTeamBox({ label, name }) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 text-center backdrop-blur">
+      <p className="text-xs font-bold text-gray-400">{label}</p>
+      <h1 className="mt-2 text-2xl font-black text-white">{name}</h1>
+    </div>
+  );
+}
+
 function MatchListCard({
   title,
   items,
@@ -200,23 +214,23 @@ function MatchListCard({
   router,
 }) {
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white shadow-lg">
-      <div className="flex items-center justify-between bg-gradient-to-l from-gray-950 to-gray-800 px-6 py-5 text-white">
-        <h2 className="text-xl font-black">{title}</h2>
-        <span className="text-3xl">{icon}</span>
+    <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.06] shadow-lg backdrop-blur">
+      <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+        <h2 className="text-lg font-black text-white">{title}</h2>
+        <span className="text-2xl">{icon}</span>
       </div>
 
-      <div className="p-5">
+      <div className="p-4">
         {!items || items.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
-            <p className="text-sm font-bold text-gray-500">{emptyText}</p>
+          <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-5 text-center">
+            <p className="text-sm font-bold text-gray-400">{emptyText}</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {items.map((item, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50 px-4 py-4 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
+                className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 transition hover:bg-white/[0.09]"
               >
                 <div>
                   {item.playerId ? (
@@ -227,23 +241,21 @@ function MatchListCard({
                           `/leagues/${leagueId}/players/${item.playerId}`
                         )
                       }
-                      className="text-right font-black text-gray-900 transition hover:text-blue-600 hover:underline"
+                      className="text-right font-black text-white transition hover:text-emerald-300 hover:underline"
                     >
                       {item.playerName}
                     </button>
                   ) : (
-                    <p className="font-black text-gray-900">
-                      {item.playerName}
-                    </p>
+                    <p className="font-black text-white">{item.playerName}</p>
                   )}
 
-                  <p className="mt-1 text-sm font-bold text-gray-500">
+                  <p className="mt-1 text-xs font-bold text-gray-400">
                     {item.teamName}
                     {showMinute && item.minute ? ` | דקה ${item.minute}` : ""}
                   </p>
                 </div>
 
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-xl">
                   {icon}
                 </div>
               </div>
