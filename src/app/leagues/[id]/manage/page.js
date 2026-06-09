@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 const RATING_COLORS = {
   A: "bg-emerald-100 text-emerald-700",
@@ -117,84 +118,120 @@ export default function ManagePage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <main
+      dir="rtl"
+      className="relative min-h-screen overflow-hidden bg-[#050b14] px-6 py-10 text-white"
+    >
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
+
+        <div className="absolute bottom-0 left-1/2 h-[700px] w-[1200px] -translate-x-1/2 opacity-[0.06]">
+          <div className="absolute bottom-0 h-full w-full rounded-t-[500px] border-4 border-white" />
+          <div className="absolute bottom-0 left-1/2 h-full w-px -translate-x-1/2 bg-white" />
+          <div className="absolute bottom-0 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full border-4 border-white" />
+          <div className="absolute bottom-0 left-1/2 h-72 w-[420px] -translate-x-1/2 border-4 border-white" />
+        </div>
+      </div>
+
       {toast && (
         <div
-          className={`fixed right-6 top-6 z-50 rounded-2xl px-5 py-3 text-sm font-semibold shadow-lg transition ${
+          className={`fixed right-6 top-24 z-50 rounded-2xl px-5 py-3 text-sm font-black shadow-2xl ${
             toast.type === "error"
               ? "bg-red-500 text-white"
-              : "bg-gray-900 text-white"
+              : "bg-emerald-400 text-slate-950"
           }`}
         >
           {toast.msg}
         </div>
       )}
 
-      <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-4xl items-center gap-4 px-6 py-5">
+      <div className="relative z-10 mx-auto max-w-5xl">
+        <div className="mb-6 flex flex-col gap-4 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur md:flex-row md:items-center md:justify-between">
+          <div>
+            <span className="mb-3 inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-xs font-black text-emerald-300">
+              ניהול ליגה אישית
+            </span>
+
+            <h1 className="text-3xl font-black text-white">{league.name}</h1>
+
+            <p className="mt-2 text-sm font-bold text-slate-400">
+              ניהול שחקנים, דירוגים והוספת משתמשים לליגה
+            </p>
+          </div>
+
           <button
             type="button"
             onClick={() => router.push(`/leagues/${id}`)}
-            className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50"
+            className="rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-slate-200 transition hover:bg-white/15"
           >
-            ← חזרה
+            חזרה לליגה ←
           </button>
-          <div>
-            <h1 className="text-xl font-black text-gray-900">{league.name}</h1>
-            <p className="text-xs text-gray-500">ניהול שחקנים</p>
-          </div>
         </div>
-      </div>
 
-      <div className="mx-auto max-w-4xl space-y-6 px-6 py-8">
-        <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-gray-900">
-              שחקנים רשומים
-              <span className="mr-2 text-sm font-normal text-gray-400">
-                ({roster.length})
-              </span>
-            </h2>
+        <section className="mb-6 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur">
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-black text-white">שחקנים רשומים</h2>
+              <p className="mt-1 text-sm text-slate-400">
+                {roster.length} שחקנים בליגה
+              </p>
+            </div>
+
+            <span className="rounded-full bg-emerald-400/10 px-4 py-2 text-sm font-black text-emerald-300">
+              {roster.length}
+            </span>
           </div>
 
           {roster.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-200 py-10 text-center text-sm text-gray-400">
+            <div className="rounded-3xl border border-dashed border-white/10 bg-slate-950/40 py-10 text-center text-sm font-bold text-slate-400">
               אין שחקנים עדיין. הוסף שחקנים מהרשימה למטה.
             </div>
           ) : (
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               {roster.map((player) => (
                 <div
                   key={player._id}
-                  className="flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3"
+                  className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/40 px-4 py-3 transition hover:bg-white/[0.08]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-700">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-sm font-black text-white">
                       {player.fullName?.charAt(0)}
                     </div>
+
                     <div>
-                      <Link href={`/leagues/${id}/players/${player.playerId}`}>
+                      <Link
+                        href={`/leagues/${id}/players/${
+                          player._id || player.playerId
+                        }`}
+                        className="font-black text-white transition hover:text-emerald-300 hover:underline"
+                      >
                         {player.fullName}
                       </Link>
+
                       {player.email && (
-                        <p className="text-xs text-gray-400">{player.email}</p>
+                        <p className="text-xs font-bold text-slate-500">
+                          {player.email}
+                        </p>
                       )}
                     </div>
                   </div>
+
                   <div className="flex items-center gap-2">
                     <span
-                      className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                      className={`rounded-full px-3 py-1 text-xs font-black ${
                         RATING_COLORS[player.rating] || RATING_COLORS.D
                       }`}
                     >
                       {player.rating}
                     </span>
+
                     {isOwner && (
                       <button
                         type="button"
                         onClick={() => handleRemovePlayer(String(player._id))}
                         disabled={removingId === String(player._id)}
-                        className="rounded-lg p-1 text-gray-400 transition hover:bg-red-50 hover:text-red-500 disabled:opacity-40"
+                        className="rounded-xl border border-red-400/20 px-3 py-2 text-sm font-black text-red-300 transition hover:bg-red-500/10 disabled:opacity-40"
                       >
                         ✕
                       </button>
@@ -204,45 +241,57 @@ export default function ManagePage() {
               ))}
             </div>
           )}
-        </div>
+        </section>
 
         {isOwner && (
-          <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-bold text-gray-900">הוסף שחקן</h2>
+          <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur">
+            <div className="mb-5">
+              <h2 className="text-xl font-black text-white">הוסף שחקן</h2>
+              <p className="mt-1 text-sm text-slate-400">
+                חפש משתמשים קיימים והוסף אותם לליגה עם דירוג התחלתי.
+              </p>
+            </div>
+
             <input
               type="text"
               placeholder="חיפוש לפי שם או אימייל..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="mb-4 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-gray-400"
+              className="mb-4 w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
             />
 
             {filteredUsers.length === 0 ? (
-              <p className="py-6 text-center text-sm text-gray-400">
+              <div className="rounded-3xl border border-dashed border-white/10 bg-slate-950/40 py-10 text-center text-sm font-bold text-slate-400">
                 {search ? "לא נמצאו משתמשים" : "כל המשתמשים כבר ברשימה"}
-              </p>
+              </div>
             ) : (
-              <div className="max-h-96 space-y-2 overflow-y-auto">
+              <div className="max-h-96 space-y-3 overflow-y-auto pr-1">
                 {filteredUsers.map((u) => {
                   const key = u._id || u.email;
                   const rating = pendingRatings[key] || "C";
                   const isAdding = addingId === key;
+
                   return (
                     <div
                       key={key}
-                      className="flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3"
+                      className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/40 px-4 py-3 transition hover:bg-white/[0.08]"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-200 text-sm font-bold text-gray-600">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-sm font-black text-white">
                           {u.fullName?.charAt(0)}
                         </div>
+
                         <div>
-                          <p className="text-sm font-semibold text-gray-900">
+                          <p className="text-sm font-black text-white">
                             {u.fullName}
                           </p>
-                          <p className="text-xs text-gray-400">{u.email}</p>
+
+                          <p className="text-xs font-bold text-slate-500">
+                            {u.email}
+                          </p>
                         </div>
                       </div>
+
                       <div className="flex items-center gap-2">
                         <select
                           value={rating}
@@ -252,7 +301,7 @@ export default function ManagePage() {
                               [key]: e.target.value,
                             }))
                           }
-                          className="rounded-xl border border-gray-200 px-2 py-1.5 text-xs font-bold outline-none"
+                          className="rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs font-black text-white outline-none focus:border-emerald-400"
                         >
                           {["A", "B", "C", "D"].map((r) => (
                             <option key={r} value={r}>
@@ -260,11 +309,12 @@ export default function ManagePage() {
                             </option>
                           ))}
                         </select>
+
                         <button
                           type="button"
                           onClick={() => handleAddPlayer(u)}
                           disabled={isAdding}
-                          className="rounded-xl bg-gray-900 px-4 py-1.5 text-xs font-bold text-white transition hover:bg-gray-700 disabled:opacity-50"
+                          className="rounded-xl bg-emerald-400 px-4 py-2 text-xs font-black text-slate-950 transition hover:bg-emerald-300 disabled:opacity-50"
                         >
                           {isAdding ? "..." : "+ הוסף"}
                         </button>
@@ -274,9 +324,9 @@ export default function ManagePage() {
                 })}
               </div>
             )}
-          </div>
+          </section>
         )}
       </div>
-    </div>
+    </main>
   );
 }

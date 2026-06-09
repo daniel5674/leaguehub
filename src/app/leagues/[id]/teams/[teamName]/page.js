@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function TeamPage() {
   const { id, teamName } = useParams();
@@ -95,29 +96,60 @@ export default function TeamPage() {
       })
       ?.findIndex((row) => row.team === decodedTeamName) + 1 || "-";
 
+  const findTeamPlayerId = (playerName) => {
+    const team = league?.teams?.find((team) => team.name === decodedTeamName);
+
+    const foundPlayer = team?.players?.find(
+      (player) =>
+        player.fullName?.trim().toLowerCase() ===
+        playerName?.trim().toLowerCase()
+    );
+
+    return foundPlayer?.playerId;
+  };
+
   const teamTopScorer = useMemo(() => {
-    return (
+    const topPlayer =
       league?.topScorers
         ?.filter((player) => player.teamName === decodedTeamName)
-        ?.sort((a, b) => Number(b.goals || 0) - Number(a.goals || 0))[0] || null
-    );
+        ?.sort((a, b) => Number(b.goals || 0) - Number(a.goals || 0))[0] ||
+      null;
+
+    if (!topPlayer) return null;
+
+    return {
+      ...topPlayer,
+      playerId: topPlayer.playerId || findTeamPlayerId(topPlayer.playerName),
+    };
   }, [league, decodedTeamName]);
 
   const teamTopAssist = useMemo(() => {
-    return (
+    const topPlayer =
       league?.topAssists
         ?.filter((player) => player.teamName === decodedTeamName)
         ?.sort((a, b) => Number(b.assists || 0) - Number(a.assists || 0))[0] ||
-      null
-    );
+      null;
+
+    if (!topPlayer) return null;
+
+    return {
+      ...topPlayer,
+      playerId: topPlayer.playerId || findTeamPlayerId(topPlayer.playerName),
+    };
   }, [league, decodedTeamName]);
 
   const teamTopMvp = useMemo(() => {
-    return (
+    const topPlayer =
       league?.topMvps
         ?.filter((player) => player.teamName === decodedTeamName)
-        ?.sort((a, b) => Number(b.mvps || 0) - Number(a.mvps || 0))[0] || null
-    );
+        ?.sort((a, b) => Number(b.mvps || 0) - Number(a.mvps || 0))[0] || null;
+
+    if (!topPlayer) return null;
+
+    return {
+      ...topPlayer,
+      playerId: topPlayer.playerId || findTeamPlayerId(topPlayer.playerName),
+    };
   }, [league, decodedTeamName]);
 
   const getPlayerStats = (player) => {
@@ -421,23 +453,31 @@ export default function TeamPage() {
         {activeTab === "leaders" && (
           <section className="grid gap-4 md:grid-cols-3">
             <LeaderCard
+              leagueId={id}
               icon="⚽"
               title="מלך השערים"
               playerName={teamTopScorer?.playerName}
+              playerId={teamTopScorer?.playerId}
               value={teamTopScorer?.goals}
               label="שערים"
             />
+
             <LeaderCard
+              leagueId={id}
               icon="🅰️"
               title="מלך הבישולים"
               playerName={teamTopAssist?.playerName}
+              playerId={teamTopAssist?.playerId}
               value={teamTopAssist?.assists}
               label="בישולים"
             />
+
             <LeaderCard
+              leagueId={id}
               icon="🏆"
               title="שיאן MVP"
               playerName={teamTopMvp?.playerName}
+              playerId={teamTopMvp?.playerId}
               value={teamTopMvp?.mvps}
               label="MVP"
             />
@@ -448,32 +488,15 @@ export default function TeamPage() {
   );
 }
 
-function StatCard({ icon, title, value }) {
-  return (
-    <div className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-white via-blue-50 to-emerald-50 p-6 shadow-lg transition duration-300 hover:-translate-y-2 hover:shadow-2xl">
-      <div className="absolute -left-10 -top-10 h-28 w-28 rounded-full bg-emerald-200/50 blur-2xl transition group-hover:bg-emerald-300/80" />
-      <div className="absolute -bottom-12 -right-10 h-32 w-32 rounded-full bg-blue-200/50 blur-2xl transition group-hover:bg-blue-300/80" />
-
-      <div className="relative">
-        <div className="mb-4 flex items-center justify-between">
-          <span className="text-3xl">{icon}</span>
-
-          <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-gray-500 shadow-sm">
-            סטטיסטיקה
-          </span>
-        </div>
-
-        <p className="bg-gradient-to-r from-slate-950 to-emerald-700 bg-clip-text text-5xl font-black text-transparent">
-          {value}
-        </p>
-
-        <p className="mt-3 text-sm font-black text-gray-500">{title}</p>
-      </div>
-    </div>
-  );
-}
-
-function LeaderCard({ icon, title, playerName, value, label }) {
+function LeaderCard({
+  leagueId,
+  icon,
+  title,
+  playerName,
+  playerId,
+  value,
+  label,
+}) {
   return (
     <div className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-900 p-6 text-white shadow-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
       <div className="absolute -left-10 -top-10 h-32 w-32 rounded-full bg-emerald-400/20 blur-3xl" />
@@ -490,7 +513,16 @@ function LeaderCard({ icon, title, playerName, value, label }) {
 
         {playerName ? (
           <>
-            <p className="text-3xl font-black">{playerName}</p>
+            {playerId ? (
+              <Link
+                href={`/leagues/${leagueId}/players/${playerId}`}
+                className="inline-block text-3xl font-black transition hover:text-emerald-300 hover:underline"
+              >
+                {playerName}
+              </Link>
+            ) : (
+              <p className="text-3xl font-black">{playerName}</p>
+            )}
 
             <div className="mt-4 inline-flex rounded-full bg-white/10 px-4 py-2 text-sm font-bold backdrop-blur">
               {value || 0} {label}
