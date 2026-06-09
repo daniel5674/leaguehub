@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 
 export default function LeaguesPage() {
   const [leagues, setLeagues] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("all");
+
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -36,30 +38,81 @@ export default function LeaguesPage() {
     fetchLeagues();
   }, []);
 
+  const personalLeagues = leagues.filter(
+    (league) => league.leagueType === "personal"
+  );
+
+  const teamLeagues = leagues.filter(
+    (league) => league.leagueType !== "personal"
+  );
+
+  const filteredLeagues = useMemo(() => {
+    if (activeTab === "personal") return personalLeagues;
+    if (activeTab === "teams") return teamLeagues;
+    return leagues;
+  }, [activeTab, leagues]);
+
+  const visibleLeagues = currentUser
+    ? filteredLeagues
+    : filteredLeagues.slice(0, 3);
+
+  const totalTeams = leagues.reduce(
+    (sum, league) =>
+      sum +
+      (league.leagueType === "personal"
+        ? league.personalPlayers?.length || 0
+        : league.teamsCount || league.teams?.length || 0),
+    0
+  );
+
+  const totalMatches = leagues.reduce(
+    (sum, league) => sum + (league.matches?.length || 0),
+    0
+  );
+
   if (loading) {
     return (
-      <main className="mx-auto max-w-6xl px-6 py-12">
-        <p className="text-gray-500">טוען ליגות...</p>
+      <main
+        dir="rtl"
+        className="min-h-screen bg-[#050b14] px-6 py-12 text-white"
+      >
+        <div className="mx-auto max-w-6xl">
+          <p className="text-gray-400">טוען ליגות...</p>
+        </div>
       </main>
     );
   }
-  const visibleLeagues = currentUser ? leagues : leagues.slice(0, 3);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 px-6 py-12">
-      <section className="mx-auto max-w-7xl">
-        <div className="mb-10 overflow-hidden rounded-[2rem] bg-slate-900 p-8 text-white shadow-xl">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+    <main
+      dir="rtl"
+      className="relative min-h-screen overflow-hidden bg-[#050b14] px-4 py-8 text-white"
+    >
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
+
+        <div className="absolute bottom-0 left-1/2 h-[420px] w-[760px] -translate-x-1/2 opacity-5">
+          <div className="absolute bottom-0 h-full w-full rounded-t-[380px] border-4 border-white" />
+          <div className="absolute bottom-0 left-1/2 h-full w-px -translate-x-1/2 bg-white" />
+          <div className="absolute bottom-0 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full border-4 border-white" />
+          <div className="absolute bottom-0 left-1/2 h-52 w-80 -translate-x-1/2 border-4 border-white" />
+        </div>
+      </div>
+
+      <section className="relative z-10 mx-auto max-w-6xl">
+        <div className="mb-5 rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
-              <span className="mb-4 inline-flex rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-slate-200">
-                🏆 LeagueHub Leagues
+              <span className="mb-3 inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-black text-emerald-300">
+                LeagueHub Leagues 🏆
               </span>
 
-              <h1 className="text-4xl font-extrabold md:text-5xl">
+              <h1 className="text-3xl font-black md:text-4xl">
                 כל הליגות במקום אחד
               </h1>
 
-              <p className="mt-4 max-w-2xl text-slate-300">
+              <p className="mt-2 max-w-2xl text-sm font-bold leading-6 text-gray-400">
                 צפה בליגות פעילות, בדוק קבוצות ומשחקים, והיכנס לניהול מלא של
                 הליגה.
               </p>
@@ -68,14 +121,14 @@ export default function LeaguesPage() {
             {currentUser?.role === "manager" ? (
               <Link
                 href="/leagues/create"
-                className="rounded-2xl bg-white px-6 py-4 text-center font-bold text-black transition hover:scale-105 hover:bg-gray-200"
+                className="rounded-2xl bg-emerald-400 px-5 py-3 text-center text-sm font-black text-slate-950 transition hover:bg-emerald-300"
               >
                 + צור ליגה
               </Link>
             ) : !currentUser ? (
               <Link
                 href="/login"
-                className="rounded-2xl border border-white/20 px-6 py-4 text-center font-bold text-white transition hover:scale-105 hover:bg-white/10"
+                className="rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-3 text-center text-sm font-black text-white transition hover:bg-white/10"
               >
                 🔒 התחבר כדי ליצור ליגה
               </Link>
@@ -83,134 +136,57 @@ export default function LeaguesPage() {
           </div>
         </div>
 
-        <div className="mb-8 grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl bg-white p-6 shadow-sm">
-            <p className="text-3xl font-extrabold">{leagues.length}</p>
-            <p className="text-sm text-gray-500">ליגות במערכת</p>
-          </div>
-
-          <div className="rounded-3xl bg-white p-6 shadow-sm">
-            <p className="text-3xl font-extrabold">
-              {leagues.reduce(
-                (sum, league) => sum + (league.teamsCount || 0),
-                0
-              )}
-            </p>
-            <p className="text-sm text-gray-500">קבוצות</p>
-          </div>
-
-          <div className="rounded-3xl bg-white p-6 shadow-sm">
-            <p className="text-3xl font-extrabold">
-              {leagues.reduce(
-                (sum, league) => sum + (league.matches?.length || 0),
-                0
-              )}
-            </p>
-            <p className="text-sm text-gray-500">משחקים</p>
-          </div>
+        <div className="mb-5 grid gap-3 md:grid-cols-3">
+          <LeagueStat value={leagues.length} title="ליגות במערכת" />
+          <LeagueStat value={totalTeams} title="קבוצות / שחקנים" />
+          <LeagueStat value={totalMatches} title="משחקים" />
         </div>
 
-        {leagues.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-gray-300 bg-white p-12 text-center shadow-sm">
-            <div className="mb-4 text-5xl">🏟️</div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              אין ליגות להצגה
-            </h2>
-            <p className="mt-2 text-gray-500">
+        <div className="mb-6 flex gap-2 overflow-x-auto rounded-3xl border border-white/10 bg-white/[0.06] p-2 backdrop-blur">
+          <TabButton
+            active={activeTab === "all"}
+            onClick={() => setActiveTab("all")}
+          >
+            כל הליגות
+          </TabButton>
+
+          <TabButton
+            active={activeTab === "teams"}
+            onClick={() => setActiveTab("teams")}
+          >
+            ליגות קבוצתיות
+          </TabButton>
+
+          <TabButton
+            active={activeTab === "personal"}
+            onClick={() => setActiveTab("personal")}
+          >
+            ליגות אישיות
+          </TabButton>
+        </div>
+
+        {filteredLeagues.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.04] p-10 text-center backdrop-blur">
+            <div className="mb-3 text-4xl">🏟️</div>
+            <h2 className="text-xl font-black text-white">אין ליגות להצגה</h2>
+            <p className="mt-2 text-sm font-bold text-gray-400">
               ברגע שתיווצר ליגה, היא תופיע כאן.
             </p>
           </div>
         ) : (
           <>
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {visibleLeagues.map((league, index) => {
                 const leagueId = league.id || league._id;
-
-                const statusColor =
-                  league.status === "פעילה"
-                    ? "bg-green-100 text-green-700"
-                    : league.status === "פתוחה"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-gray-100 text-gray-600";
-
-                const gradients = [
-                  "from-blue-600 to-blue-900",
-                  "from-emerald-600 to-emerald-900",
-                  "from-purple-600 to-purple-900",
-                  "from-orange-500 to-orange-800",
-                ];
+                const isPersonal = league.leagueType === "personal";
 
                 const card = (
-                  <div className="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                    {!currentUser && (
-                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl bg-white/80 backdrop-blur-sm">
-                        <div className="mb-2 text-4xl">🔒</div>
-                        <p className="font-semibold text-gray-700">
-                          התחבר כדי להיכנס
-                        </p>
-                      </div>
-                    )}
-
-                    <div className={!currentUser ? "opacity-45" : ""}>
-                      <div
-                        className={`h-24 bg-gradient-to-br ${
-                          gradients[index % gradients.length]
-                        } p-5 text-white`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 text-2xl font-extrabold backdrop-blur">
-                            {league.name?.charAt(0)}
-                          </div>
-
-                          <span
-                            className={`rounded-full px-3 py-1 text-sm font-bold ${statusColor}`}
-                          >
-                            {league.status}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="p-6">
-                        <h2 className="text-2xl font-extrabold text-gray-900">
-                          {league.name}
-                        </h2>
-
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                            ⚽ {league.sport}
-                          </span>
-
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                            📍 {league.location}
-                          </span>
-                        </div>
-
-                        <p className="mt-4 line-clamp-2 text-sm leading-6 text-gray-600">
-                          {league.description || "ללא תיאור"}
-                        </p>
-
-                        <div className="mt-6 grid grid-cols-2 gap-3">
-                          <div className="rounded-2xl bg-gray-50 p-4 text-center">
-                            <p className="text-2xl font-extrabold text-gray-900">
-                              {league.teamsCount || 0}
-                            </p>
-                            <p className="text-xs text-gray-500">קבוצות</p>
-                          </div>
-
-                          <div className="rounded-2xl bg-gray-50 p-4 text-center">
-                            <p className="text-2xl font-extrabold text-gray-900">
-                              {league.matches?.length || 0}
-                            </p>
-                            <p className="text-xs text-gray-500">משחקים</p>
-                          </div>
-                        </div>
-
-                        <div className="mt-6 rounded-2xl bg-black px-4 py-3 text-center text-sm font-bold text-white transition group-hover:bg-gray-800">
-                          כניסה לליגה
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <LeagueCard
+                    league={league}
+                    index={index}
+                    isPersonal={isPersonal}
+                    currentUser={currentUser}
+                  />
                 );
 
                 return currentUser ? (
@@ -223,15 +199,15 @@ export default function LeaguesPage() {
               })}
             </div>
 
-            {!currentUser && leagues.length > 3 && (
-              <div className="mt-10 rounded-3xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
-                <p className="text-gray-600">
+            {!currentUser && filteredLeagues.length > 3 && (
+              <div className="mt-8 rounded-3xl border border-dashed border-white/10 bg-white/[0.04] p-6 text-center backdrop-blur">
+                <p className="text-sm font-bold text-gray-400">
                   🔒 יש עוד ליגות זמינות. התחבר כדי לראות את כולן.
                 </p>
 
                 <Link
                   href="/login"
-                  className="mt-5 inline-block rounded-2xl bg-black px-6 py-3 font-bold text-white transition hover:scale-105 hover:bg-gray-800"
+                  className="mt-4 inline-block rounded-2xl bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
                 >
                   התחברות / הרשמה
                 </Link>
@@ -241,5 +217,125 @@ export default function LeaguesPage() {
         )}
       </section>
     </main>
+  );
+}
+
+function TabButton({ active, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`whitespace-nowrap rounded-2xl px-5 py-3 text-sm font-black transition ${
+        active
+          ? "bg-emerald-400 text-slate-950 shadow-md"
+          : "text-gray-300 hover:bg-white/10"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function LeagueStat({ value, title }) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 text-center backdrop-blur">
+      <p className="text-3xl font-black text-white">{value}</p>
+      <p className="mt-1 text-sm font-bold text-gray-400">{title}</p>
+    </div>
+  );
+}
+
+function LeagueCard({ league, index, isPersonal, currentUser }) {
+  const gradients = [
+    "from-blue-600 to-blue-900",
+    "from-emerald-600 to-emerald-900",
+    "from-purple-600 to-purple-900",
+    "from-orange-500 to-orange-800",
+  ];
+
+  const teamsOrPlayers = isPersonal
+    ? league.personalPlayers?.length || 0
+    : league.teamsCount || league.teams?.length || 0;
+
+  return (
+    <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-white/[0.09]">
+      {!currentUser && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl bg-black/45 backdrop-blur-sm">
+          <div className="mb-2 text-3xl">🔒</div>
+          <p className="text-sm font-black text-white">התחבר כדי להיכנס</p>
+        </div>
+      )}
+
+      <div className={!currentUser ? "opacity-45" : ""}>
+        <div
+          className={`h-1.5 bg-gradient-to-r ${
+            gradients[index % gradients.length]
+          }`}
+        />
+
+        <div className="p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div
+              className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${
+                gradients[index % gradients.length]
+              } text-xl font-black text-white shadow-lg`}
+            >
+              {league.name?.charAt(0)}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
+                {isPersonal ? "👤 ליגה אישית" : "🏆 ליגת קבוצות"}
+              </span>
+
+              <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-300">
+                {league.status}
+              </span>
+            </div>
+          </div>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h2 className="text-xl font-black text-white">{league.name}</h2>
+
+            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
+              {isPersonal ? "ליגה אישית" : "ליגת קבוצות"}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
+              ⚽ {league.sport}
+            </span>
+
+            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
+              📍 {league.location}
+            </span>
+          </div>
+
+          <p className="mt-4 line-clamp-2 text-sm leading-6 text-gray-400">
+            {league.description || "ללא תיאור"}
+          </p>
+
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="rounded-2xl bg-white/[0.05] p-3 text-center">
+              <p className="text-2xl font-black text-white">{teamsOrPlayers}</p>
+              <p className="text-xs font-bold text-gray-400">
+                {isPersonal ? "שחקנים" : "קבוצות"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-white/[0.05] p-3 text-center">
+              <p className="text-2xl font-black text-white">
+                {league.matches?.length || 0}
+              </p>
+              <p className="text-xs font-bold text-gray-400">משחקים</p>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-2xl bg-emerald-400 px-4 py-3 text-center text-sm font-black text-slate-950 transition group-hover:bg-emerald-300">
+            כניסה לליגה
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

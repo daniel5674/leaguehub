@@ -837,9 +837,24 @@ export default function LeagueDetailsPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-100 to-white px-6 py-10">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-8 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 py-6 px-8 text-white shadow-2xl">
+    <main
+      dir="rtl"
+      className="relative min-h-screen overflow-hidden bg-[#050b14] px-4 py-8 text-white"
+    >
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
+
+        <div className="absolute bottom-0 left-1/2 h-[420px] w-[760px] -translate-x-1/2 opacity-5">
+          <div className="absolute bottom-0 h-full w-full rounded-t-[380px] border-4 border-white" />
+          <div className="absolute bottom-0 left-1/2 h-full w-px -translate-x-1/2 bg-white" />
+          <div className="absolute bottom-0 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full border-4 border-white" />
+          <div className="absolute bottom-0 left-1/2 h-52 w-80 -translate-x-1/2 border-4 border-white" />
+        </div>
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-6xl">
+        <div className="mb-5 rounded-[2rem] border border-white/10 bg-white/[0.06] px-5 py-5 text-white shadow-2xl backdrop-blur">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="mb-3 flex items-center gap-2">
@@ -848,7 +863,7 @@ export default function LeagueDetailsPage() {
                 </span>
               </div>
 
-              <h1 className="text-4xl font-extrabold tracking-tight">
+              <h1 className="text-3xl font-black tracking-tight md:text-4xl">
                 {league.name}
               </h1>
 
@@ -943,7 +958,7 @@ export default function LeagueDetailsPage() {
           </div>
         )}
 
-        <div className="sticky top-24 z-40 mb-8 flex flex-wrap gap-3 rounded-3xl bg-white/90 p-3 shadow-lg ring-1 ring-gray-100 backdrop-blur">
+        <div className="sticky top-24 z-40 mb-5 flex flex-wrap gap-2 rounded-3xl border border-white/10 bg-white/[0.06] p-2 shadow-xl backdrop-blur">
           {isPersonalLeague ? (
             <>
               <button
@@ -951,8 +966,8 @@ export default function LeagueDetailsPage() {
                 onClick={() => setActiveTab("league-page")}
                 className={`rounded-2xl px-5 py-3 font-bold transition ${
                   activeTab === "league-page"
-                    ? "bg-slate-900 text-white shadow-md"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-emerald-400 text-slate-950 shadow-md"
+                    : "text-gray-300 hover:bg-white/10"
                 }`}
               >
                 🏟️ עמוד הליגה
@@ -962,8 +977,8 @@ export default function LeagueDetailsPage() {
                 onClick={() => setActiveTab("matches")}
                 className={`rounded-2xl px-5 py-3 font-bold transition ${
                   activeTab === "matches"
-                    ? "bg-slate-900 text-white shadow-md"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-emerald-400 text-slate-950 shadow-md"
+                    : "text-gray-300 hover:bg-white/10"
                 }`}
               >
                 ⚽ משחקים
@@ -983,8 +998,8 @@ export default function LeagueDetailsPage() {
                 onClick={() => setActiveTab("teams")}
                 className={`rounded-2xl px-5 py-3 font-bold transition ${
                   activeTab === "teams"
-                    ? "bg-slate-900 text-white shadow-md"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-emerald-400 text-slate-950 shadow-md"
+                    : "text-gray-300 hover:bg-white/10"
                 }`}
               >
                 🏆 קבוצות
@@ -994,8 +1009,8 @@ export default function LeagueDetailsPage() {
                 onClick={() => setActiveTab("matches")}
                 className={`rounded-2xl px-5 py-3 font-bold transition ${
                   activeTab === "matches"
-                    ? "bg-slate-900 text-white shadow-md"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-emerald-400 text-slate-950 shadow-md"
+                    : "text-gray-300 hover:bg-white/10"
                 }`}
               >
                 ⚽ משחקים
@@ -1005,8 +1020,8 @@ export default function LeagueDetailsPage() {
                 onClick={() => setActiveTab("stats")}
                 className={`rounded-2xl px-5 py-3 font-bold transition ${
                   activeTab === "stats"
-                    ? "bg-slate-900 text-white shadow-md"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-emerald-400 text-slate-950 shadow-md"
+                    : "text-gray-300 hover:bg-white/10"
                 }`}
               >
                 📊 סטטיסטיקות
@@ -1016,8 +1031,8 @@ export default function LeagueDetailsPage() {
                 onClick={() => setActiveTab("management")}
                 className={`rounded-2xl px-5 py-3 font-bold transition ${
                   activeTab === "management"
-                    ? "bg-slate-900 text-white shadow-md"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "bg-emerald-400 text-slate-950 shadow-md"
+                    : "text-gray-300 hover:bg-white/10"
                 }`}
               >
                 ⚙️ ניהול
@@ -1026,49 +1041,41 @@ export default function LeagueDetailsPage() {
           )}
         </div>
 
-        <div className="mb-8 flex flex-wrap justify-center gap-4">
-          <div className="w-48 rounded-3xl border border-yellow-100 bg-yellow-50 p-5 shadow-sm">
-            <div className="text-3xl">{isPersonalLeague ? "👥" : "🏆"}</div>
-            <p className="mt-2 text-3xl font-extrabold text-gray-900">
-              {isPersonalLeague
+        <div className="mb-6 grid gap-3 md:grid-cols-4">
+          <LeagueMiniCard
+            icon={isPersonalLeague ? "👥" : "🏆"}
+            value={
+              isPersonalLeague
                 ? league.personalPlayers?.length || 0
-                : league.teams?.length || 0}
-            </p>
-            <p className="text-sm text-gray-600">
-              {isPersonalLeague ? "שחקנים" : "קבוצות"}
-            </p>
-          </div>
+                : league.teams?.length || 0
+            }
+            title={isPersonalLeague ? "שחקנים" : "קבוצות"}
+          />
 
-          <div className="w-48 rounded-3xl border border-green-100 bg-green-50 p-5 shadow-sm">
-            <div className="text-3xl">⚽</div>
-            <p className="mt-2 text-3xl font-extrabold text-gray-900">
-              {league.matches?.length || 0}
-            </p>
-            <p className="text-sm text-gray-600">משחקים</p>
-          </div>
+          <LeagueMiniCard
+            icon="⚽"
+            value={league.matches?.length || 0}
+            title="משחקים"
+          />
 
-          <div className="w-48 rounded-3xl border border-red-100 bg-red-50 p-5 shadow-sm">
-            <div className="text-3xl">🥅</div>
-            <p className="mt-2 text-3xl font-extrabold text-gray-900">
-              {(league.topScorers || []).reduce(
-                (sum, player) => sum + (player.goals || 0),
-                0
-              )}
-            </p>
-            <p className="text-sm text-gray-600">שערים בליגה</p>
-          </div>
+          <LeagueMiniCard
+            icon="🥅"
+            value={(league.topScorers || []).reduce(
+              (sum, player) => sum + (player.goals || 0),
+              0
+            )}
+            title="שערים בליגה"
+          />
 
           {!isPersonalLeague && (
-            <div className="w-48 rounded-3xl border border-blue-100 bg-blue-50 p-5 shadow-sm">
-              <div className="text-3xl">🟦</div>
-              <p className="mt-2 text-3xl font-extrabold text-gray-900">
-                {getBlueCardsTable().reduce(
-                  (sum, player) => sum + (player.blueCards || 0),
-                  0
-                )}
-              </p>
-              <p className="text-sm text-gray-600">כרטיסים כחולים</p>
-            </div>
+            <LeagueMiniCard
+              icon="🟦"
+              value={getBlueCardsTable().reduce(
+                (sum, player) => sum + (player.blueCards || 0),
+                0
+              )}
+              title="כרטיסים כחולים"
+            />
           )}
         </div>
 
@@ -1270,9 +1277,12 @@ export default function LeagueDetailsPage() {
                               key={`${player.fullName}-${pi}`}
                               className="flex items-center justify-between py-2"
                             >
-                              <span className="text-sm font-medium text-gray-800">
+                              <Link
+                                href={`/leagues/${id}/players/${player.playerId}`}
+                                className="text-sm font-medium text-gray-800 transition hover:text-emerald-600 hover:underline"
+                              >
                                 {player.fullName}
-                              </span>
+                              </Link>
                               <span
                                 className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${c.badge}`}
                               >
@@ -1493,63 +1503,58 @@ export default function LeagueDetailsPage() {
           </section>
         )}
         {activeTab === "teams" && (
-          <section className="rounded-3xl border border-gray-200 p-6">
+          <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">קבוצות בליגה</h2>
-              <span className="text-sm text-gray-500">
+              <h2 className="text-2xl font-black text-white">קבוצות בליגה</h2>
+              <span className="text-sm text-gray-400">
                 סה״כ {league.teams?.length || 0} קבוצות
               </span>
             </div>
 
-            {canManage ? (
+            {canManage && (
               <form onSubmit={handleAddTeam} className="mb-6 flex gap-3">
                 <input
                   type="text"
                   value={teamName}
                   onChange={(e) => setTeamName(e.target.value)}
                   placeholder="הכנס שם קבוצה"
-                  className="flex-1 rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                  className="flex-1 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
                 />
+
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-2xl bg-black px-5 py-3 text-white transition hover:bg-gray-800 disabled:opacity-60"
+                  className="rounded-2xl bg-emerald-400 px-5 py-3 font-black text-slate-950 transition hover:bg-emerald-300 disabled:opacity-60"
                 >
                   {submitting ? "מוסיף..." : "הוסף קבוצה"}
                 </button>
               </form>
-            ) : (
-              <p className="mb-6 text-sm text-gray-500">
-                {isGuest
-                  ? "התחבר כדי לראות ולבצע פעולות בליגה."
-                  : "רק יוצר הליגה יכול להוסיף או למחוק קבוצות."}
-              </p>
             )}
 
             {!league.teams || league.teams.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-8 text-center text-gray-400">
                 אין עדיין קבוצות בליגה
               </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-5 md:grid-cols-2">
                 {league.teams.map((team, index) => (
                   <div
                     key={team._id || team.name}
-                    className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
+                    className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-md backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-white/[0.09]"
                   >
-                    <div className="h-2 bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900" />
+                    <div className="h-1.5 bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400" />
 
                     <div className="p-5">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                           <div
-                            className={`relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${
+                            className={`relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${
                               teamColors[index % teamColors.length]
                             } text-2xl font-extrabold text-white shadow-lg`}
                           >
                             {team.name?.charAt(0)}
 
-                            <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-[10px] text-white">
+                            <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400 text-[10px] text-slate-950">
                               ✓
                             </div>
                           </div>
@@ -1559,19 +1564,29 @@ export default function LeagueDetailsPage() {
                               href={`/leagues/${id}/teams/${encodeURIComponent(
                                 team.name
                               )}`}
-                              className="text-lg font-bold text-gray-900 transition hover:text-blue-600 hover:underline"
+                              className="text-lg font-black text-white transition hover:text-emerald-300 hover:underline"
                             >
                               {team.name}
                             </Link>
-                            <p className="text-sm text-gray-500">
+
+                            <p className="text-sm text-gray-400">
                               {team.players?.length || 0} שחקנים
                             </p>
+
                             <div className="mt-3 flex flex-wrap gap-2">
-                              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium">
+                              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
                                 👥 {team.players?.length || 0}
                               </span>
+                              <Link
+                                href={`/leagues/${id}/teams/${encodeURIComponent(
+                                  team.name
+                                )}`}
+                                className="mt-3 inline-flex items-center rounded-xl bg-emerald-400 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+                              >
+                                צפייה בקבוצה →
+                              </Link>
 
-                              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+                              <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-300">
                                 פעילה
                               </span>
                             </div>
@@ -1588,83 +1603,13 @@ export default function LeagueDetailsPage() {
                                 onConfirm: () => handleDeleteTeam(team.name),
                               })
                             }
-                            className="rounded-xl border border-red-100 px-4 py-2 text-sm font-medium text-red-500 transition hover:bg-red-50 hover:text-red-700"
+                            className="rounded-xl border border-red-400/20 px-4 py-2 text-sm font-bold text-red-300 transition hover:bg-red-500/10 hover:text-red-200"
                           >
                             מחק
                           </button>
                         )}
                       </div>
                     </div>
-
-                    {currentUser ? (
-                      <div className="mt-4 border-t border-gray-100 pt-4">
-                        <div className="mb-4 flex items-center justify-between">
-                          <p className="text-sm font-bold text-gray-700">
-                            סגל הקבוצה
-                          </p>
-
-                          <span className="text-xs text-gray-400">
-                            {team.players?.length || 0} שחקנים
-                          </span>
-                        </div>
-
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          {team.players.map((player, index) => (
-                            <div
-                              key={`${player.email}-${index}`}
-                              className="flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white font-bold text-gray-800 shadow-sm">
-                                  {(player.fullName || player.email)?.charAt(0)}
-                                </div>
-
-                                <div>
-                                  <Link
-                                    href={`/leagues/${id}/players/${player.playerId}`}
-                                    className="font-bold text-gray-900 hover:underline"
-                                  >
-                                    {player.fullName || player.email}
-                                  </Link>
-
-                                  {player.isCaptain && (
-                                    <div className="mt-1">
-                                      <span className="inline-flex items-center rounded-full bg-yellow-400 px-2 py-0.5 text-xs font-bold text-black">
-                                        ★ קפטן
-                                      </span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              {canManage && (
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    openConfirmModal({
-                                      title: "הסרת שחקן",
-                                      message: `להסיר את ${player.email} מהקבוצה ${team.name}?`,
-                                      onConfirm: () =>
-                                        handleRemovePlayer(
-                                          player.email,
-                                          team.name
-                                        ),
-                                    })
-                                  }
-                                  className="rounded-lg px-3 py-1 text-xs text-red-500 transition hover:bg-red-50 hover:text-red-700"
-                                >
-                                  הסר
-                                </button>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mt-4 rounded-xl border border-dashed border-gray-300 bg-white px-3 py-4 text-center text-sm text-gray-500">
-                        🔒 התחבר כדי לראות את שחקני הקבוצה
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -1672,29 +1617,30 @@ export default function LeagueDetailsPage() {
           </section>
         )}
         {activeTab === "matches" && !isPersonalLeague && (
-          <section className="mt-8 rounded-3xl border border-gray-200 p-6">
+          <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">משחקים בליגה</h2>
-              <span className="text-sm text-gray-500">
+              <h2 className="text-2xl font-black text-white">משחקים בליגה</h2>
+
+              <span className="text-sm font-bold text-gray-400">
                 סה״כ {league.matches?.length || 0} משחקים
               </span>
             </div>
 
             {!isPersonalLeague &&
               (league.teams?.length < 2 ? (
-                <div className="mb-6 rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+                <div className="mb-6 rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-8 text-center text-gray-400">
                   צריך לפחות 2 קבוצות כדי להוסיף משחק
                 </div>
               ) : canManage ? (
                 <form
                   onSubmit={handleAddMatch}
-                  className="mb-6 grid gap-3 md:grid-cols-2"
+                  className="mb-6 grid gap-3 rounded-3xl border border-white/10 bg-white/[0.04] p-4 md:grid-cols-2"
                 >
                   <select
                     name="homeTeam"
                     value={matchForm.homeTeam}
                     onChange={handleMatchChange}
-                    className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
                   >
                     <option value="">בחר קבוצה בית</option>
                     {league.teams.map((team) => (
@@ -1703,11 +1649,12 @@ export default function LeagueDetailsPage() {
                       </option>
                     ))}
                   </select>
+
                   <select
                     name="awayTeam"
                     value={matchForm.awayTeam}
                     onChange={handleMatchChange}
-                    className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
                   >
                     <option value="">בחר קבוצה חוץ</option>
                     {league.teams
@@ -1718,44 +1665,48 @@ export default function LeagueDetailsPage() {
                         </option>
                       ))}
                   </select>
+
                   <input
                     type="date"
                     name="date"
                     value={matchForm.date}
                     onChange={handleMatchChange}
-                    className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
                   />
+
                   <input
                     type="time"
                     name="time"
                     value={matchForm.time}
                     onChange={handleMatchChange}
-                    className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-400"
                   />
+
                   <input
                     type="text"
                     name="location"
                     placeholder="מיקום המשחק"
                     value={matchForm.location}
                     onChange={handleMatchChange}
-                    className="md:col-span-2 rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400 md:col-span-2"
                   />
+
                   <button
                     type="submit"
                     disabled={matchSubmitting}
-                    className="md:col-span-2 rounded-2xl bg-black px-5 py-3 text-white transition hover:bg-gray-800 disabled:opacity-60"
+                    className="rounded-2xl bg-emerald-400 px-5 py-3 font-black text-slate-950 transition hover:bg-emerald-300 disabled:opacity-60 md:col-span-2"
                   >
                     {matchSubmitting ? "מוסיף משחק..." : "הוסף משחק"}
                   </button>
                 </form>
               ) : (
-                <p className="mb-6 text-sm text-gray-500">
+                <p className="mb-6 text-sm font-bold text-gray-400">
                   רק יוצר הליגה יכול להוסיף, למחוק ולעדכן משחקים.
                 </p>
               ))}
 
             {!league.matches || league.matches.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-8 text-center text-gray-400">
                 אין עדיין משחקים בליגה
               </div>
             ) : (
@@ -1791,260 +1742,89 @@ export default function LeagueDetailsPage() {
                     !match.isFinalApproved && (isHomeCaptain || isAwayCaptain);
 
                   const reports = match.captainReports || [];
-
                   const hasTwoReports = reports.length >= 2;
-
-                  const reportsMatch =
-                    hasTwoReports &&
-                    Number(reports[0].homeScore) ===
-                      Number(reports[1].homeScore) &&
-                    Number(reports[0].awayScore) ===
-                      Number(reports[1].awayScore);
-
-                  const approvedReport = reportsMatch ? reports[0] : null;
 
                   return (
                     <div
                       key={matchKey}
-                      className="rounded-2xl border border-gray-200 bg-gray-50 p-4"
+                      className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 transition hover:bg-white/[0.09]"
                     >
-                      <div className="mb-5">
-                        <div className="flex items-center justify-between text-center">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-extrabold text-gray-900">
-                              {match.homeTeam}
-                            </h3>
-                          </div>
+                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-black ${
+                              match.isFinalApproved
+                                ? "bg-emerald-400/15 text-emerald-300"
+                                : match.captainReports?.length > 0
+                                ? "bg-yellow-400/15 text-yellow-300"
+                                : "bg-blue-400/15 text-blue-300"
+                            }`}
+                          >
+                            {match.isFinalApproved
+                              ? "הסתיים"
+                              : match.captainReports?.length > 0
+                              ? "ממתין לאישור"
+                              : "עתידי"}
+                          </span>
 
-                          <div className="mx-6">
-                            <div className="rounded-2xl bg-black px-6 py-3 text-center text-white shadow-md">
-                              <div className="text-3xl font-extrabold">
-                                {match.homeScore !== null &&
-                                match.homeScore !== undefined
-                                  ? `${match.homeScore} : ${match.awayScore}`
-                                  : "- : -"}
-                              </div>
-
-                              <div className="mt-1 text-xs uppercase tracking-wider text-gray-300">
-                                {match.isFinalApproved ? "הסתיים" : "טרם שוחק"}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex-1">
-                            <h3 className="text-lg font-extrabold text-gray-900">
-                              {match.awayTeam}
-                            </h3>
-                          </div>
-                        </div>
-                        {match.isFinalApproved ? (
-                          <div className="mt-4 flex justify-center">
-                            <span className="rounded-full bg-green-100 px-4 py-2 text-sm font-bold text-green-700">
-                              ✅ הסתיים
+                          <p className="font-black text-white">
+                            {match.homeTeam}
+                            <span className="mx-3 rounded-xl bg-white px-3 py-1 text-slate-950">
+                              {match.homeScore !== null &&
+                              match.homeScore !== undefined
+                                ? `${match.homeScore} : ${match.awayScore}`
+                                : "- : -"}
                             </span>
-                          </div>
-                        ) : match.captainReports?.length > 0 ? (
-                          <span className="rounded-full bg-yellow-100 px-4 py-2 text-sm font-bold text-yellow-700">
-                            ⏳ ממתין לאישור מנהל
-                          </span>
-                        ) : (
-                          <span className="rounded-full bg-blue-100 px-4 py-2 text-sm font-bold text-blue-700">
-                            📅 משחק עתידי
-                          </span>
-                        )}
-                      </div>
+                            {match.awayTeam}
+                          </p>
+                        </div>
 
-                      <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-                        <span className="rounded-full bg-gray-100 px-3 py-1">
-                          📅 {match.date}
-                        </span>
+                        <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-gray-400">
+                          <span>📅 {match.date}</span>
+                          <span>🕒 {match.time}</span>
+                          <span>📍 {match.location}</span>
 
-                        <span className="rounded-full bg-gray-100 px-3 py-1">
-                          🕒 {match.time}
-                        </span>
-
-                        <span className="rounded-full bg-gray-100 px-3 py-1">
-                          📍 {match.location}
-                        </span>
-                      </div>
-
-                      <div className="mt-3 rounded-2xl border border-gray-200 bg-white p-3">
-                        <p className="mb-2 font-medium text-gray-800">
-                          תוצאה נוכחית:{" "}
-                          {match.homeScore !== "" &&
-                          match.homeScore !== null &&
-                          match.homeScore !== undefined
-                            ? `${match.homeScore} - ${match.awayScore}`
-                            : "טרם נקבעה"}
-                        </p>
-                        {!match.isFinalApproved &&
-                          match.captainReports?.length > 0 && (
-                            <div className="mt-4 rounded-2xl border border-yellow-200 bg-yellow-50 p-4">
-                              <h4 className="mb-3 font-bold text-yellow-800">
-                                דיווחי קפטנים
-                              </h4>
-
-                              <div className="space-y-2">
-                                {match.captainReports.map((report, index) => (
-                                  <div
-                                    key={index}
-                                    className="rounded-xl bg-white px-3 py-2 text-sm text-gray-800"
-                                  >
-                                    <p>
-                                      <span className="font-bold">
-                                        {report.captainName}
-                                      </span>{" "}
-                                      | {report.teamName}
-                                    </p>
-
-                                    <p className="mt-1">
-                                      דיווח תוצאה: {report.homeScore} -{" "}
-                                      {report.awayScore}
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-                              {hasTwoReports &&
-                                canManage &&
-                                !match.isFinalApproved && (
-                                  <div className="mt-4">
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        router.push(
-                                          `/leagues/${id}/matches/${matchKey}/review`
-                                        )
-                                      }
-                                      className="rounded-xl bg-black px-4 py-2 text-sm font-bold text-white transition hover:bg-gray-800"
-                                    >
-                                      בדיקת דיווח משחק
-                                    </button>
-                                  </div>
-                                )}
-                            </div>
-                          )}
-                        {canReportMatch ? (
                           <button
                             type="button"
                             onClick={() =>
-                              router.push(
-                                `/leagues/${id}/matches/${matchKey}/update`
-                              )
+                              router.push(`/leagues/${id}/matches/${matchKey}`)
                             }
-                            className="rounded-2xl bg-blue-600 px-6 py-3 font-bold text-white transition hover:bg-blue-700"
+                            className="rounded-xl bg-white/10 px-3 py-1 text-white transition hover:bg-white/20"
                           >
-                            ⚽ עדכון משחק
+                            פרטים
                           </button>
-                        ) : (
-                          <p className="text-sm text-gray-500">
-                            רק קפטני הקבוצות יכולים לדווח תוצאה.
-                          </p>
-                        )}
-                      </div>
-                      {canReportMatch && (
-                        <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50 p-4">
-                          <h4 className="mb-3 font-bold text-blue-800">
-                            כרטיסים כחולים
-                          </h4>
 
-                          <div className="grid gap-3 md:grid-cols-3">
-                            <select
-                              value={blueCardForms[matchKey]?.playerId || ""}
-                              onChange={(e) => {
-                                const selectedPlayerId = e.target.value;
-
-                                const allPlayers = league.teams.flatMap(
-                                  (team) =>
-                                    (team.players || []).map((player) => ({
-                                      ...player,
-                                      teamName: team.name,
-                                    }))
-                                );
-
-                                const selectedPlayer = allPlayers.find(
-                                  (player) =>
-                                    String(player.playerId) ===
-                                    String(selectedPlayerId)
-                                );
-
-                                handleBlueCardChange(
-                                  matchKey,
-                                  "playerId",
-                                  selectedPlayerId
-                                );
-
-                                handleBlueCardChange(
-                                  matchKey,
-                                  "playerName",
-                                  selectedPlayer?.fullName || ""
-                                );
-
-                                handleBlueCardChange(
-                                  matchKey,
-                                  "teamName",
-                                  selectedPlayer?.teamName || ""
-                                );
-                              }}
-                              className="rounded-xl border border-gray-300 px-3 py-2"
-                            >
-                              <option value="">בחר שחקן</option>
-
-                              {league.teams?.flatMap((team) =>
-                                (team.players || []).map((player) => (
-                                  <option
-                                    key={player.playerId}
-                                    value={player.playerId}
-                                  >
-                                    {player.fullName || player.email} -{" "}
-                                    {team.name}
-                                  </option>
-                                ))
-                              )}
-                            </select>
-
-                            <div className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-600">
-                              {blueCardForms[matchKey]?.teamName ||
-                                "קבוצה תתמלא אוטומטית"}
-                            </div>
-
-                            <input
-                              type="number"
-                              placeholder="דקה"
-                              value={blueCardForms[matchKey]?.minute || ""}
-                              onChange={(e) =>
-                                handleBlueCardChange(
-                                  matchKey,
-                                  "minute",
-                                  e.target.value
+                          {canReportMatch && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                router.push(
+                                  `/leagues/${id}/matches/${matchKey}/update`
                                 )
                               }
-                              className="rounded-xl border border-gray-300 px-3 py-2"
-                            />
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => addBlueCardToMatch(matchKey)}
-                            className="mt-3 rounded-xl bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-                          >
-                            הוסף כרטיס כחול
-                          </button>
-
-                          {match.blueCards?.length > 0 && (
-                            <div className="mt-4 space-y-2">
-                              {match.blueCards.map((card, index) => (
-                                <div
-                                  key={index}
-                                  className="rounded-xl bg-white px-3 py-2 text-sm text-gray-800"
-                                >
-                                  🔵 {card.playerName} | {card.teamName}
-                                  {card.minute ? ` | דקה ${card.minute}` : ""}
-                                </div>
-                              ))}
-                            </div>
+                              className="rounded-xl bg-blue-500 px-3 py-1 font-black text-white transition hover:bg-blue-400"
+                            >
+                              עדכון
+                            </button>
                           )}
+
+                          {hasTwoReports &&
+                            canManage &&
+                            !match.isFinalApproved && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  router.push(
+                                    `/leagues/${id}/matches/${matchKey}/review`
+                                  )
+                                }
+                                className="rounded-xl bg-yellow-400 px-3 py-1 font-black text-slate-950 transition hover:bg-yellow-300"
+                              >
+                                בדיקה
+                              </button>
+                            )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   );
                 })}
@@ -2053,486 +1833,209 @@ export default function LeagueDetailsPage() {
           </section>
         )}
         {activeTab === "stats" && (
-          <>
+          <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-2xl font-black text-white">סטטיסטיקות</h2>
+              <span className="text-sm font-bold text-gray-400">
+                נתוני הליגה
+              </span>
+            </div>
+
             {!isPersonalLeague && (
-              <section className="mt-8 rounded-3xl border border-gray-200 p-6">
-                <div className="mb-5 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">טבלת הליגה</h2>
-                  <span className="text-sm text-gray-500">
+              <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.06] p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-xl font-black text-white">טבלת הליגה</h3>
+                  <span className="text-sm font-bold text-gray-400">
                     {league.standings?.length || 0} קבוצות
                   </span>
                 </div>
 
                 {!league.standings || league.standings.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-8 text-center text-gray-400">
                     עדיין אין טבלה להצגה
                   </div>
                 ) : (
-                  <div className="overflow-x-auto rounded-3xl bg-white shadow-md ring-1 ring-gray-100">
-                    <table className="min-w-full overflow-hidden">
-                      <thead className="bg-slate-900 text-sm text-white">
-                        <tr>
-                          <th className="px-4 py-4 text-right">מקום</th>
-                          <th className="px-4 py-4 text-right">קבוצה</th>
-                          <th className="px-4 py-4 text-center">מש'</th>
-                          <th className="px-4 py-4 text-center">נ'</th>
-                          <th className="px-4 py-4 text-center">ת'</th>
-                          <th className="px-4 py-4 text-center">ה'</th>
-                          <th className="px-4 py-4 text-center">ז'</th>
-                          <th className="px-4 py-4 text-center">ח'</th>
-                          <th className="px-4 py-4 text-center">הפרש</th>
-                          <th className="px-4 py-4 text-center">נק'</th>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm">
+                      <thead className="text-gray-400">
+                        <tr className="border-b border-white/10">
+                          <th className="px-3 py-3 text-right">#</th>
+                          <th className="px-3 py-3 text-right">קבוצה</th>
+                          <th className="px-3 py-3 text-center">מש׳</th>
+                          <th className="px-3 py-3 text-center">נ׳</th>
+                          <th className="px-3 py-3 text-center">ת׳</th>
+                          <th className="px-3 py-3 text-center">ה׳</th>
+                          <th className="px-3 py-3 text-center">הפרש</th>
+                          <th className="px-3 py-3 text-center">נק׳</th>
                         </tr>
                       </thead>
 
-                      <tbody className="divide-y divide-gray-100 bg-white text-sm">
-                        {league.standings.map((row, index) => {
-                          const medal =
-                            index === 0
-                              ? "🥇"
-                              : index === 1
-                              ? "🥈"
-                              : index === 2
-                              ? "🥉"
-                              : index + 1;
-
-                          return (
-                            <tr
-                              key={row.team}
-                              className="transition hover:bg-slate-50"
-                            >
-                              <td className="px-4 py-4 font-bold text-gray-800">
-                                {medal}
-                              </td>
-
-                              <td className="px-4 py-4 font-bold text-gray-900">
-                                {row.team}
-                              </td>
-
-                              <td className="px-4 py-4 text-center">
-                                {row.played}
-                              </td>
-                              <td className="px-4 py-4 text-center">
-                                {row.wins}
-                              </td>
-                              <td className="px-4 py-4 text-center">
-                                {row.draws}
-                              </td>
-                              <td className="px-4 py-4 text-center">
-                                {row.losses}
-                              </td>
-                              <td className="px-4 py-4 text-center">
-                                {row.goalsFor}
-                              </td>
-                              <td className="px-4 py-4 text-center">
-                                {row.goalsAgainst}
-                              </td>
-
-                              <td
-                                className={`px-4 py-4 text-center font-bold ${
-                                  row.goalDifference > 0
-                                    ? "text-green-600"
-                                    : row.goalDifference < 0
-                                    ? "text-red-500"
-                                    : "text-gray-500"
-                                }`}
-                              >
-                                {row.goalDifference > 0
-                                  ? `+${row.goalDifference}`
-                                  : row.goalDifference}
-                              </td>
-
-                              <td className="px-4 py-4 text-center">
-                                <span className="rounded-full bg-slate-900 px-3 py-1 text-sm font-bold text-white">
-                                  {row.points}
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })}
+                      <tbody className="divide-y divide-white/10">
+                        {league.standings.map((row, index) => (
+                          <tr
+                            key={row.team}
+                            className="transition hover:bg-white/[0.04]"
+                          >
+                            <td className="px-3 py-3 font-black text-white">
+                              {index === 0
+                                ? "🥇"
+                                : index === 1
+                                ? "🥈"
+                                : index === 2
+                                ? "🥉"
+                                : index + 1}
+                            </td>
+                            <td className="px-3 py-3 font-black text-white">
+                              {row.team}
+                            </td>
+                            <td className="px-3 py-3 text-center text-gray-300">
+                              {row.played}
+                            </td>
+                            <td className="px-3 py-3 text-center text-emerald-300">
+                              {row.wins}
+                            </td>
+                            <td className="px-3 py-3 text-center text-gray-300">
+                              {row.draws}
+                            </td>
+                            <td className="px-3 py-3 text-center text-red-300">
+                              {row.losses}
+                            </td>
+                            <td className="px-3 py-3 text-center font-black text-gray-300">
+                              {row.goalDifference > 0
+                                ? `+${row.goalDifference}`
+                                : row.goalDifference}
+                            </td>
+                            <td className="px-3 py-3 text-center">
+                              <span className="rounded-full bg-emerald-400 px-3 py-1 font-black text-slate-950">
+                                {row.points}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
                 )}
-              </section>
+              </div>
             )}
 
-            <section className="mt-8 rounded-3xl border border-gray-200 p-6">
-              <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-2xl font-bold">מלך השערים</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              <StatsLeaderCard
+                leagueId={id}
+                title="מלך השערים"
+                icon="⚽"
+                items={[...(league.topScorers || [])]
+                  .map((player) => {
+                    const team = league.teams?.find(
+                      (t) => t.name === player.teamName
+                    );
 
-                <span className="text-sm text-gray-500">
-                  {league.topScorers?.length || 0} שחקנים
-                </span>
-              </div>
+                    const foundPlayer = team?.players?.find(
+                      (p) => p.fullName === player.playerName
+                    );
 
-              {canManage && (
-                <form
-                  onSubmit={handleAddTopScorer}
-                  className="mb-6 grid gap-3 md:grid-cols-3"
-                >
-                  <input
-                    type="text"
-                    name="playerName"
-                    placeholder="שם השחקן"
-                    value={topScorerForm.playerName}
-                    onChange={handleTopScorerChange}
-                    className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                  />
+                    return {
+                      ...player,
+                      playerId: player.playerId || foundPlayer?.playerId,
+                    };
+                  })
+                  .sort((a, b) => Number(b.goals) - Number(a.goals))}
+                valueKey="goals"
+                emptyText="אין עדיין נתוני שערים"
+              />
 
-                  <select
-                    name="teamName"
-                    value={topScorerForm.teamName}
-                    onChange={handleTopScorerChange}
-                    className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                  >
-                    <option value="">בחר קבוצה</option>
+              <StatsLeaderCard
+                leagueId={id}
+                title="מלך הבישולים"
+                icon="🅰️"
+                items={topAssists.map((player) => {
+                  const team = league.teams?.find(
+                    (t) => t.name === player.teamName
+                  );
 
-                    {league.teams?.map((team) => (
-                      <option key={team._id || team.name} value={team.name}>
-                        {team.name}
-                      </option>
-                    ))}
-                  </select>
+                  const foundPlayer = team?.players?.find(
+                    (p) => p.fullName === player.playerName
+                  );
 
-                  <input
-                    type="number"
-                    min="0"
-                    name="goals"
-                    placeholder="כמות שערים"
-                    value={topScorerForm.goals}
-                    onChange={handleTopScorerChange}
-                    className="rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                  />
+                  return {
+                    ...player,
+                    playerId: player.playerId || foundPlayer?.playerId,
+                  };
+                })}
+                valueKey="assists"
+                emptyText="אין עדיין נתוני בישולים"
+              />
 
-                  <button
-                    type="submit"
-                    className="md:col-span-3 rounded-2xl bg-black px-5 py-3 text-white transition hover:bg-gray-800"
-                  >
-                    הוסף שחקן
-                  </button>
-                </form>
-              )}
-              {!league.topScorers || league.topScorers.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-amber-200 bg-white p-8 text-center text-gray-500">
-                  אין עדיין נתוני שערים
-                </div>
-              ) : (
-                <div className="overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm">
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                      <thead className="bg-amber-500 text-sm text-white">
-                        <tr>
-                          <th className="px-4 py-4 text-right">מקום</th>
-                          <th className="px-4 py-4 text-right">שחקן</th>
-                          <th className="px-4 py-4 text-right">קבוצה</th>
-                          <th className="px-4 py-4 text-center">שערים</th>
-                        </tr>
-                      </thead>
+              <StatsLeaderCard
+                leagueId={id}
+                title="מצטייני הליגה"
+                icon="🏆"
+                items={[...(league.topMvps || [])]
+                  .map((player) => {
+                    const team = league.teams?.find(
+                      (t) => t.name === player.teamName
+                    );
 
-                      <tbody className="divide-y divide-gray-100 text-sm">
-                        {[...league.topScorers]
-                          .sort((a, b) => Number(b.goals) - Number(a.goals))
-                          .map((player, index) => (
-                            <tr
-                              key={player._id || index}
-                              className="transition hover:bg-amber-50"
-                            >
-                              <td className="px-4 py-4">
-                                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-100 font-bold text-amber-700">
-                                  {index === 0
-                                    ? "🥇"
-                                    : index === 1
-                                    ? "🥈"
-                                    : index === 2
-                                    ? "🥉"
-                                    : index + 1}
-                                </span>
-                              </td>
+                    const foundPlayer = team?.players?.find(
+                      (p) => p.fullName === player.playerName
+                    );
 
-                              <td className="px-4 py-4">
-                                <div className="font-bold text-gray-900">
-                                  {player.playerName}
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                  חלוץ
-                                </div>
-                              </td>
+                    return {
+                      ...player,
+                      playerId: player.playerId || foundPlayer?.playerId,
+                    };
+                  })
+                  .sort((a, b) => Number(b.mvpAwards) - Number(a.mvpAwards))}
+                valueKey="mvpAwards"
+                emptyText="אין נתוני MVP עדיין"
+              />
 
-                              <td className="px-4 py-4 text-gray-700">
-                                {player.teamName}
-                              </td>
+              <StatsLeaderCard
+                leagueId={id}
+                title="כרטיסים כחולים"
+                icon="🟦"
+                items={getBlueCardsTable().map((player) => {
+                  const team = league.teams?.find(
+                    (t) => t.name === player.teamName
+                  );
 
-                              <td className="px-4 py-4 text-center">
-                                <span className="rounded-full bg-amber-100 px-4 py-2 text-lg font-extrabold text-amber-700">
-                                  {player.goals}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </section>
-            <section className="mt-8 rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/40 to-white p-6 shadow-sm">
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-extrabold text-gray-900">
-                    מלך הבישולים
-                  </h2>
-                  <p className="mt-1 text-sm text-gray-500">
-                    השחקנים עם הכי הרבה בישולים בליגה
-                  </p>
-                </div>
+                  const foundPlayer = team?.players?.find(
+                    (p) => p.fullName === player.playerName
+                  );
 
-                <span className="rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
-                  {league.topAssists?.length || 0} שחקנים
-                </span>
-              </div>
-
-              {canManage && (
-                <form
-                  onSubmit={handleAddTopAssist}
-                  className="mb-6 grid gap-3 rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm md:grid-cols-3"
-                >
-                  <input
-                    type="text"
-                    name="playerName"
-                    placeholder="שם השחקן"
-                    value={topAssistForm.playerName}
-                    onChange={handleTopAssistChange}
-                    className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none transition focus:border-emerald-500 focus:bg-white"
-                  />
-
-                  <select
-                    name="teamName"
-                    value={topAssistForm.teamName}
-                    onChange={handleTopAssistChange}
-                    className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none transition focus:border-emerald-500 focus:bg-white"
-                  >
-                    <option value="">בחר קבוצה</option>
-
-                    {league.teams?.map((team) => (
-                      <option key={team._id || team.name} value={team.name}>
-                        {team.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  <input
-                    type="number"
-                    min="0"
-                    name="assists"
-                    placeholder="כמות בישולים"
-                    value={topAssistForm.assists}
-                    onChange={handleTopAssistChange}
-                    className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none transition focus:border-emerald-500 focus:bg-white"
-                  />
-
-                  <button
-                    type="submit"
-                    className="rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-700 md:col-span-3"
-                  >
-                    הוסף שחקן
-                  </button>
-                </form>
-              )}
-
-              {topAssists.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-emerald-200 bg-white p-8 text-center text-gray-500">
-                  אין עדיין נתוני בישולים
-                </div>
-              ) : (
-                <div className="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm">
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                      <thead className="bg-emerald-600 text-sm text-white">
-                        <tr>
-                          <th className="px-4 py-4 text-right">מקום</th>
-                          <th className="px-4 py-4 text-right">שחקן</th>
-                          <th className="px-4 py-4 text-right">קבוצה</th>
-                          <th className="px-4 py-4 text-center">בישולים</th>
-                        </tr>
-                      </thead>
-
-                      <tbody className="divide-y divide-gray-100 text-sm">
-                        {topAssists.map((player, index) => (
-                          <tr
-                            key={player._id || index}
-                            className="transition hover:bg-emerald-50"
-                          >
-                            <td className="px-4 py-4">
-                              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 font-bold text-emerald-700">
-                                {index === 0
-                                  ? "🥇"
-                                  : index === 1
-                                  ? "🥈"
-                                  : index === 2
-                                  ? "🥉"
-                                  : index + 1}
-                              </span>
-                            </td>
-
-                            <td className="px-4 py-4">
-                              <div className="font-bold text-gray-900">
-                                {player.playerName}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                פליימייקר
-                              </div>
-                            </td>
-
-                            <td className="px-4 py-4 text-gray-700">
-                              {player.teamName}
-                            </td>
-
-                            <td className="px-4 py-4 text-center">
-                              <span className="rounded-full bg-emerald-100 px-4 py-2 text-lg font-extrabold text-emerald-700">
-                                {player.assists}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </section>
-            <section className="mt-8 rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
-              <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-2xl font-bold">🏆 מצטייני הליגה</h2>
-
-                <span className="text-sm text-gray-500">
-                  {league.topMvps?.length || 0} שחקנים
-                </span>
-              </div>
-
-              {league.topMvps?.length > 0 ? (
-                <div className="space-y-3">
-                  {[...league.topMvps]
-                    .sort((a, b) => b.mvpAwards - a.mvpAwards)
-                    .map((player, index) => (
-                      <div
-                        key={player._id}
-                        className="flex items-center justify-between rounded-2xl bg-white p-4"
-                      >
-                        <div>
-                          <p className="font-bold">{player.playerName}</p>
-                          <p className="text-sm text-gray-500">
-                            {player.teamName}
-                          </p>
-                        </div>
-
-                        <div className="text-center">
-                          <p className="text-2xl font-black text-yellow-600">
-                            {player.mvpAwards}
-                          </p>
-
-                          <p className="text-xs text-gray-500">MVP</p>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">אין נתוני MVP עדיין</p>
-              )}
-            </section>
-            <section className="mt-8 rounded-3xl border border-blue-100 bg-gradient-to-br from-white via-blue-50/40 to-white p-6 shadow-sm">
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-extrabold text-blue-900">
-                    🟦 טבלת כרטיסים כחולים
-                  </h2>
-
-                  <p className="mt-1 text-sm text-gray-500">
-                    דירוג השחקנים עם מספר הכרטיסים הכחולים הגבוה ביותר
-                  </p>
-                </div>
-
-                <span className="rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
-                  {getBlueCardsTable().length} שחקנים
-                </span>
-              </div>
-
-              {getBlueCardsTable().length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-blue-200 bg-white p-8 text-center text-gray-500">
-                  עדיין אין כרטיסים כחולים בליגה
-                </div>
-              ) : (
-                <div className="overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-sm">
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                      <thead className="bg-blue-600 text-sm text-white">
-                        <tr>
-                          <th className="px-4 py-4 text-right">מקום</th>
-                          <th className="px-4 py-4 text-right">שחקן</th>
-                          <th className="px-4 py-4 text-right">קבוצה</th>
-                          <th className="px-4 py-4 text-center">כרטיסים</th>
-                        </tr>
-                      </thead>
-
-                      <tbody className="divide-y divide-gray-100 text-sm">
-                        {getBlueCardsTable().map((player, index) => (
-                          <tr
-                            key={`${player.playerName}-${player.teamName}`}
-                            className="transition hover:bg-blue-50"
-                          >
-                            <td className="px-4 py-4">
-                              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-700">
-                                {index === 0
-                                  ? "🥇"
-                                  : index === 1
-                                  ? "🥈"
-                                  : index === 2
-                                  ? "🥉"
-                                  : index + 1}
-                              </span>
-                            </td>
-
-                            <td className="px-4 py-4">
-                              <div className="font-bold text-gray-900">
-                                {player.playerName}
-                              </div>
-
-                              <div className="text-xs text-gray-500">
-                                משמעת שחקנים
-                              </div>
-                            </td>
-
-                            <td className="px-4 py-4 text-gray-700">
-                              {player.teamName}
-                            </td>
-
-                            <td className="px-4 py-4 text-center">
-                              <span className="rounded-full bg-blue-100 px-4 py-2 text-lg font-extrabold text-blue-700">
-                                {player.blueCards}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </section>
-          </>
+                  return {
+                    ...player,
+                    playerId: player.playerId || foundPlayer?.playerId,
+                  };
+                })}
+                valueKey="blueCards"
+                emptyText="אין עדיין כרטיסים כחולים"
+              />
+            </div>
+          </section>
         )}
 
         <section className="mt-8 rounded-3xl border border-gray-200 p-6">
           {(() => {
-            const regularMembers = (league.members || []).map((m) => ({
-              key: m.email,
-              name: m.fullName || m.email,
-            }));
+            const regularMembers = (league.members || []).map((m) => {
+              const playerFromTeam = league.teams
+                ?.flatMap((team) => team.players || [])
+                ?.find((player) => player.email === m.email);
+
+              return {
+                key: m.email,
+                playerId: playerFromTeam?.playerId || m.playerId || m._id,
+                name: m.fullName || m.email,
+              };
+            });
+
             const personalEmails = new Set(
               (league.personalPlayers || []).map((p) => p.email).filter(Boolean)
             );
+
             const personalMembers = (league.personalPlayers || []).map((p) => ({
-              key: `pp-${p._id}`,
+              key: p.email || p._id,
+              playerId: p._id,
               name: p.fullName,
             }));
             const allMembers = isPersonalLeague
@@ -2560,9 +2063,18 @@ export default function LeagueDetailsPage() {
                         key={member.key}
                         className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3"
                       >
-                        <span className="font-medium text-gray-800">
-                          {member.name}
-                        </span>
+                        {member.playerId ? (
+                          <Link
+                            href={`/leagues/${id}/players/${member.playerId}`}
+                            className="font-medium text-gray-800 transition hover:text-emerald-600 hover:underline"
+                          >
+                            {member.name}
+                          </Link>
+                        ) : (
+                          <span className="font-medium text-gray-800">
+                            {member.name}
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -2589,5 +2101,90 @@ export default function LeagueDetailsPage() {
         isDanger
       />
     </main>
+  );
+}
+
+function LeagueMiniCard({ icon, value, title }) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 shadow-sm backdrop-blur">
+      <div className="flex flex-col items-center text-center">
+        <div className="text-3xl">{icon}</div>
+
+        <p className="mt-3 text-4xl font-black text-white">{value}</p>
+
+        <p className="mt-1 text-sm font-bold text-gray-400">{title}</p>
+      </div>
+    </div>
+  );
+}
+function StatsLeaderCard({
+  leagueId,
+  title,
+  icon,
+  items,
+  valueKey,
+  emptyText,
+}) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-lg font-black text-white">{title}</h3>
+        <span className="text-2xl">{icon}</span>
+      </div>
+
+      {!items || items.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-6 text-center text-sm font-bold text-gray-400">
+          {emptyText}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {items.slice(0, 5).map((player, index) => (
+            <div
+              key={
+                player._id || `${player.playerName}-${player.teamName}-${index}`
+              }
+              className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3"
+            >
+              <div>
+                {player.playerId ? (
+                  <Link
+                    href={`/leagues/${leagueId}/players/${player.playerId}`}
+                    className="font-black text-white transition hover:text-emerald-400 hover:underline"
+                  >
+                    {index === 0
+                      ? "🥇 "
+                      : index === 1
+                      ? "🥈 "
+                      : index === 2
+                      ? "🥉 "
+                      : ""}
+                    {player.playerName}
+                  </Link>
+                ) : (
+                  <p className="font-black text-white">
+                    {index === 0
+                      ? "🥇 "
+                      : index === 1
+                      ? "🥈 "
+                      : index === 2
+                      ? "🥉 "
+                      : ""}
+                    {player.playerName}
+                  </p>
+                )}
+
+                <p className="text-xs font-bold text-gray-400">
+                  {player.teamName}
+                </p>
+              </div>
+
+              <span className="rounded-full bg-emerald-400 px-3 py-1 text-sm font-black text-slate-950">
+                {player[valueKey] || 0}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

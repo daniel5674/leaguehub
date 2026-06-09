@@ -234,15 +234,14 @@ export default function Navbar() {
   if (!mounted) {
     return null;
   }
-
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050b14]/90 text-white backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex flex-row-reverse items-center gap-4">
             <Link
               href="/"
-              className="text-3xl font-extrabold tracking-tight text-gray-900 transition hover:opacity-80"
+              className="text-3xl font-black tracking-tight text-white transition hover:text-emerald-300"
             >
               LeagueHub
             </Link>
@@ -250,14 +249,14 @@ export default function Navbar() {
             {currentUser && (
               <Link
                 href="/profile"
-                className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-black hover:bg-black hover:text-white"
+                className="rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-slate-200 shadow-sm transition hover:border-emerald-400/40 hover:bg-emerald-400 hover:text-slate-950"
               >
                 הפרופיל שלי
               </Link>
             )}
           </div>
 
-          <nav className="flex items-center gap-2">
+          <nav className="hidden items-center gap-2 md:flex">
             {links.map((link) => {
               const isActive =
                 pathname === link.href ||
@@ -269,10 +268,10 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`rounded-2xl px-4 py-2 text-sm font-medium transition ${
+                  className={`rounded-2xl px-4 py-2 text-sm font-bold transition ${
                     isActive
-                      ? "bg-black text-white"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-black"
+                      ? "bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20"
+                      : "text-slate-300 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   {link.label}
@@ -288,6 +287,7 @@ export default function Navbar() {
                   (n) => !n.read
                 ).length;
                 const totalBadge = pendingCount + unreadPlayer;
+
                 return (
                   <div className="relative" ref={notificationsRef}>
                     <button
@@ -296,22 +296,23 @@ export default function Navbar() {
                         setNotificationsOpen((prev) => !prev);
                         if (unreadPlayer > 0) markPlayerNotifsRead();
                       }}
-                      className="relative rounded-full border border-gray-300 px-3 py-2 text-sm transition hover:bg-gray-100"
+                      className="relative rounded-full border border-white/10 bg-white/10 px-3 py-2 text-sm transition hover:bg-white/15"
                     >
                       🔔
                       {totalBadge > 0 && (
-                        <span className="absolute -right-1 -top-1 rounded-full bg-red-500 px-1.5 text-[10px] text-white">
+                        <span className="absolute -right-1 -top-1 rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
                           {totalBadge}
                         </span>
                       )}
                     </button>
 
                     {notificationsOpen && (
-                      <div className="absolute left-0 mt-3 w-80 rounded-2xl border border-gray-200 bg-white p-3 shadow-lg">
+                      <div className="absolute left-0 mt-3 w-80 rounded-3xl border border-white/10 bg-[#0b1220] p-3 text-white shadow-2xl">
                         <div className="mb-3 flex items-center justify-between">
-                          <h3 className="font-bold text-gray-900">התראות</h3>
+                          <h3 className="font-black">התראות</h3>
+
                           {totalBadge > 0 && (
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-slate-400">
                               {totalBadge} חדשות
                             </span>
                           )}
@@ -321,34 +322,37 @@ export default function Navbar() {
                           <>
                             {requests.length > 0 && (
                               <div className="mb-3">
-                                <p className="mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                <p className="mb-2 text-xs font-black uppercase tracking-wider text-slate-500">
                                   בקשות הצטרפות
                                 </p>
+
                                 <div className="space-y-3">
                                   {requests.map((req) => (
                                     <div
                                       key={req._id}
-                                      className="rounded-xl border border-gray-200 p-3"
+                                      className="rounded-2xl border border-white/10 bg-white/[0.05] p-3"
                                     >
-                                      <p className="text-sm font-medium text-gray-900">
+                                      <p className="text-sm font-bold text-white">
                                         {req.playerName || req.playerEmail}
                                       </p>
-                                      <p className="mt-1 text-xs text-gray-500">
+
+                                      <p className="mt-1 text-xs text-slate-400">
                                         רוצה להצטרף ל־{req.teamName}
                                       </p>
-                                      <p className="mt-1 text-xs text-gray-500">
+
+                                      <p className="mt-1 text-xs text-slate-400">
                                         ליגה: {req.leagueName}
                                       </p>
+
                                       <button
                                         type="button"
                                         onClick={() => {
                                           setNotificationsOpen(false);
-
                                           router.push(
                                             `/leagues/${req.leagueId}/players/${req.playerId}?requestId=${req._id}`
                                           );
                                         }}
-                                        className="mt-3 block w-full rounded-xl bg-black px-3 py-2 text-center text-sm font-semibold text-white transition hover:bg-gray-800"
+                                        className="mt-3 block w-full rounded-xl bg-emerald-400 px-3 py-2 text-center text-sm font-black text-slate-950 transition hover:bg-emerald-300"
                                       >
                                         הצג פרטי שחקן
                                       </button>
@@ -357,9 +361,10 @@ export default function Navbar() {
                                 </div>
                               </div>
                             )}
+
                             {requests.length > 0 &&
                               playerNotifications.length > 0 && (
-                                <hr className="my-3 border-gray-100" />
+                                <hr className="my-3 border-white/10" />
                               )}
                           </>
                         )}
@@ -369,16 +374,16 @@ export default function Navbar() {
                             {playerNotifications.slice(0, 8).map((n, i) => (
                               <div
                                 key={i}
-                                className={`rounded-xl p-3 text-sm ${
+                                className={`rounded-2xl p-3 text-sm ${
                                   n.read
-                                    ? "bg-gray-50 text-gray-600"
-                                    : "bg-blue-50 font-medium text-gray-800"
+                                    ? "bg-white/[0.05] text-slate-400"
+                                    : "bg-emerald-400/10 font-bold text-slate-100"
                                 }`}
                               >
                                 <p>{n.message}</p>
 
                                 {n.leagueName && (
-                                  <p className="mt-0.5 text-xs text-gray-400">
+                                  <p className="mt-0.5 text-xs text-slate-500">
                                     {n.leagueName}
                                   </p>
                                 )}
@@ -392,7 +397,7 @@ export default function Navbar() {
                                         `/leagues/${n.leagueId}/matches/${n.matchId}/update`
                                       );
                                     }}
-                                    className="mt-3 block w-full rounded-xl bg-black px-3 py-2 text-center text-sm font-semibold text-white transition hover:bg-gray-800"
+                                    className="mt-3 block w-full rounded-xl bg-emerald-400 px-3 py-2 text-center text-sm font-black text-slate-950 transition hover:bg-emerald-300"
                                   >
                                     דווח משחק
                                   </button>
@@ -403,12 +408,11 @@ export default function Navbar() {
                                     type="button"
                                     onClick={() => {
                                       setNotificationsOpen(false);
-
                                       router.push(
                                         `/leagues/${n.leagueId}/matches/${n.matchId}/review`
                                       );
                                     }}
-                                    className="mt-3 block w-full rounded-xl bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white transition hover:bg-blue-700"
+                                    className="mt-3 block w-full rounded-xl bg-yellow-400 px-3 py-2 text-center text-sm font-black text-slate-950 transition hover:bg-yellow-300"
                                   >
                                     בדוק דיווח משחק
                                   </button>
@@ -419,7 +423,7 @@ export default function Navbar() {
                         ) : (
                           (currentUser.role !== "manager" ||
                             requests.length === 0) && (
-                            <p className="text-sm text-gray-500">אין התראות</p>
+                            <p className="text-sm text-slate-400">אין התראות</p>
                           )
                         )}
 
@@ -427,7 +431,7 @@ export default function Navbar() {
                           <Link
                             href="/notifications"
                             onClick={() => setNotificationsOpen(false)}
-                            className="mt-3 block rounded-xl bg-gray-100 px-4 py-2 text-center text-sm text-gray-700 transition hover:bg-gray-200"
+                            className="mt-3 block rounded-xl bg-white/10 px-4 py-2 text-center text-sm font-bold text-slate-200 transition hover:bg-white/15"
                           >
                             לכל ההתראות
                           </Link>
@@ -443,17 +447,17 @@ export default function Navbar() {
                 <>
                   <button
                     onClick={() => setMenuOpen((prev) => !prev)}
-                    className="rounded-2xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                    className="rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-slate-200 transition hover:bg-white/15"
                   >
                     התחברות / הרשמה
                   </button>
 
                   {menuOpen && (
-                    <div className="absolute left-0 mt-3 w-44 rounded-2xl border border-gray-200 bg-white p-2 shadow-lg">
+                    <div className="absolute left-0 mt-3 w-44 rounded-2xl border border-white/10 bg-[#0b1220] p-2 shadow-2xl">
                       <Link
                         href="/login"
                         onClick={() => setMenuOpen(false)}
-                        className="block rounded-xl px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100"
+                        className="block rounded-xl px-4 py-2 text-sm font-bold text-slate-300 transition hover:bg-white/10 hover:text-white"
                       >
                         התחברות
                       </Link>
@@ -461,7 +465,7 @@ export default function Navbar() {
                       <Link
                         href="/register"
                         onClick={() => setMenuOpen(false)}
-                        className="block rounded-xl px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100"
+                        className="block rounded-xl px-4 py-2 text-sm font-bold text-slate-300 transition hover:bg-white/10 hover:text-white"
                       >
                         הרשמה
                       </Link>
@@ -472,18 +476,18 @@ export default function Navbar() {
                 <>
                   <button
                     onClick={() => setMenuOpen((prev) => !prev)}
-                    className="rounded-2xl border border-green-300 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-100"
+                    className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-black text-emerald-300 transition hover:bg-emerald-400 hover:text-slate-950"
                   >
                     🟢 מחובר
                   </button>
 
                   {menuOpen && (
-                    <div className="absolute left-0 mt-3 w-52 rounded-2xl border border-gray-200 bg-white p-2 shadow-lg">
+                    <div className="absolute left-0 mt-3 w-52 rounded-2xl border border-white/10 bg-[#0b1220] p-2 shadow-2xl">
                       {currentUser?.role === "manager" && (
                         <Link
                           href="/leagues/create"
                           onClick={() => setMenuOpen(false)}
-                          className="block rounded-xl px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100"
+                          className="block rounded-xl px-4 py-2 text-sm font-bold text-slate-300 transition hover:bg-white/10 hover:text-white"
                         >
                           צור ליגה
                         </Link>
@@ -494,7 +498,7 @@ export default function Navbar() {
                           logout();
                           setMenuOpen(false);
                         }}
-                        className="block w-full rounded-xl px-4 py-2 text-right text-sm text-red-500 transition hover:bg-red-50 hover:text-red-700"
+                        className="block w-full rounded-xl px-4 py-2 text-right text-sm font-bold text-red-300 transition hover:bg-red-500/10 hover:text-red-200"
                       >
                         התנתק
                       </button>

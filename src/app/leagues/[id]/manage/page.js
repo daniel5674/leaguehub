@@ -105,9 +105,7 @@ export default function ManagePage() {
 
   const roster = league.personalPlayers || [];
 
-  const registeredEmails = new Set(
-    roster.map((p) => p.email).filter(Boolean)
-  );
+  const registeredEmails = new Set(roster.map((p) => p.email).filter(Boolean));
 
   const filteredUsers = siteUsers.filter((u) => {
     if (registeredEmails.has(u.email)) return false;
@@ -175,9 +173,9 @@ export default function ManagePage() {
                       {player.fullName?.charAt(0)}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <Link href={`/leagues/${id}/players/${player.playerId}`}>
                         {player.fullName}
-                      </p>
+                      </Link>
                       {player.email && (
                         <p className="text-xs text-gray-400">{player.email}</p>
                       )}

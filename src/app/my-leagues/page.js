@@ -48,74 +48,139 @@ export default function MyLeaguesPage() {
 
   if (!isLoaded || loading) {
     return (
-      <main className="mx-auto max-w-6xl px-6 py-12">
-        <p className="text-gray-500">טוען ליגות...</p>
+      <main
+        dir="rtl"
+        className="relative min-h-screen overflow-hidden bg-slate-950 px-6 py-12 text-white"
+      >
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
+        </div>
+
+        <div className="relative mx-auto max-w-6xl">
+          <p className="text-slate-300">טוען ליגות...</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">הליגות שלי</h1>
-          <p className="mt-2 text-gray-500">
-            כאן תוכל לראות את כל הליגות שיצרת
-          </p>
-        </div>
+    <main
+      dir="rtl"
+      className="relative min-h-screen overflow-hidden bg-slate-950 px-6 py-12 text-white"
+    >
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
 
-        <Link
-          href="/leagues/create"
-          className="rounded-2xl bg-black px-4 py-2 text-white transition hover:bg-gray-800"
-        >
-          צור ליגה
-        </Link>
+        <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
+
+        <div className="absolute bottom-0 left-1/2 h-[700px] w-[1200px] -translate-x-1/2 opacity-[0.06]">
+          <div className="absolute bottom-0 h-full w-full rounded-t-[500px] border-4 border-white" />
+          <div className="absolute bottom-0 left-1/2 h-full w-px -translate-x-1/2 bg-white" />
+          <div className="absolute bottom-0 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full border-4 border-white" />
+          <div className="absolute bottom-0 left-1/2 h-72 w-[420px] -translate-x-1/2 border-4 border-white" />
+        </div>
       </div>
 
-      {leagues.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-300 p-10 text-center">
-          <p className="mb-4 text-gray-500">עדיין לא יצרת ליגות</p>
+      <div className="relative mx-auto max-w-6xl">
+        <div className="mb-10 flex flex-col gap-5 rounded-3xl border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur md:flex-row md:items-center md:justify-between">
+          <div>
+            <span className="mb-3 inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-1 text-sm font-bold text-emerald-300">
+              LeagueHub
+            </span>
+
+            <h1 className="text-4xl font-black">הליגות שלי</h1>
+
+            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">
+              כאן תוכל לראות את כל הליגות שיצרת, להיכנס לניהול הליגה, לעקוב אחרי
+              קבוצות, משחקים וסטטוס הפעילות.
+            </p>
+          </div>
 
           <Link
             href="/leagues/create"
-            className="rounded-2xl bg-black px-4 py-2 text-white transition hover:bg-gray-800"
+            className="rounded-2xl bg-emerald-400 px-5 py-3 text-center text-sm font-black text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-300"
           >
-            צור ליגה ראשונה
+            צור ליגה חדשה
           </Link>
         </div>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {leagues.map((league) => (
+
+        {leagues.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-white/15 bg-white/10 p-12 text-center backdrop-blur">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-400/10 text-3xl">
+              🏆
+            </div>
+
+            <h2 className="mb-2 text-2xl font-black">עדיין לא יצרת ליגות</h2>
+
+            <p className="mb-6 text-sm text-slate-300">
+              צור את הליגה הראשונה שלך והתחל לנהל קבוצות, משחקים וטבלאות.
+            </p>
+
             <Link
-              key={league.id || league._id}
-              href={`/leagues/${league.id || league._id}`}
-              className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+              href="/leagues/create"
+              className="inline-flex rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
             >
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">
-                  {league.name}
-                </h2>
-
-                <span className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600">
-                  {league.status}
-                </span>
-              </div>
-
-              <p className="mb-2 text-sm text-gray-500">{league.sport}</p>
-              <p className="mb-3 text-sm text-gray-500">{league.location}</p>
-
-              <p className="mb-5 line-clamp-2 text-sm text-gray-600">
-                {league.description || "ללא תיאור"}
-              </p>
-
-              <div className="flex items-center justify-between text-sm text-gray-500">
-                <span>קבוצות: {league.teamsCount || 0}</span>
-                <span>משחקים: {league.matches?.length || 0}</span>
-              </div>
+              צור ליגה ראשונה
             </Link>
-          ))}
-        </div>
-      )}
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {leagues.map((league) => (
+              <Link
+                key={league.id || league._id}
+                href={`/leagues/${league.id || league._id}`}
+                className="group rounded-3xl border border-white/10 bg-white/10 p-5 shadow-xl backdrop-blur transition hover:-translate-y-1 hover:border-emerald-400/40 hover:bg-white/15"
+              >
+                <div className="mb-5 flex items-start justify-between gap-4">
+                  <div>
+                    <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400/15 text-lg font-black text-emerald-300">
+                      {league.name?.charAt(0)}
+                    </div>
+
+                    <h2 className="text-lg font-black text-white">
+                      {league.name}
+                    </h2>
+                  </div>
+
+                  <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-bold text-slate-300">
+                    {league.status}
+                  </span>
+                </div>
+
+                <div className="mb-4 space-y-1 text-sm text-slate-300">
+                  <p>ענף: {league.sport || "לא צוין"}</p>
+                  <p>מיקום: {league.location || "לא צוין"}</p>
+                </div>
+
+                <p className="mb-4 line-clamp-2 text-sm leading-5 text-slate-400">
+                  {league.description || "ללא תיאור"}
+                </p>
+
+                <div className="grid grid-cols-2 gap-3 border-t border-white/10 pt-5">
+                  <div className="rounded-xl bg-slate-950/40 p-3">
+                    <p className="text-xs text-slate-400">קבוצות</p>
+                    <p className="mt-1 text-xl font-black text-white">
+                      {league.teamsCount || league.teams?.length || 0}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-slate-950/40 p-3">
+                    <p className="text-xs text-slate-400">משחקים</p>
+                    <p className="mt-1 text-xl font-black text-white">
+                      {league.matches?.length || 0}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 text-sm font-bold text-emerald-300 opacity-0 transition group-hover:opacity-100">
+                  כניסה לליגה ←
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </main>
   );
 }
