@@ -1885,8 +1885,15 @@ export default function LeagueDetailsPage() {
                                 ? "🥉"
                                 : index + 1}
                             </td>
-                            <td className="px-3 py-3 font-black text-white">
-                              {row.team}
+                            <td className="px-3 py-3 font-black">
+                              <Link
+                                href={`/leagues/${id}/teams/${encodeURIComponent(
+                                  row.team
+                                )}`}
+                                className="text-white transition hover:text-emerald-400 hover:underline"
+                              >
+                                {row.team}
+                              </Link>
                             </td>
                             <td className="px-3 py-3 text-center text-gray-300">
                               {row.played}
