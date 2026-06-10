@@ -1,13 +1,13 @@
 export const pageBg =
-  "relative min-h-screen overflow-hidden bg-[#07140c] px-4 py-8 text-white";
+  "relative min-h-screen overflow-hidden px-4 py-8 text-white";
 
 export const pageGlow = "pointer-events-none absolute inset-0 overflow-hidden";
 
 export const card =
-  "rounded-[2rem] border border-white/10 bg-white/[0.09] shadow-2xl backdrop-blur";
+  "rounded-[2rem] border border-white/25 bg-[#173326]/65 shadow-2xl backdrop-blur-md";
 
 export const softCard =
-  "rounded-3xl border border-white/10 bg-white/[0.06] backdrop-blur";
+  "rounded-3xl border border-white/25 bg-[#173326]/65 backdrop-blur-md";
 
 export const input =
   "rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400";
@@ -40,7 +40,7 @@ export const navLinkInactive =
   "text-slate-300 hover:bg-white/10 hover:text-white";
 
 export const statCard =
-  "rounded-3xl border border-white/10 bg-white/[0.06] p-5 shadow-sm backdrop-blur";
+  "rounded-3xl border border-white/25 bg-[#173326]/65 p-5 shadow-sm backdrop-blur-md";
 
 export const profilePanel =
-  "rounded-[2rem] border border-white/10 bg-white/[0.09] shadow-2xl backdrop-blur";
+  "rounded-[2rem] border border-white/25 bg-[#173326]/65 shadow-2xl backdrop-blur-md";

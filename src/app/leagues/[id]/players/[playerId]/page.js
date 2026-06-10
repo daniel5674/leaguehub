@@ -444,7 +444,7 @@ export default function PlayerPage() {
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-6">
+              <div className="rounded-3xl border border-white/25 bg-[#173326]/65 p-6 backdrop-blur-md">
                 <h2 className="text-xl font-black">מידע שחקן</h2>
 
                 <div className="mt-5 space-y-3 text-sm">

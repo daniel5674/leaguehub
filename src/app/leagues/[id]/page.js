@@ -1134,7 +1134,7 @@ export default function LeagueDetailsPage() {
         </div>
 
         {activeTab === "league-page" && isPersonalLeague && (
-          <section className="mb-8 rounded-[2rem] border border-white/10 bg-white/[0.09] p-6 backdrop-blur">
+          <section className="mb-8 rounded-[2rem] border border-white/25 bg-[#173326]/65 p-6 backdrop-blur-md">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="text-2xl font-black text-white">
                 שחקני הליגה האישית
@@ -1145,7 +1145,7 @@ export default function LeagueDetailsPage() {
             </div>
 
             {!league.personalPlayers || league.personalPlayers.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-8 text-center text-gray-400">
+              <div className="rounded-2xl border border-dashed border-white/25 bg-[#173326]/55 p-8 text-center text-gray-400 backdrop-blur-sm">
                 עדיין אין שחקנים בליגה האישית
               </div>
             ) : (

@@ -1,5 +1,5 @@
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
+import SiteShell from "@/components/layout/SiteShell";
 import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata = {
@@ -12,8 +12,7 @@ export default function RootLayout({ children }) {
     <html lang="he" dir="rtl">
       <body>
         <AuthProvider>
-          <Navbar />
-          {children}
+          <SiteShell>{children}</SiteShell>
         </AuthProvider>
       </body>
     </html>

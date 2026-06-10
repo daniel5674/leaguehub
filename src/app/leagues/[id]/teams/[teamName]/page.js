@@ -223,7 +223,7 @@ export default function TeamPage() {
           חזרה לליגה
         </button>
 
-        <section className="mb-5 rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl backdrop-blur">
+        <section className="mb-5 rounded-[2rem] border border-white/25 bg-[#173326]/65 p-5 shadow-2xl backdrop-blur-md">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-400 text-3xl font-black text-slate-950 shadow-lg">
@@ -251,7 +251,7 @@ export default function TeamPage() {
           </div>
         </section>
 
-        <div className="mb-5 flex gap-2 overflow-x-auto rounded-3xl border border-white/10 bg-white/[0.04] p-2">
+        <div className="mb-5 flex gap-2 overflow-x-auto rounded-3xl border border-white/25 bg-[#173326]/65 p-2 backdrop-blur-md">
           <TabButton
             active={activeTab === "overview"}
             onClick={() => setActiveTab("overview")}
@@ -283,7 +283,7 @@ export default function TeamPage() {
 
         {activeTab === "overview" && (
           <div className="grid gap-5 lg:grid-cols-3">
-            <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur lg:col-span-2">
+            <section className="rounded-[2rem] border border-white/25 bg-[#173326]/65 p-5 backdrop-blur-md lg:col-span-2">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-black">המשחק הבא</h2>
                 <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-black text-emerald-300">
@@ -312,7 +312,7 @@ export default function TeamPage() {
               )}
             </section>
 
-            <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+            <section className="rounded-[2rem] border border-white/25 bg-[#173326]/65 p-5 backdrop-blur-md">
               <h2 className="mb-4 text-xl font-black">כושר אחרון</h2>
 
               {recentForm.length === 0 ? (
@@ -356,7 +356,7 @@ export default function TeamPage() {
         )}
 
         {activeTab === "players" && (
-          <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+          <section className="rounded-[2rem] border border-white/25 bg-[#173326]/65 p-5 backdrop-blur-md">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-xl font-black">סגל הקבוצה</h2>
               <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
@@ -375,7 +375,7 @@ export default function TeamPage() {
                     onClick={() =>
                       router.push(`/leagues/${id}/players/${player.playerId}`)
                     }
-                    className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-right transition hover:bg-white/[0.09]"
+                    className="flex w-full items-center justify-between rounded-2xl border border-white/20 bg-[#173326]/55 px-4 py-3 text-right backdrop-blur-sm transition hover:bg-[#173326]/75"
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 font-black">
@@ -409,7 +409,7 @@ export default function TeamPage() {
         )}
 
         {activeTab === "matches" && (
-          <section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+          <section className="rounded-[2rem] border border-white/25 bg-[#173326]/65 p-5 backdrop-blur-md">
             <h2 className="mb-4 text-xl font-black">משחקים אחרונים</h2>
 
             {approvedMatches.length === 0 ? (
@@ -429,7 +429,7 @@ export default function TeamPage() {
                           `/leagues/${id}/matches/${match._id || match.id}`
                         )
                       }
-                      className="cursor-pointer rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 transition hover:bg-white/[0.09]"
+                      className="cursor-pointer rounded-2xl border border-white/20 bg-[#173326]/55 px-4 py-3 backdrop-blur-sm transition hover:bg-[#173326]/75"
                     >
                       <div className="flex items-center justify-between">
                         <p className="font-black">
@@ -498,7 +498,7 @@ function LeaderCard({
   label,
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-900 p-6 text-white shadow-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl">
+    <div className="group relative overflow-hidden rounded-[2rem] border border-white/25 bg-[#173326]/65 p-6 text-white shadow-xl backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-[#173326]/75 hover:shadow-2xl">
       <div className="absolute -left-10 -top-10 h-32 w-32 rounded-full bg-emerald-400/20 blur-3xl" />
       <div className="absolute -bottom-10 -right-10 h-36 w-36 rounded-full bg-blue-400/20 blur-3xl" />
 
@@ -538,7 +538,7 @@ function LeaderCard({
 
 function MiniStat({ title, value }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-center">
+    <div className="rounded-2xl border border-white/20 bg-[#173326]/55 px-4 py-3 text-center backdrop-blur-sm">
       <p className="text-xl font-black text-white">{value}</p>
       <p className="mt-1 text-xs font-bold text-gray-400">{title}</p>
     </div>
@@ -547,7 +547,7 @@ function MiniStat({ title, value }) {
 
 function CompactStat({ title, value }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-4">
+    <div className="rounded-3xl border border-white/25 bg-[#173326]/65 p-4 backdrop-blur-md">
       <p className="text-xs font-bold text-gray-400">{title}</p>
       <p className="mt-2 text-3xl font-black text-emerald-300">{value}</p>
     </div>
@@ -572,7 +572,7 @@ function TabButton({ active, onClick, children }) {
 
 function TeamBox({ label, name }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 text-center">
+    <div className="rounded-3xl border border-white/25 bg-[#173326]/65 p-5 text-center backdrop-blur-md">
       <p className="text-xs font-bold text-gray-400">{label}</p>
       <p className="mt-2 text-2xl font-black">{name}</p>
     </div>

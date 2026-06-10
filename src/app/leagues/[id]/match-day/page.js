@@ -50,7 +50,7 @@ function Spinner({ value, onChange, min = 0, max = 20, label, disabled }) {
           −
         </button>
         <span className="min-w-[2.5rem] text-center text-base font-black text-white">
-          {value || "∞"}
+          {value}
         </span>
         <button
           type="button"
@@ -75,7 +75,7 @@ export default function MatchDayPage() {
   const [waitingList, setWaitingList] = useState([]);
   const [goalkeepers, setGoalkeepers] = useState([]);
   const [dailyCap, setDailyCap] = useState(0);
-  const [goalkeeperCount, setGoalkeeperCount] = useState(1);
+  const [goalkeeperCount, setGoalkeeperCount] = useState(0);
   const [teamsCount, setTeamsCount] = useState(2);
   const [generating, setGenerating] = useState(false);
   const [finalTeams, setFinalTeams] = useState(null);
@@ -274,7 +274,7 @@ export default function MatchDayPage() {
 
       <div className="relative mx-auto max-w-5xl space-y-6 px-6 py-8">
         {nextMatch && (
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+          <div className="rounded-3xl border border-white/25 bg-[#173326]/65 p-5 backdrop-blur-md">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-white/40">
               המשחק הקרוב
             </p>
@@ -306,7 +306,7 @@ export default function MatchDayPage() {
 
         {/* Settings bar */}
         {isOwner && (
-          <div className="rounded-3xl border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-sm">
+          <div className="rounded-3xl border border-white/25 bg-[#173326]/65 px-6 py-4 backdrop-blur-md">
             {!settingsConfirmed ? (
               <div className="flex flex-wrap items-center gap-4">
                 <Spinner
@@ -321,7 +321,7 @@ export default function MatchDayPage() {
                   label="שוערים"
                   value={goalkeeperCount}
                   onChange={handleGoalkeeperCountChange}
-                  min={1}
+                  min={0}
                   max={6}
                 />
                 <div className="mr-auto">
@@ -339,7 +339,7 @@ export default function MatchDayPage() {
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold text-white/50">שחקנים היום:</span>
                   <span className="rounded-xl bg-white/10 px-4 py-1.5 text-base font-black text-white">
-                    {dailyCap || "∞"}
+                    {dailyCap}
                   </span>
                 </div>
                 <div className="h-6 w-px bg-white/10" />
@@ -375,7 +375,7 @@ export default function MatchDayPage() {
           }`}
         >
           {/* Roster */}
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+          <div className="rounded-3xl border border-white/25 bg-[#173326]/65 p-5 backdrop-blur-md">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-bold text-white/80">כל השחקנים</h2>
               <span className="rounded-full bg-white/10 px-3 py-0.5 text-sm font-bold text-white/60">
@@ -449,7 +449,7 @@ export default function MatchDayPage() {
           </div>
 
           {/* Today's squad */}
-          <div className="rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-5">
+          <div className="rounded-3xl border border-white/25 bg-[#173326]/65 p-5 backdrop-blur-md">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-bold text-emerald-300">משחק היום</h2>
               <span className="rounded-full bg-emerald-500/20 px-3 py-0.5 text-sm font-bold text-emerald-300">
@@ -542,7 +542,7 @@ export default function MatchDayPage() {
 
           {/* Waiting list */}
           {waitingList.length > 0 && (
-            <div className="rounded-3xl border border-amber-500/20 bg-amber-500/5 p-5">
+            <div className="rounded-3xl border border-white/25 bg-[#173326]/65 p-5 backdrop-blur-md">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-bold text-amber-300">ממתינים</h2>
                 <span className="rounded-full bg-amber-500/20 px-3 py-0.5 text-sm font-bold text-amber-300">
@@ -593,7 +593,7 @@ export default function MatchDayPage() {
 
         {/* Generate teams */}
         {isOwner && settingsConfirmed && (
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+          <div className="rounded-3xl border border-white/25 bg-[#173326]/65 p-6 backdrop-blur-md">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-bold text-white">צור קבוצות מאוזנות</h2>
               <div className="flex items-center gap-2">

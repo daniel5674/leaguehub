@@ -112,7 +112,7 @@ export default function BlockedPlayersPage() {
           {loading ? (
             <p className="text-sm font-bold text-slate-400">טוען חסימות...</p>
           ) : blockedPlayers.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-white/10 bg-slate-950/40 py-12 text-center text-sm font-bold text-slate-400">
+            <div className="rounded-3xl border border-dashed border-white/25 bg-[#173326]/65 py-12 text-center text-sm font-bold text-slate-400 backdrop-blur-md">
               אין שחקנים שחסומים לצמיתות
             </div>
           ) : (
@@ -120,7 +120,7 @@ export default function BlockedPlayersPage() {
               {blockedPlayers.map((player) => (
                 <div
                   key={player._id}
-                  className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-slate-950/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-4 rounded-3xl border border-white/25 bg-[#173326]/65 px-5 py-4 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
                     <p className="font-black text-white">

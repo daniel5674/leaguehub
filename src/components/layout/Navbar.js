@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -250,8 +251,15 @@ export default function Navbar() {
               href="/"
               className="group flex items-center gap-2 text-3xl font-black tracking-tight text-white transition hover:text-emerald-300"
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-400 text-lg text-slate-950 shadow-lg shadow-emerald-500/20 transition group-hover:scale-105">
-                ⚽
+              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-[#07140c] shadow-[0_0_16px_rgba(74,222,128,0.4)] transition group-hover:scale-105 group-hover:shadow-[0_0_22px_rgba(74,222,128,0.6)]">
+                <Image
+                  src="/icons/champions-ball.png"
+                  alt="כדור בסגנון ליגת האלופות"
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 object-contain"
+                  priority
+                />
               </span>
               <span>LeagueHub</span>
             </Link>
