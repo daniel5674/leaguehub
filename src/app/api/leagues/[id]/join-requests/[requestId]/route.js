@@ -8,7 +8,7 @@ export async function PATCH(request, { params }) {
     const { id, requestId } = await params;
     const { action } = await request.json();
 
-    if (!["approve", "reject"].includes(action)) {
+    if (!["approve", "reject", "permanent-block"].includes(action)) {
       return NextResponse.json({ message: "פעולה לא תקינה" }, { status: 400 });
     }
 
@@ -161,12 +161,49 @@ export async function PATCH(request, { params }) {
       league.joinRequests[requestIndex].status = "rejected";
     }
 
+    if (action === "permanent-block") {
+      if (!league.blockedPlayers) {
+        league.blockedPlayers = [];
+      }
+
+      const normalizedEmail = joinRequest.playerEmail.trim().toLowerCase();
+      const alreadyBlocked = league.blockedPlayers.some(
+        (blockedPlayer) =>
+          blockedPlayer.playerEmail?.trim().toLowerCase() === normalizedEmail ||
+          String(blockedPlayer.playerId) === String(joinRequest.playerId)
+      );
+
+      if (!alreadyBlocked) {
+        league.blockedPlayers.push({
+          playerId: joinRequest.playerId,
+          playerEmail: normalizedEmail,
+          playerName: joinRequest.playerName || "",
+          blockedBy: currentUser.email || currentUser.userId,
+        });
+      }
+
+      league.joinRequests.forEach((requestItem) => {
+        const isSamePlayer =
+          requestItem.playerEmail?.trim().toLowerCase() === normalizedEmail ||
+          String(requestItem.playerId) === String(joinRequest.playerId);
+
+        if (isSamePlayer && requestItem.status === "pending") {
+          requestItem.status = "rejected";
+        }
+      });
+    }
+
     await league.save();
 
     return NextResponse.json({
       ...league.toObject(),
       id: league._id,
-      message: action === "approve" ? "הבקשה אושרה" : "הבקשה נדחתה",
+      message:
+        action === "approve"
+          ? "הבקשה אושרה"
+          : action === "permanent-block"
+            ? "השחקן נחסם לצמיתות"
+            : "הבקשה נדחתה",
     });
   } catch (error) {
     console.error("PATCH join request error:", error);

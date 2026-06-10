@@ -83,6 +83,19 @@ export async function POST(request, { params }) {
       league.joinRequests = [];
     }
 
+    const isPermanentlyBlocked = league.blockedPlayers?.some(
+      (blockedPlayer) =>
+        blockedPlayer.playerEmail?.trim().toLowerCase() === normalizedEmail ||
+        String(blockedPlayer.playerId) === String(user._id)
+    );
+
+    if (isPermanentlyBlocked) {
+      return NextResponse.json(
+        { message: "לא ניתן לשלוח בקשת הצטרפות לליגה זו" },
+        { status: 403 }
+      );
+    }
+
     const pendingRequestExists = league.joinRequests.some(
       (request) =>
         request.playerEmail?.trim().toLowerCase() === normalizedEmail &&

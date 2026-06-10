@@ -486,7 +486,7 @@ export default function PlayerPage() {
                     השחקן ביקש להצטרף ל־{playerData.teamName}
                   </p>
 
-                  <div className="mt-5 grid grid-cols-2 gap-3">
+                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
                     <button
                       type="button"
                       onClick={() => handleJoinRequest("approve")}
@@ -498,9 +498,22 @@ export default function PlayerPage() {
                     <button
                       type="button"
                       onClick={() => handleJoinRequest("reject")}
-                      className={`${dangerButton} py-3`}
+                      className={`${secondaryButton} py-3`}
                     >
                       דחה
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const confirmed = window.confirm(
+                          "השחקן לא יוכל לשלוח בקשות נוספות לליגה עד לביטול החסימה. להמשיך?"
+                        );
+                        if (confirmed) handleJoinRequest("permanent-block");
+                      }}
+                      className={`${dangerButton} py-3`}
+                    >
+                      חסימה קבועה
                     </button>
                   </div>
                 </div>
