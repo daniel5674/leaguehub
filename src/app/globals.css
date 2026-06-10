@@ -24,3 +24,52 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.site-shell {
+  min-height: 100vh;
+}
+
+.site-shell:not(.auth-shell) {
+  position: relative;
+  isolation: isolate;
+  background-color: #176b36;
+  background-image:
+    linear-gradient(rgb(3 24 12 / 42%), rgb(3 24 12 / 42%)),
+    url("/backgrounds/football-pitch.png");
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.site-content {
+  position: relative;
+  z-index: 1;
+  min-height: calc(100vh - 80px);
+}
+
+.site-shell:not(.auth-shell) .site-content > main,
+.site-shell:not(.auth-shell) .site-content > div {
+  position: relative;
+  z-index: 1;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.site-shell:not(.auth-shell) .site-content > main > .pointer-events-none.absolute.inset-0,
+.site-shell:not(.auth-shell) .site-content > div > .pointer-events-none.absolute.inset-0 {
+  display: none;
+}
+
+.site-shell:not(.auth-shell) .site-content :is(section, article, aside, div)[class*="rounded-3xl"][class*="backdrop-blur"],
+.site-shell:not(.auth-shell) .site-content :is(section, article, aside, div)[class*="rounded-[2rem]"][class*="backdrop-blur"] {
+  border-color: rgb(255 255 255 / 25%);
+  background-color: rgb(23 51 38 / 65%);
+  backdrop-filter: blur(12px);
+}
+
+@media (max-width: 768px) {
+  .site-shell:not(.auth-shell) {
+    background-position: center top;
+  }
+}

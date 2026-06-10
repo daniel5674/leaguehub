@@ -205,7 +205,7 @@ export default function ManagePage() {
           </div>
 
           {roster.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-white/10 bg-slate-950/40 py-10 text-center text-sm font-bold text-slate-400">
+            <div className="rounded-3xl border border-dashed border-white/25 bg-[#173326]/65 py-10 text-center text-sm font-bold text-slate-400 backdrop-blur-md">
               אין שחקנים עדיין. הוסף שחקנים מהרשימה למטה.
             </div>
           ) : (
@@ -213,7 +213,7 @@ export default function ManagePage() {
               {roster.map((player) => (
                 <div
                   key={player._id}
-                  className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/40 px-4 py-3 transition hover:bg-white/[0.08]"
+                  className="flex items-center justify-between rounded-3xl border border-white/25 bg-[#173326]/65 px-4 py-3 backdrop-blur-md transition hover:bg-[#173326]/75"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-sm font-black text-white">
@@ -282,7 +282,7 @@ export default function ManagePage() {
             />
 
             {filteredUsers.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-white/10 bg-slate-950/40 py-10 text-center text-sm font-bold text-slate-400">
+              <div className="rounded-3xl border border-dashed border-white/25 bg-[#173326]/65 py-10 text-center text-sm font-bold text-slate-400 backdrop-blur-md">
                 {search ? "לא נמצאו משתמשים" : "כל המשתמשים כבר ברשימה"}
               </div>
             ) : (
@@ -295,7 +295,7 @@ export default function ManagePage() {
                   return (
                     <div
                       key={key}
-                      className="flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/40 px-4 py-3 transition hover:bg-white/[0.08]"
+                      className="flex items-center justify-between rounded-3xl border border-white/25 bg-[#173326]/65 px-4 py-3 backdrop-blur-md transition hover:bg-[#173326]/75"
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-sm font-black text-white">

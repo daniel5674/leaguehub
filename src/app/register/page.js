@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -87,18 +88,18 @@ export default function RegisterPage() {
       {/* Content */}
       <div className="relative z-10 w-full max-w-sm">
 
-        {/* Football SVG */}
+        {/* Glowing football */}
         <div className="mb-6 flex justify-center">
-          <svg width="72" height="72" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_0_20px_rgba(74,222,128,0.5)]">
-            <circle cx="50" cy="50" r="46" fill="#1a2a1a" stroke="white" strokeWidth="2.5" />
-            <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="8" />
-            <polygon points="50,18 62,27 58,41 42,41 38,27" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
-            <polygon points="18,40 30,32 42,41 38,55 24,58" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
-            <polygon points="82,40 70,32 58,41 62,55 76,58" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
-            <polygon points="26,74 24,58 38,55 46,66 38,78" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
-            <polygon points="74,74 76,58 62,55 54,66 62,78" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
-            <polygon points="50,82 38,78 46,66 54,66 62,78" fill="white" stroke="#1a2a1a" strokeWidth="1.5" />
-          </svg>
+          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] shadow-[0_0_24px_rgba(74,222,128,0.45),0_0_55px_rgba(34,197,94,0.18)]">
+            <Image
+              src="/icons/champions-ball.png"
+              alt="כדור בסגנון ליגת האלופות"
+              width={88}
+              height={88}
+              className="h-[88px] w-[88px] object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.5)]"
+              priority
+            />
+          </div>
         </div>
 
         <div className="mb-2 text-center">

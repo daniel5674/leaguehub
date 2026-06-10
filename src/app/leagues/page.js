@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   pageBg,
   pageGlow,
@@ -18,8 +19,11 @@ export default function LeaguesPage() {
   const [leagues, setLeagues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
 
   const { currentUser } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchLeagues = async () => {
@@ -48,19 +52,107 @@ export default function LeaguesPage() {
     fetchLeagues();
   }, []);
 
-  const personalLeagues = leagues.filter(
-    (league) => league.leagueType === "personal"
-  );
-
-  const teamLeagues = leagues.filter(
-    (league) => league.leagueType !== "personal"
-  );
-
   const filteredLeagues = useMemo(() => {
-    if (activeTab === "personal") return personalLeagues;
-    if (activeTab === "teams") return teamLeagues;
+    if (activeTab === "personal") {
+      return leagues.filter((league) => league.leagueType === "personal");
+    }
+    if (activeTab === "teams") {
+      return leagues.filter((league) => league.leagueType !== "personal");
+    }
     return leagues;
   }, [activeTab, leagues]);
+
+  const searchResults = useMemo(() => {
+    const query = searchQuery.trim().toLocaleLowerCase("he");
+    if (!query) return [];
+
+    const results = [];
+
+    leagues.forEach((league) => {
+      const leagueId = String(league.id || league._id);
+      const leagueName = league.name || "ליגה ללא שם";
+      const leagueSearchText = [
+        leagueName,
+        league.sport,
+        league.location,
+        league.description,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase("he");
+
+      if (leagueSearchText.includes(query)) {
+        results.push({
+          key: `league-${leagueId}`,
+          type: "ליגה",
+          icon: "🏆",
+          name: leagueName,
+          subtitle:
+            league.leagueType === "personal" ? "ליגה אישית" : "ליגה קבוצתית",
+          href: `/leagues/${leagueId}`,
+        });
+      }
+
+      (league.teams || []).forEach((team) => {
+        if (team.name?.toLocaleLowerCase("he").includes(query)) {
+          results.push({
+            key: `team-${leagueId}-${team._id || team.name}`,
+            type: "קבוצה",
+            icon: "🛡️",
+            name: team.name,
+            subtitle: leagueName,
+            href: `/leagues/${leagueId}/teams/${encodeURIComponent(team.name)}`,
+          });
+        }
+
+        (team.players || []).forEach((player) => {
+          const playerId = player.playerId || player._id;
+          const playerSearchText = [player.fullName, player.email]
+            .filter(Boolean)
+            .join(" ")
+            .toLocaleLowerCase("he");
+
+          if (playerId && playerSearchText.includes(query)) {
+            results.push({
+              key: `player-${leagueId}-${playerId}`,
+              type: "שחקן",
+              icon: "👤",
+              name: player.fullName || player.email,
+              subtitle: `${team.name} · ${leagueName}`,
+              href: `/leagues/${leagueId}/players/${playerId}`,
+            });
+          }
+        });
+      });
+
+      (league.personalPlayers || []).forEach((player) => {
+        const playerId = player._id || player.playerId;
+        const playerSearchText = [player.fullName, player.email]
+          .filter(Boolean)
+          .join(" ")
+          .toLocaleLowerCase("he");
+
+        if (playerId && playerSearchText.includes(query)) {
+          results.push({
+            key: `personal-player-${leagueId}-${playerId}`,
+            type: "שחקן",
+            icon: "👤",
+            name: player.fullName || player.email,
+            subtitle: leagueName,
+            href: `/leagues/${leagueId}/players/${playerId}`,
+          });
+        }
+      });
+    });
+
+    return results.slice(0, 12);
+  }, [leagues, searchQuery]);
+
+  const openSearchResult = (href) => {
+    setSearchQuery("");
+    setSearchFocused(false);
+    router.push(href);
+  };
 
   const visibleLeagues = currentUser
     ? filteredLeagues
@@ -143,7 +235,7 @@ export default function LeaguesPage() {
           <LeagueStat value={totalMatches} title="משחקים" />
         </div>
 
-        <div className={`${softCard} mb-6 flex gap-2 overflow-x-auto p-2`}>
+        <div className={`${softCard} relative z-30 mb-6 flex flex-wrap items-center gap-2 p-2`}>
           <TabButton
             active={activeTab === "all"}
             onClick={() => setActiveTab("all")}
@@ -164,6 +256,62 @@ export default function LeaguesPage() {
           >
             ליגות אישיות
           </TabButton>
+
+          <div className="relative min-w-[220px] flex-1 md:mr-auto md:max-w-sm">
+            <div className="flex items-center gap-2 rounded-2xl border border-white/20 bg-[#0b1d13]/70 px-4 py-2.5 shadow-inner backdrop-blur-md transition focus-within:border-emerald-400/60 focus-within:ring-2 focus-within:ring-emerald-400/15">
+              <span className="text-sm text-emerald-300">🔍</span>
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") {
+                    setSearchFocused(false);
+                  }
+                  if (event.key === "Enter" && searchResults[0]) {
+                    openSearchResult(searchResults[0].href);
+                  }
+                }}
+                placeholder="חיפוש ליגה, קבוצה או שחקן..."
+                className="w-full bg-transparent text-sm font-bold text-white outline-none placeholder:text-slate-400"
+              />
+            </div>
+
+            {searchFocused && searchQuery.trim() && (
+              <div className="absolute left-0 right-0 top-[calc(100%+0.6rem)] z-50 max-h-96 overflow-y-auto rounded-2xl border border-white/20 bg-[#0b1d13]/95 p-2 shadow-2xl backdrop-blur-xl">
+                {searchResults.length > 0 ? (
+                  searchResults.map((result) => (
+                    <button
+                      key={result.key}
+                      type="button"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => openSearchResult(result.href)}
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition hover:bg-white/10"
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-base">
+                        {result.icon}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-black text-white">
+                          {result.name}
+                        </span>
+                        <span className="block truncate text-xs font-bold text-slate-400">
+                          {result.type} · {result.subtitle}
+                        </span>
+                      </span>
+                      <span className="text-emerald-300">←</span>
+                    </button>
+                  ))
+                ) : (
+                  <p className="px-4 py-6 text-center text-sm font-bold text-slate-400">
+                    לא נמצאו תוצאות
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {filteredLeagues.length === 0 ? (
@@ -258,7 +406,7 @@ function LeagueCard({ league, index, isPersonal, currentUser }) {
 
   return (
     <div
-      className={`${softCard} group relative overflow-hidden transition duration-300 hover:-translate-y-1 hover:bg-white/[0.09]`}
+      className="group relative overflow-hidden rounded-3xl border border-white/25 bg-[#173326]/65 shadow-xl backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-[#173326]/75"
     >
       {!currentUser && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl bg-black/45 backdrop-blur-sm">
