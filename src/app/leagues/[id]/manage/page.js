@@ -42,21 +42,23 @@ export default function ManagePage() {
 
   useEffect(() => {
     if (!id) return;
-    fetchLeague();
-    fetchUsers();
+
+    const fetchPageData = async () => {
+      const [leagueRes, usersRes] = await Promise.all([
+        fetch(`/api/leagues/${id}`, { credentials: "include" }),
+        fetch("/api/users", { credentials: "include" }),
+      ]);
+      const [leagueData, usersData] = await Promise.all([
+        leagueRes.json(),
+        usersRes.json(),
+      ]);
+
+      if (leagueRes.ok) setLeague(leagueData);
+      if (usersRes.ok) setSiteUsers(usersData);
+    };
+
+    fetchPageData();
   }, [id]);
-
-  const fetchLeague = async () => {
-    const res = await fetch(`/api/leagues/${id}`, { credentials: "include" });
-    const data = await res.json();
-    if (res.ok) setLeague(data);
-  };
-
-  const fetchUsers = async () => {
-    const res = await fetch("/api/users", { credentials: "include" });
-    const data = await res.json();
-    if (res.ok) setSiteUsers(data);
-  };
 
   const isOwner =
     league &&
@@ -176,6 +178,16 @@ export default function ManagePage() {
           >
             חזרה לליגה ←
           </button>
+
+          {isOwner && (
+            <button
+              type="button"
+              onClick={() => router.push(`/leagues/${id}/blocked-players`)}
+              className={secondaryButton}
+            >
+              חסימות קבועות
+            </button>
+          )}
         </div>
 
         <section className={`${softCard} mb-6 p-6 shadow-2xl`}>

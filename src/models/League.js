@@ -176,6 +176,17 @@ const JoinRequestSchema = new mongoose.Schema(
   { _id: true }
 );
 
+const BlockedPlayerSchema = new mongoose.Schema(
+  {
+    playerId: { type: String, default: "" },
+    playerEmail: { type: String, required: true },
+    playerName: { type: String, default: "" },
+    blockedAt: { type: Date, default: Date.now },
+    blockedBy: { type: String, default: "" },
+  },
+  { _id: true }
+);
+
 const PersonalPlayerSchema = new mongoose.Schema(
   {
     userId: { type: String, default: "" },
@@ -281,6 +292,7 @@ const LeagueSchema = new mongoose.Schema(
 
     members: [MemberSchema],
     joinRequests: [JoinRequestSchema],
+    blockedPlayers: [BlockedPlayerSchema],
     personalPlayers: [PersonalPlayerSchema],
     generatedTeams: [GeneratedTeamSchema],
   },

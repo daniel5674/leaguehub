@@ -15,8 +15,19 @@ export async function GET(request, { params }) {
       return NextResponse.json({ message: "ליגה לא נמצאה" }, { status: 404 });
     }
 
+    const currentUser = await getUserFromToken();
+    const isOwner =
+      currentUser &&
+      (String(league.createdBy) === String(currentUser.email) ||
+        String(league.createdBy) === String(currentUser.userId));
+    const leagueData = league.toObject();
+
+    if (!isOwner) {
+      delete leagueData.blockedPlayers;
+    }
+
     return NextResponse.json({
-      ...league.toObject(),
+      ...leagueData,
       id: league._id,
     });
   } catch (error) {

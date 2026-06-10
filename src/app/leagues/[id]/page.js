@@ -209,7 +209,7 @@ export default function LeagueDetailsPage() {
     }
   };
 
-  const handleRejectJoinRequest = async (requestId) => {
+  const handleRejectJoinRequest = async (requestId, action = "reject") => {
     try {
       const res = await fetch(`/api/leagues/${id}/join-requests/${requestId}`, {
         method: "PATCH",
@@ -217,7 +217,7 @@ export default function LeagueDetailsPage() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ action: "reject" }),
+        body: JSON.stringify({ action }),
       });
 
       const text = await res.text();
@@ -229,10 +229,14 @@ export default function LeagueDetailsPage() {
       }
 
       setLeague(data);
-      showToast("הבקשה נדחתה");
+      showToast(
+        action === "permanent-block"
+          ? "השחקן נחסם לצמיתות"
+          : "הבקשה נדחתה"
+      );
     } catch (error) {
       console.error("Reject request failed:", error);
-      showToast("שגיאה בדחיית בקשה", "error");
+      showToast("שגיאה בטיפול בבקשה", "error");
     }
   };
 
@@ -1436,10 +1440,19 @@ export default function LeagueDetailsPage() {
         {activeTab === "management" && canManage && (
           <section className={`${softCard} mb-8 p-6`}>
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">בקשות הצטרפות</h2>
-              <span className="text-sm text-gray-500">
-                {visibleJoinRequests.length} ממתינות
-              </span>
+              <div>
+                <h2 className="text-2xl font-bold">בקשות הצטרפות</h2>
+                <span className="text-sm text-gray-500">
+                  {visibleJoinRequests.length} ממתינות
+                </span>
+              </div>
+
+              <Link
+                href={`/leagues/${id}/blocked-players`}
+                className={secondaryButton}
+              >
+                חסימות קבועות
+              </Link>
             </div>
 
             {visibleJoinRequests.length === 0 ? (
@@ -1462,7 +1475,7 @@ export default function LeagueDetailsPage() {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
                       <button
                         type="button"
                         onClick={() => handleApproveJoinRequest(request._id)}
@@ -1474,9 +1487,30 @@ export default function LeagueDetailsPage() {
                       <button
                         type="button"
                         onClick={() => handleRejectJoinRequest(request._id)}
-                        className={dangerButton}
+                        className={secondaryButton}
                       >
                         דחה
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          openConfirmModal({
+                            title: "חסימה קבועה",
+                            message:
+                              "השחקן לא יוכל לשלוח בקשות הצטרפות נוספות לליגה עד לביטול החסימה.",
+                            onConfirm: () => {
+                              closeConfirmModal();
+                              handleRejectJoinRequest(
+                                request._id,
+                                "permanent-block"
+                              );
+                            },
+                          })
+                        }
+                        className={dangerButton}
+                      >
+                        חסימה קבועה
                       </button>
                     </div>
                   </div>
