@@ -324,7 +324,7 @@ export default function LeaguesPage() {
           </div>
         ) : (
           <>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="max-h-[720px] space-y-3 overflow-y-auto rounded-[2rem] border border-white/25 bg-[#173326]/35 p-3 backdrop-blur-md">
               {visibleLeagues.map((league, index) => {
                 const leagueId = league.id || league._id;
                 const isPersonal = league.leagueType === "personal";
@@ -406,7 +406,7 @@ function LeagueCard({ league, index, isPersonal, currentUser }) {
 
   return (
     <div
-      className="group relative overflow-hidden rounded-3xl border border-white/25 bg-[#173326]/65 shadow-xl backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-[#173326]/75"
+      className="group relative overflow-hidden rounded-3xl border border-white/25 bg-[#173326]/65 shadow-xl backdrop-blur-md transition duration-300 hover:-translate-y-0.5 hover:border-emerald-300/60 hover:bg-[#173326]/75 hover:shadow-2xl"
     >
       {!currentUser && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl bg-black/45 backdrop-blur-sm">
@@ -422,65 +422,64 @@ function LeagueCard({ league, index, isPersonal, currentUser }) {
           }`}
         />
 
-        <div className="p-5">
-          <div className="mb-4 flex items-center justify-between">
+        <div className="flex flex-col gap-4 p-4 lg:flex-row lg:items-center">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
             <div
-              className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${
                 gradients[index % gradients.length]
               } text-xl font-black text-white shadow-lg`}
             >
               {league.name?.charAt(0)}
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
-                {isPersonal ? "👤 ליגה אישית" : "🏆 ליגת קבוצות"}
-              </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="truncate text-xl font-black text-white">
+                  {league.name}
+                </h2>
 
-              <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-300">
-                {league.status}
-              </span>
+                <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-300">
+                  {league.status}
+                </span>
+
+                <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
+                  {isPersonal ? "👤 ליגה אישית" : "🏆 ליגת קבוצות"}
+                </span>
+              </div>
+
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold text-gray-300">
+                <span className="rounded-full bg-white/10 px-3 py-1">
+                  ⚽ {league.sport}
+                </span>
+
+                <span className="rounded-full bg-white/10 px-3 py-1">
+                  📍 {league.location}
+                </span>
+
+                <p className="min-w-0 truncate text-sm font-normal text-gray-400">
+                  {league.description || "ללא תיאור"}
+                </p>
+              </div>
             </div>
           </div>
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <h2 className="text-xl font-black text-white">{league.name}</h2>
 
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
-              {isPersonal ? "ליגה אישית" : "ליגת קבוצות"}
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
-              ⚽ {league.sport}
-            </span>
-
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
-              📍 {league.location}
-            </span>
-          </div>
-
-          <p className="mt-4 line-clamp-2 text-sm leading-6 text-gray-400">
-            {league.description || "ללא תיאור"}
-          </p>
-
-          <div className="mt-5 grid grid-cols-2 gap-3">
-            <div className="rounded-2xl bg-white/[0.05] p-3 text-center">
-              <p className="text-2xl font-black text-white">{teamsOrPlayers}</p>
-              <p className="text-xs font-bold text-gray-400">
+          <div className="grid shrink-0 grid-cols-2 gap-2">
+            <div className="min-w-24 rounded-2xl bg-white/[0.05] px-4 py-2 text-center">
+              <p className="text-xl font-black text-white">{teamsOrPlayers}</p>
+              <p className="text-[11px] font-bold text-gray-400">
                 {isPersonal ? "שחקנים" : "קבוצות"}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-white/[0.05] p-3 text-center">
-              <p className="text-2xl font-black text-white">
+            <div className="min-w-24 rounded-2xl bg-white/[0.05] px-4 py-2 text-center">
+              <p className="text-xl font-black text-white">
                 {league.matches?.length || 0}
               </p>
-              <p className="text-xs font-bold text-gray-400">משחקים</p>
+              <p className="text-[11px] font-bold text-gray-400">משחקים</p>
             </div>
           </div>
 
-          <div className="mt-5 rounded-2xl bg-emerald-400 px-4 py-3 text-center text-sm font-black text-slate-950 transition group-hover:bg-emerald-300">
+          <div className="shrink-0 rounded-2xl bg-emerald-400 px-6 py-3 text-center text-sm font-black text-slate-950 transition group-hover:bg-emerald-300">
             כניסה לליגה
           </div>
         </div>
