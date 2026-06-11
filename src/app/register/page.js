@@ -55,35 +55,15 @@ export default function RegisterPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12" dir="rtl">
-
-      {/* Deep navy background */}
-      <div className="absolute inset-0 bg-[#040b18]" />
-
-      {/* Pitch at the bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-2/5">
-        <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 to-transparent" />
-        <svg className="absolute inset-0 h-full w-full opacity-25" viewBox="0 0 800 300" preserveAspectRatio="xMidYMax slice">
-          <line x1="400" y1="0" x2="400" y2="300" stroke="white" strokeWidth="1.5" />
-          <ellipse cx="400" cy="300" rx="140" ry="80" fill="none" stroke="white" strokeWidth="1.5" />
-          <rect x="270" y="220" width="260" height="80" fill="none" stroke="white" strokeWidth="1.5" />
-          <rect x="340" y="260" width="120" height="40" fill="none" stroke="white" strokeWidth="1.5" />
-          <line x1="0" y1="0" x2="800" y2="0" stroke="white" strokeWidth="1.5" />
-        </svg>
-      </div>
-
-      {/* Floodlight beams */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute left-0 top-0 h-full w-1/3 opacity-60"
-          style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)" }} />
-        <div className="absolute right-0 top-0 h-full w-1/3 opacity-60"
-          style={{ background: "linear-gradient(225deg, rgba(255,255,255,0.06) 0%, transparent 60%)" }} />
-      </div>
-
-      {/* Stars */}
-      {[...Array(30)].map((_, i) => (
-        <div key={i} className="absolute h-px w-px rounded-full bg-white"
-          style={{ opacity: Math.random() * 0.6 + 0.2, top: `${Math.random() * 55}%`, left: `${Math.random() * 100}%` }} />
-      ))}
+      <Image
+        src="/backgrounds/auth-stadium.jpg"
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover object-center"
+        priority
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/25 to-black/70" />
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-sm">
@@ -104,11 +84,11 @@ export default function RegisterPage() {
 
         <div className="mb-2 text-center">
           <p className="text-xl font-black tracking-widest text-white">LEAGUE<span className="text-green-400">HUB</span></p>
-          <p className="mt-1 text-xs text-gray-500">צור חשבון חדש</p>
+          <p className="mt-1 text-xs text-gray-200">צור חשבון חדש</p>
         </div>
 
         {/* Card */}
-        <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-7 shadow-2xl backdrop-blur-xl">
+        <div className="mt-6 rounded-3xl border border-white/20 bg-black/55 p-7 shadow-2xl backdrop-blur-xl">
 
           {/* Role selector */}
           <div className="mb-5 grid grid-cols-2 gap-3">
@@ -201,7 +181,7 @@ export default function RegisterPage() {
           </form>
         </div>
 
-        <p className="mt-5 text-center text-xs text-gray-600">
+        <p className="mt-5 text-center text-xs text-gray-200">
           יש לך כבר חשבון?{" "}
           <Link href="/login" className="font-bold text-green-400 hover:text-green-300">
             התחבר
