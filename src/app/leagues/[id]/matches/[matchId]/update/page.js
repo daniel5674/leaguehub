@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Toast from "@/components/ui/Toast";
+import {
+  card,
+  input,
+  pageBg,
+  pageGlow,
+  primaryButton,
+  secondaryButton,
+} from "@/lib/uiStyles";
 
 export default function UpdateMatchPage() {
   const { id, matchId } = useParams();
@@ -260,61 +268,81 @@ export default function UpdateMatchPage() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <p className="text-gray-500">טוען משחק...</p>
+      <main dir="rtl" className={pageBg}>
+        <div className="relative z-10 mx-auto max-w-5xl">
+          <p className="text-gray-400">טוען משחק...</p>
+        </div>
       </main>
     );
   }
 
   if (!match) {
     return (
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <p className="text-red-500">המשחק לא נמצא</p>
+      <main dir="rtl" className={pageBg}>
+        <div className="relative z-10 mx-auto max-w-5xl">
+          <p className="text-red-300">המשחק לא נמצא</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main dir="rtl" className="min-h-screen bg-slate-100 px-6 py-10">
-      <div className="mx-auto max-w-5xl">
+    <main dir="rtl" className={pageBg}>
+      <div className={pageGlow}>
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-5xl">
         <button
           type="button"
           onClick={() => router.push(`/leagues/${id}`)}
-          className="mb-6 rounded-2xl bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm"
+          className={`${secondaryButton} mb-6`}
         >
-          חזרה לליגה
+          ← חזרה לליגה
         </button>
 
-        <section className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
-          <h1 className="mb-8 text-center text-3xl font-black text-gray-900">
-            עדכון משחק
-          </h1>
+        <section className={`${card} p-5 md:p-8`}>
+          <div className="mb-8 text-center">
+            <span className="inline-flex rounded-full bg-emerald-400/15 px-4 py-2 text-xs font-black text-emerald-300">
+              דיווח קפטן
+            </span>
+            <h1 className="mt-3 text-3xl font-black text-white">
+              דיווח תוצאת משחק
+            </h1>
+          </div>
 
-          <div className="mb-8 flex items-center justify-between text-center">
-            <h2 className="flex-1 text-2xl font-black">{match.homeTeam}</h2>
+          <div className="mb-8 flex flex-col items-center justify-between gap-4 text-center md:flex-row">
+            <h2 className="flex-1 text-2xl font-black text-white">
+              {match.homeTeam}
+            </h2>
 
-            <div className="rounded-3xl bg-black px-8 py-5 text-white shadow-lg">
-              <div className="text-4xl font-black">- : -</div>
-              <div className="mt-1 text-sm text-gray-300">דיווח קפטן</div>
+            <div className="rounded-3xl border border-emerald-400/20 bg-slate-950/70 px-8 py-5 text-white shadow-lg shadow-emerald-950/30">
+              <div className="text-4xl font-black text-emerald-300">- : -</div>
+              <div className="mt-1 text-sm text-gray-400">ממתין לדיווח</div>
             </div>
 
-            <h2 className="flex-1 text-2xl font-black">{match.awayTeam}</h2>
+            <h2 className="flex-1 text-2xl font-black text-white">
+              {match.awayTeam}
+            </h2>
           </div>
 
           <div className="mb-8 grid gap-3 md:grid-cols-3">
-            <span className="rounded-full bg-gray-100 px-4 py-2 text-center text-sm font-bold">
+            <span className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-center text-sm font-bold text-gray-300">
               📅 {match.date}
             </span>
-            <span className="rounded-full bg-gray-100 px-4 py-2 text-center text-sm font-bold">
+            <span className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-center text-sm font-bold text-gray-300">
               🕒 {match.time}
             </span>
-            <span className="rounded-full bg-gray-100 px-4 py-2 text-center text-sm font-bold">
+            <span className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-center text-sm font-bold text-gray-300">
               📍 {match.location}
             </span>
           </div>
 
-          <div className="rounded-3xl border border-gray-200 bg-gray-50 p-6">
-            <h3 className="mb-4 text-xl font-black">תוצאת משחק</h3>
+          <div className="rounded-3xl border border-white/10 bg-slate-950/35 p-6">
+            <h3 className="mb-4 text-xl font-black text-white">
+              תוצאת משחק
+            </h3>
 
             <div className="flex items-center gap-3">
               <input
@@ -328,10 +356,10 @@ export default function UpdateMatchPage() {
                     homeScore: e.target.value,
                   }))
                 }
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                className={`${input} w-full text-center text-xl font-black`}
               />
 
-              <span className="text-xl font-black">-</span>
+              <span className="text-xl font-black text-emerald-300">-</span>
 
               <input
                 type="number"
@@ -344,18 +372,18 @@ export default function UpdateMatchPage() {
                     awayScore: e.target.value,
                   }))
                 }
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                className={`${input} w-full text-center text-xl font-black`}
               />
             </div>
           </div>
 
           <div className="mt-6 grid gap-6 md:grid-cols-2">
-            <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6">
-              <h3 className="mb-4 text-xl font-black text-amber-800">שערים</h3>
+            <div className="rounded-3xl border border-amber-400/20 bg-amber-400/[0.07] p-6">
+              <h3 className="mb-4 text-xl font-black text-amber-300">שערים</h3>
 
               <div className="space-y-4">
                 {goalForms.map((goal, index) => (
-                  <div key={index} className="rounded-2xl bg-white p-4">
+                  <div key={index} className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
                     <select
                       value={goal.playerId}
                       onChange={(e) => {
@@ -377,7 +405,7 @@ export default function UpdateMatchPage() {
                           )
                         );
                       }}
-                      className="mb-3 w-full rounded-2xl border border-gray-300 px-4 py-3"
+                      className={`${input} mb-3 w-full`}
                     >
                       <option value="">בחר שחקן</option>
 
@@ -388,7 +416,7 @@ export default function UpdateMatchPage() {
                       ))}
                     </select>
 
-                    <div className="mb-3 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-500">
+                    <div className="mb-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-gray-400">
                       {goal.teamName || "קבוצה תתמלא אוטומטית"}
                     </div>
 
@@ -406,14 +434,14 @@ export default function UpdateMatchPage() {
                           )
                         )
                       }
-                      className="w-full rounded-2xl border border-gray-300 px-4 py-3"
+                      className={`${input} w-full`}
                     />
 
                     {goalForms.length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeGoalRow(index)}
-                        className="mt-3 rounded-xl bg-red-100 px-4 py-2 text-sm font-bold text-red-600"
+                        className="mt-3 rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-2 text-sm font-bold text-red-300 transition hover:bg-red-400/20"
                       >
                         הסר כובש
                       </button>
@@ -431,14 +459,14 @@ export default function UpdateMatchPage() {
               </button>
             </div>
 
-            <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6">
-              <h3 className="mb-4 text-xl font-black text-emerald-800">
+            <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/[0.07] p-6">
+              <h3 className="mb-4 text-xl font-black text-emerald-300">
                 בישולים
               </h3>
 
               <div className="space-y-4">
                 {assistForms.map((assist, index) => (
-                  <div key={index} className="rounded-2xl bg-white p-4">
+                  <div key={index} className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
                     <select
                       value={assist.playerId}
                       onChange={(e) => {
@@ -460,7 +488,7 @@ export default function UpdateMatchPage() {
                           )
                         );
                       }}
-                      className="mb-3 w-full rounded-2xl border border-gray-300 px-4 py-3"
+                      className={`${input} mb-3 w-full`}
                     >
                       <option value="">בחר שחקן</option>
 
@@ -471,7 +499,7 @@ export default function UpdateMatchPage() {
                       ))}
                     </select>
 
-                    <div className="mb-3 rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 text-gray-500">
+                    <div className="mb-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-gray-400">
                       {assist.teamName || "קבוצה תתמלא אוטומטית"}
                     </div>
 
@@ -489,14 +517,14 @@ export default function UpdateMatchPage() {
                           )
                         )
                       }
-                      className="w-full rounded-2xl border border-gray-300 px-4 py-3"
+                      className={`${input} w-full`}
                     />
 
                     {assistForms.length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeAssistRow(index)}
-                        className="mt-3 rounded-xl bg-red-100 px-4 py-2 text-sm font-bold text-red-600"
+                        className="mt-3 rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-2 text-sm font-bold text-red-300 transition hover:bg-red-400/20"
                       >
                         הסר מבשל
                       </button>
@@ -515,8 +543,8 @@ export default function UpdateMatchPage() {
             </div>
           </div>
 
-          <div className="mt-6 rounded-3xl border border-blue-200 bg-blue-50 p-6">
-            <h3 className="mb-4 text-xl font-black text-blue-800">
+          <div className="mt-6 rounded-3xl border border-blue-400/20 bg-blue-400/[0.07] p-6">
+            <h3 className="mb-4 text-xl font-black text-blue-300">
               כרטיסים כחולים
             </h3>
 
@@ -536,7 +564,7 @@ export default function UpdateMatchPage() {
                     teamName: selectedPlayer?.teamName || "",
                   }));
                 }}
-                className="rounded-2xl border border-gray-300 px-4 py-3"
+                className={input}
               >
                 <option value="">בחר שחקן</option>
 
@@ -547,7 +575,7 @@ export default function UpdateMatchPage() {
                 ))}
               </select>
 
-              <div className="rounded-2xl border border-gray-300 bg-white px-4 py-3 text-gray-500">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-gray-400">
                 {blueCardForm.teamName || "קבוצה תתמלא אוטומטית"}
               </div>
 
@@ -561,7 +589,7 @@ export default function UpdateMatchPage() {
                     minute: e.target.value,
                   }))
                 }
-                className="rounded-2xl border border-gray-300 px-4 py-3"
+                className={input}
               />
             </div>
 
@@ -578,7 +606,7 @@ export default function UpdateMatchPage() {
                 {match.blueCards.map((card, index) => (
                   <div
                     key={index}
-                    className="rounded-xl bg-white px-3 py-2 text-sm text-gray-800"
+                    className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-sm text-gray-200"
                   >
                     🔵 {card.playerName} | {card.teamName}
                     {card.minute ? ` | דקה ${card.minute}` : ""}
@@ -588,8 +616,8 @@ export default function UpdateMatchPage() {
             )}
           </div>
 
-          <div className="mt-6 rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
-            <h3 className="mb-4 text-xl font-black text-yellow-800">
+          <div className="mt-6 rounded-3xl border border-yellow-400/20 bg-yellow-400/[0.07] p-6">
+            <h3 className="mb-4 text-xl font-black text-yellow-300">
               ⭐ שחקן מצטיין המשחק
             </h3>
 
@@ -605,7 +633,7 @@ export default function UpdateMatchPage() {
                   playerName: selectedPlayer?.fullName || "",
                 });
               }}
-              className="w-full rounded-2xl border border-gray-300 px-4 py-3"
+              className={`${input} w-full`}
             >
               <option value="">בחר שחקן מצטיין</option>
 
@@ -621,7 +649,7 @@ export default function UpdateMatchPage() {
             type="button"
             disabled={submitting}
             onClick={handleSubmitReport}
-            className="mt-8 w-full rounded-3xl bg-black py-4 text-lg font-black text-white transition hover:bg-gray-800 disabled:opacity-60"
+            className={`${primaryButton} mt-8 w-full py-4 text-lg`}
           >
             {submitting ? "שולח דיווח..." : "שלח דיווח"}
           </button>
