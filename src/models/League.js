@@ -176,6 +176,22 @@ const JoinRequestSchema = new mongoose.Schema(
   { _id: true }
 );
 
+const LeagueInvitationSchema = new mongoose.Schema(
+  {
+    playerId: { type: String, required: true },
+    playerEmail: { type: String, required: true },
+    playerName: { type: String, default: "" },
+    teamName: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "rejected"],
+      default: "pending",
+    },
+    invitedAt: { type: Date, default: Date.now },
+  },
+  { _id: true }
+);
+
 const BlockedPlayerSchema = new mongoose.Schema(
   {
     playerId: { type: String, default: "" },
@@ -294,6 +310,7 @@ const LeagueSchema = new mongoose.Schema(
 
     members: [MemberSchema],
     joinRequests: [JoinRequestSchema],
+    invitations: [LeagueInvitationSchema],
     blockedPlayers: [BlockedPlayerSchema],
     personalPlayers: [PersonalPlayerSchema],
     generatedTeams: [GeneratedTeamSchema],
@@ -310,6 +327,10 @@ if (!League.schema.path("image")) {
 
 if (!League.schema.path("icon")) {
   League.schema.add({ icon: { type: String, default: "" } });
+}
+
+if (!League.schema.path("invitations")) {
+  League.schema.add({ invitations: [LeagueInvitationSchema] });
 }
 
 export default League;

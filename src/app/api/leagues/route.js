@@ -10,7 +10,7 @@ export async function GET() {
   try {
     await connectToDB();
 
-    const leagues = await League.find();
+    const leagues = await League.find().select("-invitations -blockedPlayers");
 
     return NextResponse.json(
       leagues.map((l) => ({
@@ -65,6 +65,9 @@ export async function POST(request) {
     const body = await request.json();
     const image = body.image || "";
     const icon = body.icon || "";
+    const status = ["פתוחה", "פעילה", "סגורה"].includes(body.status)
+      ? body.status
+      : "פתוחה";
 
     if (!isValidLeagueImage(image)) {
       return NextResponse.json(
@@ -85,7 +88,7 @@ export async function POST(request) {
       image,
       icon: image ? "" : icon,
       leagueType: body.leagueType || "regular",
-      status: body.status || "פתוחה",
+      status,
       teamsCount: 0,
       createdBy: currentUser.email,
       teams: [],

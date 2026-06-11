@@ -18,6 +18,7 @@ import {
 
 export default function LeaguesPage() {
   const [leagues, setLeagues] = useState([]);
+  const [siteUsers, setSiteUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,6 +54,29 @@ export default function LeaguesPage() {
     fetchLeagues();
   }, []);
 
+  useEffect(() => {
+    if (!currentUser) {
+      setSiteUsers([]);
+      return;
+    }
+
+    const fetchSiteUsers = async () => {
+      try {
+        const res = await fetch("/api/users", { credentials: "include" });
+        const data = await res.json();
+
+        if (res.ok) {
+          setSiteUsers(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch site users:", error);
+        setSiteUsers([]);
+      }
+    };
+
+    fetchSiteUsers();
+  }, [currentUser]);
+
   const filteredLeagues = useMemo(() => {
     if (activeTab === "personal") {
       return leagues.filter((league) => league.leagueType === "personal");
@@ -68,6 +92,7 @@ export default function LeaguesPage() {
     if (!query) return [];
 
     const results = [];
+    const matchedUserIds = new Set();
 
     leagues.forEach((league) => {
       const leagueId = String(league.id || league._id);
@@ -114,6 +139,7 @@ export default function LeaguesPage() {
             .toLocaleLowerCase("he");
 
           if (playerId && playerSearchText.includes(query)) {
+            matchedUserIds.add(String(playerId));
             results.push({
               key: `player-${leagueId}-${playerId}`,
               type: "שחקן",
@@ -127,13 +153,14 @@ export default function LeaguesPage() {
       });
 
       (league.personalPlayers || []).forEach((player) => {
-        const playerId = player._id || player.playerId;
+        const playerId = player.playerId || player._id;
         const playerSearchText = [player.fullName, player.email]
           .filter(Boolean)
           .join(" ")
           .toLocaleLowerCase("he");
 
         if (playerId && playerSearchText.includes(query)) {
+          matchedUserIds.add(String(playerId));
           results.push({
             key: `personal-player-${leagueId}-${playerId}`,
             type: "שחקן",
@@ -146,8 +173,30 @@ export default function LeaguesPage() {
       });
     });
 
-    return results.slice(0, 12);
-  }, [leagues, searchQuery]);
+    siteUsers.forEach((user) => {
+      const userId = String(user._id || user.id);
+      const userSearchText = [user.fullName, user.email]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase("he");
+
+      if (!matchedUserIds.has(userId) && userSearchText.includes(query)) {
+        results.push({
+          key: `site-user-${userId}`,
+          type: "משתמש",
+          icon: user.role === "player" ? "👤" : "🧑‍💼",
+          name: user.fullName || "משתמש ללא שם",
+          subtitle:
+            user.role === "player"
+              ? "שחקן רשום באתר · עדיין לא בליגה"
+              : "מנהל רשום באתר",
+          href: `/users/${userId}`,
+        });
+      }
+    });
+
+    return results.slice(0, 16);
+  }, [leagues, searchQuery, siteUsers]);
 
   const openSearchResult = (href) => {
     setSearchQuery("");
@@ -275,7 +324,7 @@ export default function LeaguesPage() {
                     openSearchResult(searchResults[0].href);
                   }
                 }}
-                placeholder="חיפוש ליגה, קבוצה או שחקן..."
+                placeholder="חיפוש ליגה, קבוצה או משתמש..."
                 className="w-full bg-transparent text-sm font-bold text-white outline-none placeholder:text-slate-400"
               />
             </div>

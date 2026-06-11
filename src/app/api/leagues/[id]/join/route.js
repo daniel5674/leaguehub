@@ -23,6 +23,13 @@ export async function POST(request, { params }) {
       return NextResponse.json({ message: "הליגה לא נמצאה" }, { status: 404 });
     }
 
+    if (league.status === "סגורה") {
+      return NextResponse.json(
+        { message: "הליגה סגורה להצטרפות" },
+        { status: 403 }
+      );
+    }
+
     const isOwner =
       String(league.createdBy) === String(currentUser.email) ||
       String(league.createdBy) === String(currentUser.userId);

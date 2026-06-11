@@ -48,6 +48,10 @@ export default function LeagueDetailsPage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editSubmitting, setEditSubmitting] = useState(false);
+  const [sitePlayers, setSitePlayers] = useState([]);
+  const [playerSearch, setPlayerSearch] = useState("");
+  const [inviteTeams, setInviteTeams] = useState({});
+  const [invitingPlayerId, setInvitingPlayerId] = useState("");
   const [editForm, setEditForm] = useState({
     name: "",
     sport: "",
@@ -152,8 +156,42 @@ export default function LeagueDetailsPage() {
     }
   }, [league]);
 
+  useEffect(() => {
+    if (!league || league.status !== "סגורה" || !currentUser) return;
+
+    const isLeagueOwner =
+      String(league.createdBy) === String(currentUser.email) ||
+      String(league.createdBy) === String(currentUser._id || currentUser.id);
+
+    if (!isLeagueOwner) return;
+
+    const fetchSitePlayers = async () => {
+      try {
+        const res = await fetch("/api/users", { credentials: "include" });
+        const data = await res.json();
+
+        if (res.ok) {
+          setSitePlayers(
+            (Array.isArray(data) ? data : []).filter(
+              (user) => user.role === "player"
+            )
+          );
+        }
+      } catch (error) {
+        console.error("Failed to load site players:", error);
+      }
+    };
+
+    fetchSitePlayers();
+  }, [currentUser, league]);
+
   const handleRequestJoin = async () => {
     const isPersonalLeague = league?.leagueType === "personal";
+
+    if (league?.status === "סגורה") {
+      showToast("הליגה סגורה לבקשות הצטרפות", "error");
+      return;
+    }
 
     if (!isPersonalLeague && !selectedTeam) {
       showToast("צריך לבחור קבוצה", "error");
@@ -328,6 +366,46 @@ export default function LeagueDetailsPage() {
     } catch (error) {
       console.error("Failed to delete team:", error);
       showToast("שגיאה במחיקת קבוצה", "error");
+    }
+  };
+
+  const handleInvitePlayer = async (player) => {
+    const playerId = String(player._id || player.id);
+    const selectedInviteTeam = inviteTeams[playerId];
+
+    if (!selectedInviteTeam) {
+      showToast("צריך לבחור קבוצה לשחקן", "error");
+      return;
+    }
+
+    try {
+      setInvitingPlayerId(playerId);
+
+      const res = await fetch(`/api/leagues/${id}/invitations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          playerId,
+          teamName: selectedInviteTeam,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast(data.message || "שגיאה בשליחת ההזמנה", "error");
+        return;
+      }
+
+      setLeague(data);
+      setInviteTeams((prev) => ({ ...prev, [playerId]: "" }));
+      showToast("ההזמנה נשלחה לשחקן");
+    } catch (error) {
+      console.error("Failed to invite player:", error);
+      showToast("שגיאה בשליחת ההזמנה", "error");
+    } finally {
+      setInvitingPlayerId("");
     }
   };
 
@@ -800,6 +878,7 @@ export default function LeagueDetailsPage() {
   const normalizedCurrentEmail = currentUser?.email?.trim().toLowerCase();
 
   const canJoinAsPlayer = !!currentUser && !isOwner;
+  const isLeagueClosed = league.status === "סגורה";
 
   const isGuest = !currentUser || !permissions?.hasRolePower;
 
@@ -828,6 +907,32 @@ export default function LeagueDetailsPage() {
         (request) => request.status === "pending" && request.type === "player"
       )
     : [];
+
+  const normalizedPlayerSearch = playerSearch.trim().toLocaleLowerCase("he");
+  const filteredSitePlayers = sitePlayers.filter((player) =>
+    [player.fullName, player.email]
+      .filter(Boolean)
+      .join(" ")
+      .toLocaleLowerCase("he")
+      .includes(normalizedPlayerSearch)
+  );
+
+  const isPlayerInLeague = (player) =>
+    league.teams.some((team) =>
+      team.players?.some(
+        (member) =>
+          member.email?.trim().toLowerCase() ===
+          player.email?.trim().toLowerCase()
+      )
+    );
+
+  const hasPendingInvitation = (player) =>
+    league.invitations?.some(
+      (invitation) =>
+        invitation.playerEmail?.trim().toLowerCase() ===
+          player.email?.trim().toLowerCase() &&
+        invitation.status === "pending"
+    );
 
   const topAssists = [...(league.topAssists || [])].sort(
     (a, b) => Number(b.assists) - Number(a.assists)
@@ -935,6 +1040,7 @@ export default function LeagueDetailsPage() {
               </span>
 
               {canJoinAsPlayer &&
+                !isLeagueClosed &&
                 !alreadyInAnyTeam &&
                 !hasPendingJoinRequest && (
                   <div className="flex items-center gap-2">
@@ -961,6 +1067,15 @@ export default function LeagueDetailsPage() {
                       שלח בקשה
                     </button>
                   </div>
+                )}
+
+              {canJoinAsPlayer &&
+                isLeagueClosed &&
+                !alreadyInAnyTeam &&
+                !hasPendingJoinRequest && (
+                  <span className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-200">
+                    הליגה סגורה לבקשות הצטרפות
+                  </span>
                 )}
 
               {canJoinAsPlayer && hasPendingJoinRequest && (
@@ -1444,6 +1559,114 @@ export default function LeagueDetailsPage() {
 
         {activeTab === "management" && canManage && (
           <section className={`${softCard} mb-8 p-6`}>
+            {isLeagueClosed && !isPersonalLeague && (
+              <div className="mb-8 border-b border-white/10 pb-8">
+                <div className="mb-5">
+                  <h2 className="text-2xl font-bold text-white">
+                    הזמנת שחקנים לליגה הסגורה
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-400">
+                    חפש שחקן, בחר קבוצה ושלח לו הזמנה לאישור.
+                  </p>
+                </div>
+
+                <input
+                  type="search"
+                  value={playerSearch}
+                  onChange={(event) => setPlayerSearch(event.target.value)}
+                  placeholder="חיפוש לפי שם או אימייל..."
+                  className="mb-4 w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
+                />
+
+                {league.teams.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/15 p-6 text-center text-gray-400">
+                    צריך ליצור לפחות קבוצה אחת לפני שליחת הזמנות.
+                  </div>
+                ) : filteredSitePlayers.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/15 p-6 text-center text-gray-400">
+                    לא נמצאו שחקנים
+                  </div>
+                ) : (
+                  <div className="max-h-[420px] space-y-3 overflow-y-auto">
+                    {filteredSitePlayers.map((player) => {
+                      const playerId = String(player._id || player.id);
+                      const alreadyInLeague = isPlayerInLeague(player);
+                      const invitationPending = hasPendingInvitation(player);
+                      const disabled = alreadyInLeague || invitationPending;
+
+                      return (
+                        <div
+                          key={playerId}
+                          className="flex flex-col gap-3 rounded-2xl border border-white/15 bg-white/[0.05] p-4 lg:flex-row lg:items-center"
+                        >
+                          <div className="flex min-w-0 flex-1 items-center gap-3">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 font-black text-emerald-300">
+                              {player.fullName?.charAt(0) || "?"}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate font-black text-white">
+                                {player.fullName}
+                              </p>
+                              <p className="truncate text-xs text-gray-400">
+                                {player.email}
+                              </p>
+                            </div>
+                          </div>
+
+                          {alreadyInLeague ? (
+                            <span className="rounded-xl bg-emerald-400/15 px-4 py-2 text-center text-sm font-bold text-emerald-300">
+                              כבר נמצא בליגה
+                            </span>
+                          ) : invitationPending ? (
+                            <span className="rounded-xl bg-yellow-400/15 px-4 py-2 text-center text-sm font-bold text-yellow-200">
+                              הזמנה ממתינה
+                            </span>
+                          ) : (
+                            <>
+                              <select
+                                value={inviteTeams[playerId] || ""}
+                                onChange={(event) =>
+                                  setInviteTeams((prev) => ({
+                                    ...prev,
+                                    [playerId]: event.target.value,
+                                  }))
+                                }
+                                disabled={disabled}
+                                className="rounded-xl border border-white/10 bg-slate-950 px-4 py-2 text-sm text-white outline-none focus:border-emerald-400"
+                              >
+                                <option value="">בחר קבוצה</option>
+                                {league.teams.map((team) => (
+                                  <option
+                                    key={team._id || team.name}
+                                    value={team.name}
+                                  >
+                                    {team.name}
+                                  </option>
+                                ))}
+                              </select>
+
+                              <button
+                                type="button"
+                                onClick={() => handleInvitePlayer(player)}
+                                disabled={
+                                  disabled || invitingPlayerId === playerId
+                                }
+                                className={`${primaryButton} disabled:opacity-50`}
+                              >
+                                {invitingPlayerId === playerId
+                                  ? "שולח..."
+                                  : "שלח הזמנה"}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="mb-5 flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold">בקשות הצטרפות</h2>

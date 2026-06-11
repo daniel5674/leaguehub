@@ -15,6 +15,7 @@ export default function CreateLeaguePage() {
     location: "",
     description: "",
     leagueType: "regular",
+    status: "פתוחה",
     image: "",
     icon: "",
   });
@@ -145,6 +146,17 @@ export default function CreateLeaguePage() {
                 <option value="personal">
                   ליגה אישית - שחקנים ללא קבוצות קבועות
                 </option>
+              </select>
+
+              <select
+                name="status"
+                value={form.status}
+                onChange={handleChange}
+                className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-400/60"
+                required
+              >
+                <option value="פתוחה">פתוחה להצטרפות</option>
+                <option value="סגורה">סגורה להצטרפות</option>
               </select>
 
               <input
