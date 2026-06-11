@@ -25,6 +25,7 @@ export async function GET(request, { params }) {
 
     if (!isOwner) {
       delete leagueData.blockedPlayers;
+      delete leagueData.invitations;
     }
 
     return NextResponse.json({
@@ -95,7 +96,9 @@ export async function PUT(request, { params }) {
     league.sport = body.sport.trim();
     league.location = body.location.trim();
     league.description = body.description?.trim() || "";
-    league.status = body.status?.trim() || league.status;
+    league.status = ["פתוחה", "פעילה", "סגורה"].includes(body.status)
+      ? body.status
+      : league.status;
     league.image = image;
     league.icon = image ? "" : icon;
 

@@ -205,6 +205,30 @@ export default function Navbar() {
     }
   };
 
+  const handleLeagueInvitation = async (notification, action) => {
+    try {
+      const res = await fetch(
+        `/api/leagues/${notification.leagueId}/invitations/${notification.invitationId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ action }),
+        }
+      );
+
+      if (!res.ok) return;
+
+      setPlayerNotifications((prev) =>
+        prev.filter(
+          (item) => item.invitationId !== notification.invitationId
+        )
+      );
+    } catch (error) {
+      console.error("League invitation action failed:", error);
+    }
+  };
+
   const privateLinks = [
     { href: "/my-leagues", label: "הליגות שלי" },
 
@@ -474,6 +498,36 @@ export default function Navbar() {
                                   >
                                     בדוק דיווח משחק
                                   </button>
+                                )}
+
+                                {n.actionType === "league-invitation" && (
+                                  <>
+                                    {n.teamName && (
+                                      <p className="mt-1 text-xs text-slate-400">
+                                        קבוצה: {n.teamName}
+                                      </p>
+                                    )}
+                                    <div className="mt-3 grid grid-cols-2 gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleLeagueInvitation(n, "accept")
+                                        }
+                                        className="rounded-xl bg-emerald-400 px-3 py-2 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+                                      >
+                                        אשר
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleLeagueInvitation(n, "reject")
+                                        }
+                                        className="rounded-xl bg-red-500/20 px-3 py-2 text-sm font-black text-red-200 transition hover:bg-red-500/30"
+                                      >
+                                        דחה
+                                      </button>
+                                    </div>
+                                  </>
                                 )}
                               </div>
                             ))}

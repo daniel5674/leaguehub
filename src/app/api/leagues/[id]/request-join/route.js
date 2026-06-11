@@ -30,6 +30,13 @@ export async function POST(request, { params }) {
       return NextResponse.json({ message: "הליגה לא נמצאה" }, { status: 404 });
     }
 
+    if (league.status === "סגורה") {
+      return NextResponse.json(
+        { message: "הליגה סגורה לבקשות הצטרפות" },
+        { status: 403 }
+      );
+    }
+
     const isLeagueOwner =
       String(league.createdBy) === String(user.email) ||
       String(league.createdBy) === String(user._id);

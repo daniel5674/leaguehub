@@ -32,6 +32,8 @@ const UserSchema = new mongoose.Schema(
         message: { type: String },
         leagueId: { type: String },
         leagueName: { type: String },
+        invitationId: { type: String, default: "" },
+        teamName: { type: String, default: "" },
 
         matchId: { type: String, default: "" },
 
@@ -49,4 +51,15 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.User || mongoose.model("User", UserSchema);
+const User = mongoose.models.User || mongoose.model("User", UserSchema);
+
+const notificationsSchema = User.schema.path("notifications")?.schema;
+
+if (notificationsSchema && !notificationsSchema.path("invitationId")) {
+  notificationsSchema.add({
+    invitationId: { type: String, default: "" },
+    teamName: { type: String, default: "" },
+  });
+}
+
+export default User;
