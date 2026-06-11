@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -38,11 +39,12 @@ export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4" dir="rtl">
       <Image
-        src="/backgrounds/auth-stadium.jpg"
+        src="/backgrounds/auth-stadium-wide.png"
         alt=""
         fill
         sizes="100vw"
         className="object-cover object-center"
+        quality={95}
         priority
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/25 to-black/70" />
@@ -87,15 +89,36 @@ export default function LoginPage() {
 
             <div>
               <label className="mb-2 block text-xs font-medium text-gray-400">סיסמה</label>
-              <input
-                type="password"
-                name="password"
-                placeholder="••••••••"
-                value={form.password}
-                onChange={handleChange}
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-600 outline-none transition focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 py-3 pr-4 pl-14 text-sm text-white placeholder-gray-600 outline-none transition focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((current) => !current)}
+                  aria-label={showPassword ? "הסתר סיסמה" : "הצג סיסמה"}
+                  aria-pressed={showPassword}
+                  className={`absolute top-1/2 left-3 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 ${
+                    showPassword
+                      ? "border-green-400/60 bg-green-400/20 shadow-[0_0_12px_rgba(74,222,128,0.55)]"
+                      : "border-white/15 bg-black/25 opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <Image
+                    src="/icons/champions-ball.png"
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="h-6 w-6 object-contain"
+                  />
+                </button>
+              </div>
             </div>
 
             {message && (

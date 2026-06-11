@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { connectToDB } from "@/lib/mongodb";
 import League from "@/models/League";
 import User from "@/models/User";
+import { isValidLeagueIcon, isValidLeagueImage } from "@/lib/leagueVisuals";
 
 export async function GET() {
   try {
@@ -62,12 +63,27 @@ export async function POST(request) {
     }
 
     const body = await request.json();
+    const image = body.image || "";
+    const icon = body.icon || "";
+
+    if (!isValidLeagueImage(image)) {
+      return NextResponse.json(
+        { message: "תמונת הליגה אינה תקינה או גדולה מדי" },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidLeagueIcon(icon)) {
+      return NextResponse.json({ message: "אייקון הליגה אינו תקין" }, { status: 400 });
+    }
 
     const newLeague = await League.create({
       name: body.name,
       sport: body.sport,
       location: body.location,
       description: body.description || "",
+      image,
+      icon: image ? "" : icon,
       leagueType: body.leagueType || "regular",
       status: body.status || "פתוחה",
       teamsCount: 0,

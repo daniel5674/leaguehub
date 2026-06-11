@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Toast from "@/components/ui/Toast";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import LeagueVisualPicker from "@/components/LeagueVisualPicker";
+import LeagueVisual from "@/components/LeagueVisual";
 import Link from "next/link";
 import {
   pageBg,
@@ -52,6 +54,8 @@ export default function LeagueDetailsPage() {
     location: "",
     description: "",
     status: "",
+    image: "",
+    icon: "",
   });
 
   const [confirmState, setConfirmState] = useState({
@@ -139,6 +143,8 @@ export default function LeagueDetailsPage() {
       location: league.location || "",
       description: league.description || "",
       status: league.status || "",
+      image: league.image || "",
+      icon: league.icon || "",
     });
 
     if (league.leagueType === "personal") {
@@ -849,14 +855,6 @@ export default function LeagueDetailsPage() {
     return Object.values(cardsMap).sort((a, b) => b.blueCards - a.blueCards);
   };
 
-  const teamColors = [
-    "from-blue-600 to-blue-800",
-    "from-red-600 to-red-800",
-    "from-green-600 to-green-800",
-    "from-purple-600 to-purple-800",
-    "from-orange-500 to-orange-700",
-  ];
-
   return (
     <main dir="rtl" className={pageBg}>
       <div className={pageGlow}>
@@ -877,49 +875,56 @@ export default function LeagueDetailsPage() {
       <div className="relative z-10 mx-auto max-w-6xl">
         <div className={`${card} mb-5 px-6 py-6 text-white`}>
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="mb-3 flex items-center gap-2">
-                <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-                  {isPersonalLeague ? "Personal League" : "Regular League"}
-                </span>
+            <div className="flex items-start gap-4">
+              <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-emerald-300/25 bg-emerald-400/10 text-3xl font-black text-emerald-200 shadow-xl shadow-black/20">
+                <LeagueVisual league={league} size={80} />
               </div>
 
-              <h1 className="text-3xl font-black tracking-tight md:text-4xl">
-                {league.name}
-              </h1>
-
-              <p className="mt-2 text-slate-300">
-                {league.location} • {league.sport}
-              </p>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <div className="rounded-2xl bg-white/10 px-4 py-2">
-                  <p className="text-xs text-gray-400">שחקנים</p>
-                  <p className="text-lg font-black">
-                    {isPersonalLeague
-                      ? league.personalPlayers?.length || 0
-                      : league.members?.length || 0}
-                  </p>
+              <div>
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
+                    {isPersonalLeague ? "Personal League" : "Regular League"}
+                  </span>
                 </div>
 
-                <div className="rounded-2xl bg-white/10 px-4 py-2">
-                  <p className="text-xs text-gray-400">משחקים</p>
-                  <p className="text-lg font-black">
-                    {league.matches?.length || 0}
-                  </p>
-                </div>
+                <h1 className="text-3xl font-black tracking-tight md:text-4xl">
+                  {league.name}
+                </h1>
 
-                <div className="rounded-2xl bg-white/10 px-4 py-2">
-                  <p className="text-xs text-gray-400">
-                    {isPersonalLeague ? "שערים" : "קבוצות"}
-                  </p>
-                  <p className="text-lg font-black">
-                    {isPersonalLeague
-                      ? (league.topScorers || []).reduce(
-                          (sum, player) => sum + (player.goals || 0),
-                          0
-                        )
-                      : league.teams?.length || 0}
-                  </p>
+                <p className="mt-2 text-slate-300">
+                  {league.location} • {league.sport}
+                </p>
+
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <div className="rounded-2xl bg-white/10 px-4 py-2">
+                    <p className="text-xs text-gray-400">שחקנים</p>
+                    <p className="text-lg font-black">
+                      {isPersonalLeague
+                        ? league.personalPlayers?.length || 0
+                        : league.members?.length || 0}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-white/10 px-4 py-2">
+                    <p className="text-xs text-gray-400">משחקים</p>
+                    <p className="text-lg font-black">
+                      {league.matches?.length || 0}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-white/10 px-4 py-2">
+                    <p className="text-xs text-gray-400">
+                      {isPersonalLeague ? "שערים" : "קבוצות"}
+                    </p>
+                    <p className="text-lg font-black">
+                      {isPersonalLeague
+                        ? (league.topScorers || []).reduce(
+                            (sum, player) => sum + (player.goals || 0),
+                            0
+                          )
+                        : league.teams?.length || 0}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1576,6 +1581,16 @@ export default function LeagueDetailsPage() {
                 className="md:col-span-2 min-h-28 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
               />
 
+              <LeagueVisualPicker
+                name={editForm.name}
+                image={editForm.image}
+                icon={editForm.icon}
+                onChange={(visual) =>
+                  setEditForm((prev) => ({ ...prev, ...visual }))
+                }
+                className="md:col-span-2"
+              />
+
               <button
                 type="submit"
                 disabled={editSubmitting}
@@ -1620,79 +1635,71 @@ export default function LeagueDetailsPage() {
                 אין עדיין קבוצות בליגה
               </div>
             ) : (
-              <div className="grid gap-5 md:grid-cols-2">
-                {league.teams.map((team, index) => (
+              <div className="space-y-3">
+                {league.teams.map((team) => (
                   <div
                     key={team._id || team.name}
-                    className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.09] shadow-md backdrop-blur transition duration-300 hover:-translate-y-1 hover:bg-white/[0.09]"
+                    className="group overflow-hidden rounded-3xl border border-white/25 bg-[#173326]/65 shadow-xl backdrop-blur-md transition duration-300 hover:-translate-y-0.5 hover:border-emerald-300/60 hover:bg-[#173326]/75 hover:shadow-2xl"
                   >
-                    <div className="h-1.5 bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-400" />
+                    <div className="flex flex-col gap-4 p-4 lg:flex-row lg:items-center">
+                      <div className="flex min-w-0 flex-1 items-center gap-4">
+                        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/20 bg-emerald-400/10 text-xl font-black text-emerald-200 shadow-lg shadow-black/20">
+                          {team.name?.charAt(0)}
 
-                    <div className="p-5">
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={`relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${
-                              teamColors[index % teamColors.length]
-                            } text-2xl font-extrabold text-white shadow-lg`}
-                          >
-                            {team.name?.charAt(0)}
-
-                            <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400 text-[10px] text-slate-950">
-                              ✓
-                            </div>
-                          </div>
-
-                          <div>
-                            <Link
-                              href={`/leagues/${id}/teams/${encodeURIComponent(
-                                team.name
-                              )}`}
-                              className="text-lg font-black text-white transition hover:text-emerald-300 hover:underline"
-                            >
-                              {team.name}
-                            </Link>
-
-                            <p className="text-sm text-gray-400">
-                              {team.players?.length || 0} שחקנים
-                            </p>
-
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-gray-300">
-                                👥 {team.players?.length || 0}
-                              </span>
-                              <Link
-                                href={`/leagues/${id}/teams/${encodeURIComponent(
-                                  team.name
-                                )}`}
-                                className="mt-3 inline-flex items-center rounded-xl bg-emerald-400 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
-                              >
-                                צפייה בקבוצה →
-                              </Link>
-
-                              <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-300">
-                                פעילה
-                              </span>
-                            </div>
+                          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400 text-[10px] text-slate-950">
+                            ✓
                           </div>
                         </div>
 
-                        {canManage && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              openConfirmModal({
-                                title: "מחיקת קבוצה",
-                                message: `למחוק את הקבוצה "${team.name}"?`,
-                                onConfirm: () => handleDeleteTeam(team.name),
-                              })
-                            }
-                            className="rounded-xl border border-red-400/20 px-4 py-2 text-sm font-bold text-red-300 transition hover:bg-red-500/10 hover:text-red-200"
-                          >
-                            מחק
-                          </button>
-                        )}
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="truncate text-xl font-black text-white">
+                              {team.name}
+                            </h3>
+                            <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-300">
+                              פעילה
+                            </span>
+                          </div>
+
+                          <p className="mt-2 text-sm text-gray-400">
+                            קבוצה בליגת {league.name}
+                          </p>
+                        </div>
                       </div>
+
+                      <div className="shrink-0 rounded-2xl bg-white/[0.05] px-5 py-2 text-center">
+                        <p className="text-xl font-black text-white">
+                          {team.players?.length || 0}
+                        </p>
+                        <p className="text-[11px] font-bold text-gray-400">
+                          שחקנים
+                        </p>
+                      </div>
+
+                      <Link
+                        href={`/leagues/${id}/teams/${encodeURIComponent(
+                          team.name
+                        )}`}
+                        className="shrink-0 rounded-2xl bg-emerald-400 px-6 py-3 text-center text-sm font-black text-slate-950 transition group-hover:bg-emerald-300"
+                      >
+                        כניסה לקבוצה
+                      </Link>
+
+                      {canManage && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openConfirmModal({
+                              title: "מחיקת קבוצה",
+                              message: `למחוק את הקבוצה "${team.name}"?`,
+                              onConfirm: () => handleDeleteTeam(team.name),
+                            })
+                          }
+                          className="shrink-0 rounded-2xl border border-red-400/20 px-5 py-3 text-sm font-bold text-red-300 transition hover:bg-red-500/10 hover:text-red-200"
+                        >
+                          מחק
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
