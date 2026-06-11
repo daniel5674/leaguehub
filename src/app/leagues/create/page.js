@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import LeagueVisualPicker from "@/components/LeagueVisualPicker";
 
 export default function CreateLeaguePage() {
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function CreateLeaguePage() {
     location: "",
     description: "",
     leagueType: "regular",
+    image: "",
+    icon: "",
   });
 
   useEffect(() => {
@@ -120,6 +123,15 @@ export default function CreateLeaguePage() {
                 onChange={handleChange}
                 className="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
                 required
+              />
+
+              <LeagueVisualPicker
+                name={form.name}
+                image={form.image}
+                icon={form.icon}
+                onChange={(visual) =>
+                  setForm((prev) => ({ ...prev, ...visual }))
+                }
               />
 
               <select

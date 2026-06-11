@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import LeagueVisual from "@/components/LeagueVisual";
 import {
   pageBg,
   pageGlow,
@@ -325,14 +326,13 @@ export default function LeaguesPage() {
         ) : (
           <>
             <div className="max-h-[720px] space-y-3 overflow-y-auto rounded-[2rem] border border-white/25 bg-[#173326]/35 p-3 backdrop-blur-md">
-              {visibleLeagues.map((league, index) => {
+              {visibleLeagues.map((league) => {
                 const leagueId = league.id || league._id;
                 const isPersonal = league.leagueType === "personal";
 
                 const card = (
                   <LeagueCard
                     league={league}
-                    index={index}
                     isPersonal={isPersonal}
                     currentUser={currentUser}
                   />
@@ -392,14 +392,7 @@ function LeagueStat({ value, title }) {
   );
 }
 
-function LeagueCard({ league, index, isPersonal, currentUser }) {
-  const gradients = [
-    "from-blue-600 to-blue-900",
-    "from-emerald-600 to-emerald-900",
-    "from-purple-600 to-purple-900",
-    "from-orange-500 to-orange-800",
-  ];
-
+function LeagueCard({ league, isPersonal, currentUser }) {
   const teamsOrPlayers = isPersonal
     ? league.personalPlayers?.length || 0
     : league.teamsCount || league.teams?.length || 0;
@@ -416,20 +409,10 @@ function LeagueCard({ league, index, isPersonal, currentUser }) {
       )}
 
       <div className={!currentUser ? "opacity-45" : ""}>
-        <div
-          className={`h-1.5 bg-gradient-to-r ${
-            gradients[index % gradients.length]
-          }`}
-        />
-
         <div className="flex flex-col gap-4 p-4 lg:flex-row lg:items-center">
           <div className="flex min-w-0 flex-1 items-center gap-4">
-            <div
-              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${
-                gradients[index % gradients.length]
-              } text-xl font-black text-white shadow-lg`}
-            >
-              {league.name?.charAt(0)}
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-emerald-300/20 bg-emerald-400/10 text-xl font-black text-emerald-200 shadow-lg shadow-black/20">
+              <LeagueVisual league={league} />
             </div>
 
             <div className="min-w-0 flex-1">

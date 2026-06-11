@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-console.log("MONGO:", process.env.MONGODB_URI);
-
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
@@ -20,10 +18,15 @@ export async function connectToDB() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
-      dbName: "leaguehub",
-      bufferCommands: false,
-    });
+    cached.promise = mongoose
+      .connect(MONGODB_URI, {
+        dbName: "leaguehub",
+        bufferCommands: false,
+      })
+      .catch((error) => {
+        cached.promise = null;
+        throw error;
+      });
   }
 
   cached.conn = await cached.promise;

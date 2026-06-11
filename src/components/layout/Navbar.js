@@ -35,18 +35,34 @@ export default function Navbar() {
 
   const menuRef = useRef(null);
   const notificationsRef = useRef(null);
+  const managerNotificationsControllerRef = useRef(null);
+  const playerNotificationsControllerRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const fetchPlayerNotifications = async () => {
+    if (document.visibilityState !== "visible" || !navigator.onLine) return;
+
+    playerNotificationsControllerRef.current?.abort();
+    const controller = new AbortController();
+    playerNotificationsControllerRef.current = controller;
+
     try {
-      const res = await fetch("/api/notifications", { credentials: "include" });
+      const res = await fetch("/api/notifications", {
+        credentials: "include",
+        cache: "no-store",
+        signal: controller.signal,
+      });
       const data = await res.json();
       if (res.ok) setPlayerNotifications(data.notifications || []);
     } catch {
-      setPlayerNotifications([]);
+      // Keep the current notifications during temporary network interruptions.
+    } finally {
+      if (playerNotificationsControllerRef.current === controller) {
+        playerNotificationsControllerRef.current = null;
+      }
     }
   };
 
@@ -59,9 +75,17 @@ export default function Navbar() {
   };
 
   const fetchNotifications = async () => {
+    if (document.visibilityState !== "visible" || !navigator.onLine) return;
+
+    managerNotificationsControllerRef.current?.abort();
+    const controller = new AbortController();
+    managerNotificationsControllerRef.current = controller;
+
     try {
       const res = await fetch("/api/leagues/my", {
         credentials: "include",
+        cache: "no-store",
+        signal: controller.signal,
       });
 
       const data = await res.json();
@@ -88,10 +112,12 @@ export default function Navbar() {
 
       setRequests(allRequests);
       setPendingCount(allRequests.length);
-    } catch (error) {
-      console.error("Failed to fetch notifications:", error);
-      setRequests([]);
-      setPendingCount(0);
+    } catch {
+      // Keep the current requests during temporary network interruptions.
+    } finally {
+      if (managerNotificationsControllerRef.current === controller) {
+        managerNotificationsControllerRef.current = null;
+      }
     }
   };
 
@@ -225,18 +251,32 @@ export default function Navbar() {
 
   useEffect(() => {
     if (currentUser?.role !== "manager") return;
-    const interval = setInterval(() => {
-      fetchNotifications();
-    }, 5000);
-    return () => clearInterval(interval);
+    const refresh = () => fetchNotifications();
+    const interval = setInterval(refresh, 15000);
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("online", refresh);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("online", refresh);
+      managerNotificationsControllerRef.current?.abort();
+    };
   }, [currentUser]);
 
   useEffect(() => {
     if (!currentUser) return;
-    const interval = setInterval(() => {
-      fetchPlayerNotifications();
-    }, 15000);
-    return () => clearInterval(interval);
+    const refresh = () => fetchPlayerNotifications();
+    const interval = setInterval(refresh, 30000);
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("online", refresh);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("online", refresh);
+      playerNotificationsControllerRef.current?.abort();
+    };
   }, [currentUser]);
 
   if (!mounted) {

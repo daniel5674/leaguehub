@@ -231,6 +231,8 @@ const LeagueSchema = new mongoose.Schema(
     sport: { type: String, required: true },
     location: { type: String, required: true },
     description: { type: String, default: "" },
+    image: { type: String, default: "" },
+    icon: { type: String, default: "" },
 
     leagueType: {
       type: String,
@@ -299,4 +301,15 @@ const LeagueSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.League || mongoose.model("League", LeagueSchema);
+const League = mongoose.models.League || mongoose.model("League", LeagueSchema);
+
+// Keep newly added visual fields available during Next.js hot reloads.
+if (!League.schema.path("image")) {
+  League.schema.add({ image: { type: String, default: "" } });
+}
+
+if (!League.schema.path("icon")) {
+  League.schema.add({ icon: { type: String, default: "" } });
+}
+
+export default League;

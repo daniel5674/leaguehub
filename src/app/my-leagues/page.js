@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import LeagueVisual from "@/components/LeagueVisual";
 import {
   pageBg,
   pageGlow,
@@ -139,8 +140,8 @@ export default function MyLeaguesPage() {
               >
                 <div className="mb-5 flex items-start justify-between gap-4">
                   <div>
-                    <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400/15 text-lg font-black text-emerald-300">
-                      {league.name?.charAt(0)}
+                    <div className="relative mb-2 flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-emerald-300/20 bg-emerald-400/10 text-lg font-black text-emerald-300">
+                      <LeagueVisual league={league} size={48} />
                     </div>
 
                     <h2 className="text-lg font-black text-white">

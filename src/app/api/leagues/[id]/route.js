@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 import League from "@/models/League";
 import { getUserFromToken } from "@/lib/getUserFromToken";
+import { isValidLeagueIcon, isValidLeagueImage } from "@/lib/leagueVisuals";
 
 export async function GET(request, { params }) {
   try {
@@ -76,11 +77,27 @@ export async function PUT(request, { params }) {
       );
     }
 
+    const image = body.image || "";
+    const icon = body.icon || "";
+
+    if (!isValidLeagueImage(image)) {
+      return NextResponse.json(
+        { message: "תמונת הליגה אינה תקינה או גדולה מדי" },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidLeagueIcon(icon)) {
+      return NextResponse.json({ message: "אייקון הליגה אינו תקין" }, { status: 400 });
+    }
+
     league.name = body.name.trim();
     league.sport = body.sport.trim();
     league.location = body.location.trim();
     league.description = body.description?.trim() || "";
     league.status = body.status?.trim() || league.status;
+    league.image = image;
+    league.icon = image ? "" : icon;
 
     await league.save();
 
