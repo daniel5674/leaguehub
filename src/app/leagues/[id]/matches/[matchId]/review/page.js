@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Toast from "@/components/ui/Toast";
+import {
+  card,
+  input,
+  pageBg,
+  pageGlow,
+  secondaryButton,
+} from "@/lib/uiStyles";
 
 export default function ReviewMatchReportPage() {
   const { id, matchId } = useParams();
@@ -212,73 +219,93 @@ export default function ReviewMatchReportPage() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <p className="text-gray-500">טוען בדיקת דיווח...</p>
+      <main dir="rtl" className={pageBg}>
+        <div className="relative z-10 mx-auto max-w-5xl">
+          <p className="text-gray-400">טוען בדיקת דיווח...</p>
+        </div>
       </main>
     );
   }
 
   if (!match) {
     return (
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <p className="text-red-500">המשחק לא נמצא</p>
+      <main dir="rtl" className={pageBg}>
+        <div className="relative z-10 mx-auto max-w-5xl">
+          <p className="text-red-300">המשחק לא נמצא</p>
+        </div>
       </main>
     );
   }
 
   if (!canManage) {
     return (
-      <main className="mx-auto max-w-5xl px-6 py-12">
-        <p className="text-red-500">אין לך הרשאה לצפות בדף הזה</p>
+      <main dir="rtl" className={pageBg}>
+        <div className="relative z-10 mx-auto max-w-5xl">
+          <p className="text-red-300">אין לך הרשאה לצפות בדף הזה</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main dir="rtl" className="min-h-screen bg-slate-100 px-6 py-10">
-      <div className="mx-auto max-w-5xl">
+    <main dir="rtl" className={pageBg}>
+      <div className={pageGlow}>
+        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] rounded-full bg-emerald-400/10 blur-3xl" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-5xl">
         <button
           type="button"
           onClick={() => router.push(`/leagues/${id}`)}
-          className="mb-6 rounded-2xl bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm"
+          className={`${secondaryButton} mb-6`}
         >
-          חזרה לליגה
+          ← חזרה לליגה
         </button>
 
-        <section className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
-          <h1 className="mb-8 text-center text-3xl font-black text-gray-900">
-            בדיקת דיווח משחק
-          </h1>
+        <section className={`${card} p-5 md:p-8`}>
+          <div className="mb-8 text-center">
+            <span className="inline-flex rounded-full bg-emerald-400/15 px-4 py-2 text-xs font-black text-emerald-300">
+              ניהול משחק
+            </span>
+            <h1 className="mt-3 text-3xl font-black text-white">
+              בדיקת דיווח משחק
+            </h1>
+          </div>
 
-          <div className="mb-8 flex items-center justify-between text-center">
-            <h2 className="flex-1 text-2xl font-black">{match.homeTeam}</h2>
+          <div className="mb-8 flex flex-col items-center justify-between gap-4 text-center md:flex-row">
+            <h2 className="flex-1 text-2xl font-black text-white">
+              {match.homeTeam}
+            </h2>
 
-            <div className="rounded-3xl bg-black px-8 py-5 text-white shadow-lg">
-              <div className="text-4xl font-black">
+            <div className="rounded-3xl border border-emerald-400/20 bg-slate-950/70 px-8 py-5 text-white shadow-lg shadow-emerald-950/30">
+              <div className="text-4xl font-black text-emerald-300">
                 {hasTwoReports
                   ? `${reports[0].homeScore} : ${reports[0].awayScore}`
                   : "- : -"}
               </div>
-              <div className="mt-1 text-sm text-gray-300">דיווח קפטנים</div>
+              <div className="mt-1 text-sm text-gray-400">דיווח קפטנים</div>
             </div>
 
-            <h2 className="flex-1 text-2xl font-black">{match.awayTeam}</h2>
+            <h2 className="flex-1 text-2xl font-black text-white">
+              {match.awayTeam}
+            </h2>
           </div>
 
           {reportsMatch ? (
-            <div className="mb-6 rounded-3xl border border-green-200 bg-green-50 p-5 text-center">
-              <p className="text-xl font-black text-green-700">
+            <div className="mb-6 rounded-3xl border border-emerald-400/25 bg-emerald-400/10 p-5 text-center">
+              <p className="text-xl font-black text-emerald-300">
                 ✅ הדיווחים תואמים
               </p>
             </div>
           ) : (
-            <div className="mb-6 rounded-3xl border border-red-200 bg-red-50 p-5 text-center">
-              <p className="text-xl font-black text-red-700">
+            <div className="mb-6 rounded-3xl border border-red-400/25 bg-red-400/10 p-5 text-center">
+              <p className="text-xl font-black text-red-300">
                 ❌ הדיווחים לא תואמים
               </p>
 
               {hasTwoReports && (
-                <div className="mt-4 text-sm font-bold text-red-700">
+                <div className="mt-4 text-sm font-bold text-red-300">
                   {!scoresMatch && <p>התוצאה לא תואמת</p>}
                   {!scorersMatch && <p>כובשי השערים לא תואמים</p>}
                   {!assistsMatch && <p>המבשלים לא תואמים</p>}
@@ -291,52 +318,52 @@ export default function ReviewMatchReportPage() {
             {reports.map((report, index) => (
               <div
                 key={index}
-                className="rounded-3xl border border-gray-200 bg-gray-50 p-5"
+                className="rounded-3xl border border-white/10 bg-slate-950/35 p-5"
               >
-                <h3 className="mb-4 text-xl font-black text-gray-900">
+                <h3 className="mb-4 text-xl font-black text-white">
                   דיווח {index + 1}
                 </h3>
 
-                <p className="font-bold text-gray-800">
+                <p className="font-bold text-gray-200">
                   קפטן: {report.captainName}
                 </p>
 
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-400">
                   קבוצה: {report.teamName}
                 </p>
 
-                <div className="mt-4 rounded-2xl bg-yellow-50 p-4">
-                  <p className="mb-2 font-black text-yellow-800">
+                <div className="mt-4 rounded-2xl border border-yellow-400/15 bg-yellow-400/[0.07] p-4">
+                  <p className="mb-2 font-black text-yellow-300">
                     ⭐ שחקן מצטיין שנבחר
                   </p>
 
                   {report.mvpPlayerName ? (
-                    <div className="rounded-xl bg-white px-3 py-2 text-sm">
+                    <div className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-sm text-gray-200">
                       ⭐ {report.mvpPlayerName}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500">לא נבחר שחקן מצטיין</p>
+                    <p className="text-sm text-gray-400">לא נבחר שחקן מצטיין</p>
                   )}
                 </div>
 
-                <div className="mt-5 rounded-2xl bg-white px-4 py-4 text-center">
-                  <p className="text-sm font-bold text-gray-500">תוצאה</p>
-                  <p className="mt-1 text-3xl font-black text-gray-900">
+                <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-4 text-center">
+                  <p className="text-sm font-bold text-gray-400">תוצאה</p>
+                  <p className="mt-1 text-3xl font-black text-emerald-300">
                     {report.homeScore} - {report.awayScore}
                   </p>
                 </div>
 
-                <div className="mt-4 rounded-2xl bg-green-50 p-4">
-                  <p className="mb-3 font-black text-green-800">כובשי שערים</p>
+                <div className="mt-4 rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.07] p-4">
+                  <p className="mb-3 font-black text-emerald-300">כובשי שערים</p>
 
                   {!report.scorers || report.scorers.length === 0 ? (
-                    <p className="text-sm text-gray-500">אין כובשים בדיווח</p>
+                    <p className="text-sm text-gray-400">אין כובשים בדיווח</p>
                   ) : (
                     <div className="space-y-2">
                       {report.scorers.map((scorer, scorerIndex) => (
                         <div
                           key={scorerIndex}
-                          className="rounded-xl bg-white px-3 py-2 text-sm"
+                          className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-sm text-gray-200"
                         >
                           ⚽ {scorer.playerName} | {scorer.teamName}
                         </div>
@@ -345,17 +372,17 @@ export default function ReviewMatchReportPage() {
                   )}
                 </div>
 
-                <div className="mt-4 rounded-2xl bg-yellow-50 p-4">
-                  <p className="mb-3 font-black text-yellow-800">מבשלי שערים</p>
+                <div className="mt-4 rounded-2xl border border-yellow-400/15 bg-yellow-400/[0.07] p-4">
+                  <p className="mb-3 font-black text-yellow-300">מבשלי שערים</p>
 
                   {!report.assists || report.assists.length === 0 ? (
-                    <p className="text-sm text-gray-500">אין בישולים בדיווח</p>
+                    <p className="text-sm text-gray-400">אין בישולים בדיווח</p>
                   ) : (
                     <div className="space-y-2">
                       {report.assists.map((assist, assistIndex) => (
                         <div
                           key={assistIndex}
-                          className="rounded-xl bg-white px-3 py-2 text-sm"
+                          className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-sm text-gray-200"
                         >
                           🅰️ {assist.playerName} | {assist.teamName}
                         </div>
@@ -364,13 +391,13 @@ export default function ReviewMatchReportPage() {
                   )}
                 </div>
 
-                <div className="mt-4 rounded-2xl bg-blue-50 p-4">
-                  <p className="mb-3 font-black text-blue-800">
+                <div className="mt-4 rounded-2xl border border-blue-400/15 bg-blue-400/[0.07] p-4">
+                  <p className="mb-3 font-black text-blue-300">
                     כרטיסים כחולים
                   </p>
 
                   {!report.blueCards || report.blueCards.length === 0 ? (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-400">
                       אין כרטיסים כחולים בדיווח
                     </p>
                   ) : (
@@ -378,7 +405,7 @@ export default function ReviewMatchReportPage() {
                       {report.blueCards.map((card, cardIndex) => (
                         <div
                           key={cardIndex}
-                          className="rounded-xl bg-white px-3 py-2 text-sm"
+                          className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-sm text-gray-200"
                         >
                           🔵 {card.playerName} | {card.teamName}
                           {card.minute ? ` | דקה ${card.minute}` : ""}
@@ -392,12 +419,12 @@ export default function ReviewMatchReportPage() {
           </div>
 
           {hasMvpConflict && (
-            <div className="mb-6 rounded-3xl border border-yellow-200 bg-yellow-50 p-6">
-              <h3 className="mb-4 text-xl font-black text-yellow-800">
+            <div className="mt-6 rounded-3xl border border-yellow-400/20 bg-yellow-400/[0.07] p-6">
+              <h3 className="mb-4 text-xl font-black text-yellow-300">
                 ⭐ הקפטנים בחרו MVP שונה
               </h3>
 
-              <p className="mb-4 text-sm text-gray-600">
+              <p className="mb-4 text-sm text-gray-400">
                 בחר את ה-MVP הסופי לפני אישור המשחק
               </p>
 
@@ -413,7 +440,7 @@ export default function ReviewMatchReportPage() {
                     playerName: selected?.playerName || "",
                   });
                 }}
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3"
+                className={`${input} w-full`}
               >
                 <option value="">בחר MVP סופי</option>
 
