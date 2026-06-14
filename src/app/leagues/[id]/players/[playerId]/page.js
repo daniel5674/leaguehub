@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import {
   pageBg,
@@ -24,7 +25,10 @@ export default function PlayerPage() {
 
   const [league, setLeague] = useState(null);
   const [playerData, setPlayerData] = useState(null);
+  const [publicUser, setPublicUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [friendActionLoading, setFriendActionLoading] = useState(false);
+  const [friendMessage, setFriendMessage] = useState("");
 
   useEffect(() => {
     const fetchLeague = async () => {
@@ -107,9 +111,22 @@ export default function PlayerPage() {
 
             const profileData = await profileRes.json();
 
-            if (profileRes.ok) {
-              globalProfile = profileData;
+          if (profileRes.ok) {
+            globalProfile = profileData;
+
+            if (profileData.userId) {
+              try {
+                const userRes = await fetch(`/api/users/${profileData.userId}`, {
+                  credentials: "include",
+                  cache: "no-store",
+                });
+                const userData = await userRes.json();
+                if (userRes.ok) setPublicUser(userData);
+              } catch (error) {
+                console.error("Failed to fetch public user:", error);
+              }
             }
+          }
           } catch (error) {
             console.error("Failed to fetch global player profile:", error);
           }
@@ -225,6 +242,46 @@ export default function PlayerPage() {
     }
   };
 
+  const runFriendAction = async (url, options) => {
+    try {
+      setFriendActionLoading(true);
+      setFriendMessage("");
+      const res = await fetch(url, {
+        credentials: "include",
+        ...options,
+        headers: options?.body ? { "Content-Type": "application/json" } : {},
+      });
+      const data = await res.json();
+      setFriendMessage(data.message || "");
+      if (!res.ok) return;
+
+      if (options.method === "POST") {
+        setPublicUser((current) => ({
+          ...current,
+          friendship: {
+            id: data.id,
+            status: "pending",
+            direction: "outgoing",
+          },
+        }));
+      } else if (options.method === "DELETE") {
+        setPublicUser((current) => ({ ...current, friendship: null }));
+      } else if (options.body?.includes("accept")) {
+        setPublicUser((current) => ({
+          ...current,
+          friendship: { ...current.friendship, status: "accepted" },
+        }));
+      } else {
+        setPublicUser((current) => ({ ...current, friendship: null }));
+      }
+    } catch (error) {
+      console.error("Friend action failed:", error);
+      setFriendMessage("משהו השתבש, נסה שוב");
+    } finally {
+      setFriendActionLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <main dir="rtl" className={pageBg}>
@@ -315,9 +372,18 @@ export default function PlayerPage() {
                     פרופיל שחקן
                   </p>
 
-                  <h1 className="mt-1 text-3xl font-black md:text-4xl">
-                    {playerData.fullName}
-                  </h1>
+                  {publicUser?.id ? (
+                    <Link
+                      href={`/users/${publicUser.id}`}
+                      className="mt-1 block text-3xl font-black underline decoration-emerald-300/40 underline-offset-8 transition hover:text-emerald-300 md:text-4xl"
+                    >
+                      {playerData.fullName}
+                    </Link>
+                  ) : (
+                    <h1 className="mt-1 text-3xl font-black md:text-4xl">
+                      {playerData.fullName}
+                    </h1>
+                  )}
 
                   <p className="mt-2 text-sm text-slate-300">
                     {playerData.email}
@@ -350,6 +416,110 @@ export default function PlayerPage() {
                       </span>
                     )}
                   </div>
+
+                  {publicUser && !publicUser.isCurrentUser && (
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {!publicUser.friendship && (
+                        <button
+                          type="button"
+                          disabled={friendActionLoading}
+                          onClick={() =>
+                            runFriendAction("/api/friends", {
+                              method: "POST",
+                              body: JSON.stringify({
+                                recipientId: publicUser.id,
+                              }),
+                            })
+                          }
+                          className={primaryButton}
+                        >
+                          שלח בקשת חברות
+                        </button>
+                      )}
+
+                      {publicUser.friendship?.status === "pending" &&
+                        publicUser.friendship.direction === "outgoing" && (
+                          <button
+                            type="button"
+                            disabled={friendActionLoading}
+                            onClick={() =>
+                              runFriendAction(
+                                `/api/friends/${publicUser.friendship.id}`,
+                                { method: "DELETE" }
+                              )
+                            }
+                            className={secondaryButton}
+                          >
+                            בקשה נשלחה - בטל
+                          </button>
+                        )}
+
+                      {publicUser.friendship?.status === "pending" &&
+                        publicUser.friendship.direction === "incoming" && (
+                          <>
+                            <button
+                              type="button"
+                              disabled={friendActionLoading}
+                              onClick={() =>
+                                runFriendAction(
+                                  `/api/friends/${publicUser.friendship.id}`,
+                                  {
+                                    method: "PATCH",
+                                    body: JSON.stringify({ action: "accept" }),
+                                  }
+                                )
+                              }
+                              className={primaryButton}
+                            >
+                              אשר בקשת חברות
+                            </button>
+                            <button
+                              type="button"
+                              disabled={friendActionLoading}
+                              onClick={() =>
+                                runFriendAction(
+                                  `/api/friends/${publicUser.friendship.id}`,
+                                  {
+                                    method: "PATCH",
+                                    body: JSON.stringify({ action: "reject" }),
+                                  }
+                                )
+                              }
+                              className={secondaryButton}
+                            >
+                              דחה
+                            </button>
+                          </>
+                        )}
+
+                      {publicUser.friendship?.status === "accepted" && (
+                        <>
+                          <Link href="/friends" className={primaryButton}>
+                            חברים
+                          </Link>
+                          <button
+                            type="button"
+                            disabled={friendActionLoading}
+                            onClick={() =>
+                              runFriendAction(
+                                `/api/friends/${publicUser.friendship.id}`,
+                                { method: "DELETE" }
+                              )
+                            }
+                            className={secondaryButton}
+                          >
+                            הסר חבר
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {friendMessage && (
+                    <p className="mt-3 text-sm font-bold text-emerald-200">
+                      {friendMessage}
+                    </p>
+                  )}
                 </div>
               </div>
 

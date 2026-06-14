@@ -9,6 +9,7 @@ import {
   pageGlow,
   card,
   softCard,
+  primaryButton,
   secondaryButton,
 } from "@/lib/uiStyles";
 
@@ -17,6 +18,8 @@ export default function UserProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [friendActionLoading, setFriendActionLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -37,6 +40,46 @@ export default function UserProfilePage() {
     if (id) fetchUser();
   }, [id]);
 
+  const runFriendAction = async (url, options) => {
+    try {
+      setFriendActionLoading(true);
+      setMessage("");
+      const res = await fetch(url, {
+        credentials: "include",
+        ...options,
+        headers: options?.body ? { "Content-Type": "application/json" } : {},
+      });
+      const data = await res.json();
+      setMessage(data.message || "");
+      if (!res.ok) return;
+
+      if (options.method === "POST") {
+        setUser((current) => ({
+          ...current,
+          friendship: {
+            id: data.id,
+            status: "pending",
+            direction: "outgoing",
+          },
+        }));
+      } else if (options.method === "DELETE") {
+        setUser((current) => ({ ...current, friendship: null }));
+      } else if (options.body?.includes("accept")) {
+        setUser((current) => ({
+          ...current,
+          friendship: { ...current.friendship, status: "accepted" },
+        }));
+      } else {
+        setUser((current) => ({ ...current, friendship: null }));
+      }
+    } catch (error) {
+      console.error("Friend action failed:", error);
+      setMessage("משהו השתבש, נסה שוב");
+    } finally {
+      setFriendActionLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <main dir="rtl" className={pageBg}>
@@ -54,6 +97,13 @@ export default function UserProfilePage() {
       </main>
     );
   }
+
+  const playerCardMembership = user.memberships.find(
+    (membership) => membership.playerId
+  );
+  const playerCardHref = playerCardMembership
+    ? `/leagues/${playerCardMembership.leagueId}/players/${playerCardMembership.playerId}`
+    : "";
 
   return (
     <main dir="rtl" className={pageBg}>
@@ -91,10 +141,119 @@ export default function UserProfilePage() {
               <span className="rounded-full bg-emerald-400/15 px-4 py-1 text-sm font-bold text-emerald-300">
                 {user.role === "player" ? "שחקן רשום" : "מנהל רשום"}
               </span>
-              <h1 className="mt-3 text-3xl font-black">{user.fullName}</h1>
+              {playerCardHref ? (
+                <Link
+                  href={playerCardHref}
+                  className="mt-3 block text-3xl font-black underline decoration-emerald-300/40 underline-offset-8 transition hover:text-emerald-300"
+                >
+                  {user.fullName}
+                </Link>
+              ) : (
+                <h1 className="mt-3 text-3xl font-black">{user.fullName}</h1>
+              )}
               {user.position && (
                 <p className="mt-2 text-sm text-slate-300">
                   עמדה: {user.position}
+                </p>
+              )}
+
+              {!user.isCurrentUser && (
+                <div className="mt-5 flex flex-wrap justify-center gap-2">
+                  {!user.friendship && (
+                    <button
+                      type="button"
+                      disabled={friendActionLoading}
+                      onClick={() =>
+                        runFriendAction("/api/friends", {
+                          method: "POST",
+                          body: JSON.stringify({ recipientId: user.id }),
+                        })
+                      }
+                      className={primaryButton}
+                    >
+                      שלח בקשת חברות
+                    </button>
+                  )}
+
+                  {user.friendship?.status === "pending" &&
+                    user.friendship.direction === "outgoing" && (
+                      <button
+                        type="button"
+                        disabled={friendActionLoading}
+                        onClick={() =>
+                          runFriendAction(`/api/friends/${user.friendship.id}`, {
+                            method: "DELETE",
+                          })
+                        }
+                        className={secondaryButton}
+                      >
+                        בקשה נשלחה - בטל
+                      </button>
+                    )}
+
+                  {user.friendship?.status === "pending" &&
+                    user.friendship.direction === "incoming" && (
+                      <>
+                        <button
+                          type="button"
+                          disabled={friendActionLoading}
+                          onClick={() =>
+                            runFriendAction(
+                              `/api/friends/${user.friendship.id}`,
+                              {
+                                method: "PATCH",
+                                body: JSON.stringify({ action: "accept" }),
+                              }
+                            )
+                          }
+                          className={primaryButton}
+                        >
+                          אשר בקשת חברות
+                        </button>
+                        <button
+                          type="button"
+                          disabled={friendActionLoading}
+                          onClick={() =>
+                            runFriendAction(
+                              `/api/friends/${user.friendship.id}`,
+                              {
+                                method: "PATCH",
+                                body: JSON.stringify({ action: "reject" }),
+                              }
+                            )
+                          }
+                          className={secondaryButton}
+                        >
+                          דחה
+                        </button>
+                      </>
+                    )}
+
+                  {user.friendship?.status === "accepted" && (
+                    <>
+                      <Link href="/friends" className={primaryButton}>
+                        חברים
+                      </Link>
+                      <button
+                        type="button"
+                        disabled={friendActionLoading}
+                        onClick={() =>
+                          runFriendAction(`/api/friends/${user.friendship.id}`, {
+                            method: "DELETE",
+                          })
+                        }
+                        className={secondaryButton}
+                      >
+                        הסר חבר
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {message && (
+                <p className="mt-3 text-sm font-bold text-emerald-200">
+                  {message}
                 </p>
               )}
             </div>
