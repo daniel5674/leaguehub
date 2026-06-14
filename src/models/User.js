@@ -36,6 +36,8 @@ const UserSchema = new mongoose.Schema(
         teamName: { type: String, default: "" },
 
         matchId: { type: String, default: "" },
+        actorUserId: { type: String, default: "" },
+        actorName: { type: String, default: "" },
 
         actionType: {
           type: String,
@@ -55,11 +57,21 @@ const User = mongoose.models.User || mongoose.model("User", UserSchema);
 
 const notificationsSchema = User.schema.path("notifications")?.schema;
 
-if (notificationsSchema && !notificationsSchema.path("invitationId")) {
-  notificationsSchema.add({
-    invitationId: { type: String, default: "" },
-    teamName: { type: String, default: "" },
-  });
+if (notificationsSchema) {
+  const missingNotificationFields = {};
+
+  if (!notificationsSchema.path("invitationId")) {
+    missingNotificationFields.invitationId = { type: String, default: "" };
+    missingNotificationFields.teamName = { type: String, default: "" };
+  }
+  if (!notificationsSchema.path("actorUserId")) {
+    missingNotificationFields.actorUserId = { type: String, default: "" };
+    missingNotificationFields.actorName = { type: String, default: "" };
+  }
+
+  if (Object.keys(missingNotificationFields).length > 0) {
+    notificationsSchema.add(missingNotificationFields);
+  }
 }
 
 export default User;

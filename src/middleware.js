@@ -8,6 +8,7 @@ export function middleware(request) {
     "/my-leagues",
     "/notifications",
     "/profile",
+    "/friends",
   ];
 
   const isProtected = protectedRoutes.some((route) =>
@@ -28,5 +29,6 @@ export const config = {
     "/my-leagues/:path*",
     "/notifications/:path*",
     "/profile/:path*",
+    "/friends/:path*",
   ],
 };

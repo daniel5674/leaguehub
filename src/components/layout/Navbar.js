@@ -231,6 +231,7 @@ export default function Navbar() {
 
   const privateLinks = [
     { href: "/my-leagues", label: "הליגות שלי" },
+    { href: "/friends", label: "חברים" },
 
     ...(currentUser?.role === "manager"
       ? [{ href: "/leagues/create", label: "צור ליגה" }]
@@ -462,7 +463,33 @@ export default function Navbar() {
                                     : "bg-emerald-400/10 font-bold text-slate-100"
                                 }`}
                               >
-                                <p>{n.message}</p>
+                                {n.actionType === "friend-request" &&
+                                n.actorUserId ? (
+                                  <p>
+                                    <Link
+                                      href={`/users/${n.actorUserId}`}
+                                      onClick={() => setNotificationsOpen(false)}
+                                      className="font-black text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 transition hover:text-emerald-200"
+                                    >
+                                      {n.actorName || "משתמש"}
+                                    </Link>{" "}
+                                    שלח לך בקשת חברות
+                                  </p>
+                                ) : n.actionType === "friend-accepted" &&
+                                  n.actorUserId ? (
+                                  <p>
+                                    <Link
+                                      href={`/users/${n.actorUserId}`}
+                                      onClick={() => setNotificationsOpen(false)}
+                                      className="font-black text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 transition hover:text-emerald-200"
+                                    >
+                                      {n.actorName || "משתמש"}
+                                    </Link>{" "}
+                                    אישר את בקשת החברות שלך
+                                  </p>
+                                ) : (
+                                  <p>{n.message}</p>
+                                )}
 
                                 {n.leagueName && (
                                   <p className="mt-0.5 text-xs text-slate-500">
@@ -528,6 +555,20 @@ export default function Navbar() {
                                       </button>
                                     </div>
                                   </>
+                                )}
+
+                                {(n.actionType === "friend-request" ||
+                                  n.actionType === "friend-accepted") && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setNotificationsOpen(false);
+                                      router.push("/friends");
+                                    }}
+                                    className="mt-3 block w-full rounded-xl bg-emerald-400 px-3 py-2 text-center text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+                                  >
+                                    לעמוד החברים
+                                  </button>
                                 )}
                               </div>
                             ))}
