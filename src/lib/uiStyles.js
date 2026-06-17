@@ -1,5 +1,5 @@
 export const pageBg =
-  "relative min-h-screen overflow-hidden px-4 py-8 text-white";
+  "stadium-bg relative min-h-screen overflow-x-hidden px-4 py-8 text-white";
 
 export const pageGlow = "pointer-events-none absolute inset-0 overflow-hidden";
 
