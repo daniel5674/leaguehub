@@ -34,8 +34,6 @@ export async function PATCH(request, { params }) {
       league.members = [];
     }
 
-    const normalizedCurrentEmail = currentUser.email?.trim().toLowerCase();
-
     const isOwner =
       String(league.createdBy) === String(currentUser.email) ||
       String(league.createdBy) === String(currentUser.userId);
@@ -60,21 +58,9 @@ export async function PATCH(request, { params }) {
         joinRequest.teamName?.trim().toLowerCase()
     );
 
-    const isCoachOfTeam =
-      teamIndex !== -1 &&
-      league.teams[teamIndex].coachEmail?.trim().toLowerCase() ===
-        normalizedCurrentEmail;
-
-    if (joinRequest.type === "coach" && !isOwner) {
+    if (!isOwner) {
       return NextResponse.json(
-        { message: "רק מנהל יכול לאשר מאמן" },
-        { status: 403 }
-      );
-    }
-
-    if (joinRequest.type === "player" && !isCoachOfTeam && !isOwner) {
-      return NextResponse.json(
-        { message: "רק מאמן הקבוצה או מנהל הליגה יכול לאשר שחקן" },
+        { message: "רק מנהל הליגה יכול לטפל בבקשות הצטרפות" },
         { status: 403 }
       );
     }

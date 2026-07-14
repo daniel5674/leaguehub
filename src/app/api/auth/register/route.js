@@ -15,7 +15,7 @@ export async function POST(request) {
       );
     }
 
-    if (!["manager", "player", "coach"].includes(role)) {
+    if (!["manager", "player"].includes(role)) {
       return NextResponse.json(
         { message: "סוג משתמש לא תקין" },
         { status: 400 }
