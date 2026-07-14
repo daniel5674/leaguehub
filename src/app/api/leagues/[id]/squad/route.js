@@ -29,7 +29,6 @@ export async function POST(request, { params }) {
       return NextResponse.json({ message: "הליגה לא נמצאה" }, { status: 404 });
     }
 
-    const normalizedEmail = currentUser.email?.trim().toLowerCase();
     const normalizedTeamName = teamName.trim().toLowerCase();
     const trimmedPlayerName = playerName.trim();
 
@@ -47,9 +46,7 @@ export async function POST(request, { params }) {
       String(league.createdBy) === String(currentUser.email) ||
       String(league.createdBy) === String(currentUser.userId);
 
-    const isCoach = team.coachEmail?.trim().toLowerCase() === normalizedEmail;
-
-    if (!isOwner && !isCoach) {
+    if (!isOwner) {
       return NextResponse.json(
         { message: "אין הרשאה לעדכן את סגל הקבוצה" },
         { status: 403 }
@@ -119,7 +116,6 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ message: "הליגה לא נמצאה" }, { status: 404 });
     }
 
-    const normalizedEmail = currentUser.email?.trim().toLowerCase();
     const normalizedTeamName = teamName.trim().toLowerCase();
     const trimmedPlayerName = playerName.trim();
 
@@ -137,9 +133,7 @@ export async function DELETE(request, { params }) {
       String(league.createdBy) === String(currentUser.email) ||
       String(league.createdBy) === String(currentUser.userId);
 
-    const isCoach = team.coachEmail?.trim().toLowerCase() === normalizedEmail;
-
-    if (!isOwner && !isCoach) {
+    if (!isOwner) {
       return NextResponse.json(
         { message: "אין הרשאה לעדכן את סגל הקבוצה" },
         { status: 403 }
