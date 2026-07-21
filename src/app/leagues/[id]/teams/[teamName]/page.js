@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function TeamPage() {
   const { id, teamName } = useParams();
   const router = useRouter();
+  const { currentUser } = useAuth();
 
   const decodedTeamName = decodeURIComponent(teamName);
 
@@ -14,6 +16,13 @@ export default function TeamPage() {
   const [team, setTeam] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
+  const [removingPlayer, setRemovingPlayer] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    window.setTimeout(() => setToast(null), 3000);
+  };
 
   const fetchLeague = async () => {
     try {
@@ -51,6 +60,57 @@ export default function TeamPage() {
   }, [league, decodedTeamName]);
 
   const captain = team?.players?.find((player) => player.isCaptain);
+
+  const isOwner =
+    league &&
+    currentUser &&
+    (String(league.createdBy) === String(currentUser.email) ||
+      String(league.createdBy) ===
+        String(currentUser._id || currentUser.id));
+
+  const handleRemovePlayer = async (player) => {
+    const playerName = player.fullName || player.email;
+
+    if (!player.email) {
+      showToast("לא ניתן להסיר שחקן ללא כתובת אימייל", "error");
+      return;
+    }
+
+    if (!window.confirm(`להסיר את ${playerName} מהקבוצה?`)) return;
+
+    const playerKey = player.playerId || player.email;
+    setRemovingPlayer(playerKey);
+
+    try {
+      const res = await fetch(`/api/leagues/${id}/players`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          playerEmail: player.email,
+          teamName: decodedTeamName,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast(data.message || "שגיאה בהסרת השחקן", "error");
+        return;
+      }
+
+      const updatedTeam = data.teams?.find(
+        (item) => item.name === decodedTeamName
+      );
+      setLeague(data);
+      setTeam(updatedTeam || null);
+      showToast(`${playerName} הוסר מהקבוצה`);
+    } catch (error) {
+      console.error("Failed to remove player:", error);
+      showToast("שגיאה בהסרת השחקן", "error");
+    } finally {
+      setRemovingPlayer(null);
+    }
+  };
 
   const teamMatches = useMemo(() => {
     return (
@@ -215,6 +275,19 @@ export default function TeamPage() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-6xl">
+        {toast && (
+          <div
+            role="status"
+            className={`fixed right-6 top-24 z-50 rounded-2xl px-5 py-3 text-sm font-black shadow-2xl ${
+              toast.type === "error"
+                ? "bg-red-500 text-white"
+                : "bg-emerald-400 text-slate-950"
+            }`}
+          >
+            {toast.message}
+          </div>
+        )}
+
         <button
           type="button"
           onClick={() => router.push(`/leagues/${id}`)}
@@ -369,12 +442,21 @@ export default function TeamPage() {
                 const stats = getPlayerStats(player);
 
                 return (
-                  <button
+                  <div
                     key={player.playerId || player.email}
-                    type="button"
+                    role="link"
+                    tabIndex={0}
                     onClick={() =>
                       router.push(`/leagues/${id}/players/${player.playerId}`)
                     }
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        router.push(
+                          `/leagues/${id}/players/${player.playerId}`
+                        );
+                      }
+                    }}
                     className="flex w-full items-center justify-between rounded-2xl border border-white/20 bg-[#173326]/55 px-4 py-3 text-right backdrop-blur-sm transition hover:bg-[#173326]/75"
                   >
                     <div className="flex items-center gap-3">
@@ -393,15 +475,37 @@ export default function TeamPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs font-black text-gray-300">
-                      <span>⚽ {stats.goals}</span>
-                      <span>🅰️ {stats.assists}</span>
-                      <span>🏆 {stats.mvpAwards}</span>
-                      {player.isCaptain && (
-                        <span className="text-yellow-300">קפטן</span>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 text-xs font-black text-gray-300">
+                        <span>⚽ {stats.goals}</span>
+                        <span>🅰️ {stats.assists}</span>
+                        <span>🏆 {stats.mvpAwards}</span>
+                        {player.isCaptain && (
+                          <span className="text-yellow-300">קפטן</span>
+                        )}
+                      </div>
+
+                      {isOwner && (
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleRemovePlayer(player);
+                          }}
+                          disabled={
+                            removingPlayer ===
+                            (player.playerId || player.email)
+                          }
+                          className="rounded-xl border border-red-400/30 bg-red-500/15 px-3 py-2 text-xs font-black text-red-300 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {removingPlayer ===
+                          (player.playerId || player.email)
+                            ? "מסיר..."
+                            : "הסרה מהקבוצה"}
+                        </button>
                       )}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
